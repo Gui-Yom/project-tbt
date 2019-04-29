@@ -16,7 +16,6 @@ public class Character {
 
 
     public Character(int x, int y, String type, char icon) {
-
         this.x = x;
         this.y = y;
         this.type = type;

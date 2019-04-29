@@ -1,1 +1,9 @@
-{}
+{
+  "type": "Recruit",
+  "icon": "R",
+  "portee": 5,
+  "hp": 100,
+  "mp": 50,
+  "defense": 20,
+  "dommagesAttaque": 10
+}

@@ -10,6 +10,7 @@ public abstract class AbstractPlayer {
 
     protected AnsiColors playerColor;
     protected List<Character> characters;
+    protected String name;
 
     public AbstractPlayer() {
 
@@ -30,9 +31,18 @@ public abstract class AbstractPlayer {
     public String toString() {
 
         return "AbstractPlayer{" +
+               "name=" + name +
                "playerColor=" + playerColor +
                ", characters=" + characters +
                '}';
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void addCharacter(Character c) {

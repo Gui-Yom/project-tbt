@@ -1,1 +1,9 @@
-{}
+{
+  "type": "Mage",
+  "icon": "▲",
+  "portee": 3,
+  "hp": 80,
+  "mp": 200,
+  "defense": 10,
+  "dommagesAttaque": 8
+}

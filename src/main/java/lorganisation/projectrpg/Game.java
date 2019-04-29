@@ -2,9 +2,11 @@ package lorganisation.projectrpg;
 
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.AnsiColors;
+import com.limelion.anscapes.AnsiColors.ColorFG;
 import com.limelion.anscapes.ImgConverter;
 import lorganisation.projectrpg.map.LevelMap;
 import lorganisation.projectrpg.player.AbstractPlayer;
+import lorganisation.projectrpg.player.Bot;
 import lorganisation.projectrpg.player.Character;
 import lorganisation.projectrpg.player.Player;
 import org.jline.reader.LineReader;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -137,8 +140,10 @@ public class Game {
 
         // Pour l'instant il s'agit d'une partie toute bête
 
-        AbstractPlayer player = new Player(AnsiColors.ColorFG.FG_YELLOW_BRIGHT);
+        //AbstractPlayer player = new Player(AnsiColors.ColorFG.FG_YELLOW_BRIGHT);
+        game.lobby(terminal);
         Coords startPos = level.getStartPos().get(0);
+        AbstractPlayer player = game.getPlayers().get(0);
         player.addCharacter(new Character(startPos.getX(), startPos.getY(), "Mage", 'M'));
 
         game.addPlayer(player);
@@ -224,6 +229,130 @@ public class Game {
     public void setMap(LevelMap map) {
 
         this.map = map;
+    }
+
+    /**
+     * Choix du nombre de joueurs et du nombre de personnages
+     */
+    public void lobby(Terminal terminal) { //Limiter nombre de joueurs et de persos par joueurs selon si
+        clearTerm();
+        System.out.println("Préparation - Lobby");
+
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .build();
+
+        // On récupère le nombre de personnage maximum par joueur ( <= nombre de personnages existant, interdiction de prendre 2 fois le même)
+        int characterCount;
+        String input;
+        do {
+            input = reader.readLine(" Entrez le nombre de personnages par joueur: ");
+            try {
+                characterCount = Integer.parseInt(input);
+
+                if(!(characterCount <= AssetsManager.characterNames().size() && characterCount > 0)) {
+                    System.out.println("Il doit y avoir au minimum 1 personnage par joueur, et au maximum "+AssetsManager.characterNames().size() + Anscapes.moveUp(2));
+                } else {
+                    break;
+                }
+            } catch(NumberFormatException e){
+                System.out.println("Veuillez entrer un nombre !");
+            }
+        } while (true);
+
+        AbstractPlayer player1 = new Player();
+            System.out.print(Anscapes.CLEAR_LINE);
+            player1.setName(reader.readLine("Joueur " + (getPlayerCount()+1) + ", lâche ton blaze bg: \n"));
+                player1.setColor(pickColor(terminal, player1));
+                    addPlayer(player1);
+        System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Lancer la partie (Autre)");
+        for (;;) {
+            char action = (char) this.input.getInput();
+            if (action == '*') { //Faire méthode createPlayer(boolean isBot = true)
+                AbstractPlayer bot = new Bot();
+                    System.out.print(Anscapes.CLEAR_LINE);
+                    String botName = "BOT " + (getBotCount()+1);
+                        System.out.println(botName);
+                            bot.setName(botName);
+                                bot.setColor(pickColor(terminal, bot));
+                                    addPlayer(bot);
+            } else if (action == '+'){ //Faire méthode createPlayer(boolean isBot=false)
+                AbstractPlayer player = new Player();
+                    System.out.print(Anscapes.CLEAR_LINE);
+                    player.setName(reader.readLine("Joueur " + (getPlayerCount()+1) + ", lâche ton blaze bg: \n"));
+                        player.setColor(pickColor(terminal, player));
+                            addPlayer(player);
+            } else {
+                break;
+            }
+            System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Lancer la partie (Autre)");
+        }
+
+        //Si joueur tout seul alors rajouter BOT
+
+    }
+
+    /**
+     * Donne le nombre de joueurs non-bot dans la partie
+     */
+    public int getPlayerCount() {
+        int count = 0;
+
+        for (AbstractPlayer player : getPlayers())
+            if(!player.isBot())
+                count++;
+
+        return count;
+    }
+
+
+    /**
+     * Donne le nombre de BOTs non-bot dans la partie
+     */
+    public int getBotCount() {
+        return getPlayers().size() - getPlayerCount();
+    }
+
+    /**
+     * Selection d'une couleur, une par joueurs, utilisé dans lobby()
+     */
+    public ColorFG pickColor(Terminal terminal, AbstractPlayer picker) { //Créer méthodes writeLine pour avoir affichage propre, getLine pour récupérer proprement un String, getKey pour récupérer proprement une touche
+
+        //Récupère couleurs dispo. (non utilisées par autres joueurs) => Faire méthode
+        ColorFG[] colors = ColorFG.values();
+        List<ColorFG> availableColors = new ArrayList<>();
+        for (ColorFG color : colors) {
+            availableColors.add(color);
+            for (AbstractPlayer player : getPlayers())
+                if (player.getColor() == color) // Aussi enlever les couleurs utilisées par la map sélectionnée histoire de pas avoir de perso invisible
+                    availableColors.remove(color);
+        }
+
+        System.out.print(Anscapes.moveUp(1)); // Retour à la ligne ou le mec a mis son pseudo
+
+        int currentColor = 0;
+        for (;;) {
+            System.out.print(availableColors.get(currentColor) + picker.getName() + Anscapes.RESET); // Réécrit le pseudo avec la bonne couleur
+
+            char read = (char) input.getInput();
+            if (read == '.') break; // Pas trouvé comment récupérer si il appuie sur entrer
+
+            switch(read) {
+                case 'q': {
+                    currentColor = (currentColor + availableColors.size() - 1) % availableColors.size();
+                    break;
+                }
+                case 'd': {
+                    currentColor = (currentColor+1) % availableColors.size();
+                    break;
+                }
+            }
+            System.out.print(Anscapes.moveLeft(picker.getName().length() + 1)); //On revient au début de la ligne
+        }
+        System.out.println();
+
+
+        return availableColors.get(currentColor);
     }
 
     /**
