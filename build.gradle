@@ -61,11 +61,16 @@ task copyScripts(type: Copy) {
     into "$buildDir/libs"
 }
 
-// Works nicely
-task play(type: Exec) {
+task bundle {
 
     dependsOn shadowJar
     dependsOn copyScripts
+}
+
+// Works nicely
+task play(type: Exec) {
+
+    dependsOn bundle
 
     workingDir "$buildDir/libs"
     if (System.properties['os.name'].toLowerCase().contains('windows')) {
@@ -73,7 +78,7 @@ task play(type: Exec) {
         commandLine "C:/Windows/System32/cmd.exe", "/C start cmd /C call start.bat"
     } else {
         // Unix
-        commandLine ""
+        commandLine "echo Not supported"
     }
 }
 
