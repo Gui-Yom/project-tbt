@@ -1,0 +1,39 @@
+// Blank map, 10x10 with borders
+// The map name comes from the filename
+// Map description
+desc A simple 10x10 blank map
+
+// Conversion map, need to be defined before map definition
+// def <char> <tile>
+def * ROCK
+def   BLANK
+
+// Define size before any other definition
+// size <width> <height>
+size 10 10
+
+// Max number of players
+// max <int>
+max 4
+
+// Define the map
+// map
+// n lines
+map
+**********
+*        *
+*        *
+*        *
+*        *
+*        *
+*        *
+*        *
+*        *
+**********
+
+// Define starting positions
+// startpos <x> <y>
+startpos 1 1
+startpos 8 1
+startpos 1 8
+startpos 8 8

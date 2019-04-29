@@ -1,0 +1,43 @@
+desc Nice plains with river
+
+def * ROCK
+def   BLANK
+def O WATER
+
+size 27 20
+
+max 4
+
+map
+OO******************
+*OOO               *
+* OO               *
+* OO               *
+*  OOO             *
+*   OO             *
+*    OO            *
+*    OO            *
+*    OO            *
+*     OO           *
+*      OO          *
+*      OO          *
+*       O          *
+*                  *
+*          O       *
+*          OO      *
+*          OO      *
+*           OO     *
+*            OO    *
+*            OO    *
+*            OO    *
+*             OO   *
+*             OOO  *
+*               OO *
+*               OO *
+*               OOO*
+******************OO
+
+startpos 3 10
+startpos 4 16
+startpos 22 10
+startpos 21 4

@@ -1,0 +1,84 @@
+plugins {
+    id "java"
+    id "application"
+    id "maven"
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+    // JitPack
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+def jlineVersion = "3.11.0"
+
+dependencies {
+    implementation "org.jline:jline-terminal:$jlineVersion"
+    //implementation "org.jline:jline-terminal-jna:$jlineVersion"
+    implementation "org.jline:jline-terminal-jansi:$jlineVersion"
+    implementation "org.jline:jline-style:$jlineVersion"
+    implementation "org.jline:jline-reader:$jlineVersion"
+    implementation "com.github.LimeiloN:anscapes:0.2.0"
+    implementation "com.google.code.gson:gson:2.8.5"
+}
+
+// Define the main class for the application
+mainClassName = "lorganisation.projectrpg.Game"
+//mainClassName = "lorganisation.projectrpg.experiments.ResourceTest"
+group = "lorganisation"
+version = "0.1.0"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+/*
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = "javadoc"
+    from javadoc.destinationDir
+}
+*/
+
+shadowJar {
+    archiveFileName = "project-rpg.jar"
+    manifest {
+        attributes "Main-Class": mainClassName
+    }
+}
+
+task copyScripts(type: Copy) {
+
+    from "src/main/scripts"
+    include "*"
+    into "$buildDir/libs"
+}
+
+// Works nicely
+task play(type: Exec) {
+
+    dependsOn shadowJar
+    dependsOn copyScripts
+
+    workingDir "$buildDir/libs"
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+        // Windows
+        commandLine "C:/Windows/System32/cmd.exe", "/C start cmd /C call start.bat"
+    } else {
+        // Unix
+        commandLine ""
+    }
+}
+
+/*
+clean.doFirst {
+    delete "temp"
+}
+*/

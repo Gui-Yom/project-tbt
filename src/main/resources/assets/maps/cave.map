@@ -1,0 +1,34 @@
+desc Cave
+
+def * ROCK
+def   BLANK
+def O WATER
+
+size 20 20
+
+max 2
+
+map
+           *******  !
+          *       O !
+          *      OO !
+         *   *  *   !
+        *      *    !
+       * *   **     !
+    ***     *       !
+ ***       *        !
+*      ***  *       !
+*OO   *   * *       !
+*OO   *   * *       !
+*      ***  *       !
+ ***       *        !
+    ***     *       !
+       * *   **     !
+        *      *    !
+         *   *  *   !
+          *      OO !
+          *       O !
+           *******  !
+
+startpos 1 17
+startpos 18 17

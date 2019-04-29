@@ -1,0 +1,11 @@
+{
+  "maps": {
+    "Blankmap": "blankmap.map",
+    "River": "river.map",
+    "Cave": "cave.map"
+  },
+  "characters": {
+    "Recruit": "recruit.json",
+    "Mage": "mage.json"
+  }
+}
