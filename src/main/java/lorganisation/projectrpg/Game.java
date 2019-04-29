@@ -227,7 +227,7 @@ public class Game {
     }
 
     /**
-     * Lance la partie. La partie continue jusqu'a ce qu'un joueur gagne.
+     * Lance la partie. La partie continue à l'infinie pour l'instant. (ou jusqu'a ce que le joueur appuie sur A)
      */
     public void start() {
 

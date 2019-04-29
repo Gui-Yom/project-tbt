@@ -18,7 +18,7 @@ public class LevelMap {
     private static final Pattern validInstruction = Pattern.compile("^(\\S+) ?(.+)?$");
 
     String visual = null;
-    private Tile[][] tiles;
+    private Tiles[][] tiles;
     private int width;
     private int height;
     private String name;
@@ -31,7 +31,7 @@ public class LevelMap {
         this(width, height, blankLevel(width, height), name, "", 4, Collections.unmodifiableList(Collections.singletonList(new Coords(1, 1))));
     }
 
-    public LevelMap(int width, int height, Tile[][] tiles, String name, String description, int maxPlayers, List<Coords> startPos) {
+    public LevelMap(int width, int height, Tiles[][] tiles, String name, String description, int maxPlayers, List<Coords> startPos) {
 
         this.width = width;
         this.height = height;
@@ -62,16 +62,16 @@ public class LevelMap {
      *
      * @return une map vide avec bordures
      */
-    public static Tile[][] blankLevel(int width, int height) {
+    public static Tiles[][] blankLevel(int width, int height) {
 
-        Tile[][] level = new Tile[width][height];
+        Tiles[][] level = new Tiles[width][height];
 
         for (int i = 0; i < width; ++i)
             for (int j = 0; j < height; ++j)
                 if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
-                    level[i][j] = Tile.ROCK;
+                    level[i][j] = Tiles.ROCK;
                 else
-                    level[i][j] = Tile.BLANK;
+                    level[i][j] = Tiles.BLANK;
 
         return level;
     }
@@ -105,13 +105,13 @@ public class LevelMap {
         String line = null;
         int linenum = 0;
 
-        Map<Character, Tile> conversion = new HashMap<>();
+        Map<Character, Tiles> conversion = new HashMap<>();
         List<Coords> startpos = new ArrayList<>(1);
         String description = "default empty map";
         int width = 10;
         int height = 10;
         int maxplayer = 1;
-        Tile[][] mapdata = null;
+        Tiles[][] mapdata = null;
 
         while (scanner.hasNextLine()) {
 
@@ -152,11 +152,11 @@ public class LevelMap {
                             String params = m.group(2);
                             if (params.startsWith(" ")) {
                                 params = params.trim();
-                                conversion.put(' ', Tile.valueOf(params));
+                                conversion.put(' ', Tiles.valueOf(params));
                             } else {
                                 String[] paramsArr = params.split(" ");
                                 if (paramsArr.length == 2)
-                                    conversion.put(paramsArr[0].charAt(0), Tile.valueOf(paramsArr[1]));
+                                    conversion.put(paramsArr[0].charAt(0), Tiles.valueOf(paramsArr[1]));
                                 else
                                     System.err.println("Ligne " + linenum + " : 2 paramètres sont attendus.");
                             }
@@ -191,7 +191,7 @@ public class LevelMap {
                         break;
 
                     case "map":
-                        mapdata = new Tile[width][height];
+                        mapdata = new Tiles[width][height];
                         for (int i = 0; i < width; ++i) {
                             line = scanner.nextLine().replaceAll("!", "");
                             ++linenum;
@@ -230,7 +230,7 @@ public class LevelMap {
                             Collections.unmodifiableList(startpos));
     }
 
-    public Tile[][] getTiles() {
+    public Tiles[][] getTiles() {
 
         return tiles;
     }
