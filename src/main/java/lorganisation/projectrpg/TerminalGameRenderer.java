@@ -4,7 +4,7 @@ import com.limelion.anscapes.Anscapes;
 import lorganisation.projectrpg.player.Character;
 import org.jline.terminal.Terminal;
 
-public class TerminalGameRenderer extends GameRenderer {
+public class TerminalGameRenderer {
 
     private Terminal terminal;
 
@@ -14,12 +14,11 @@ public class TerminalGameRenderer extends GameRenderer {
         this.terminal = terminal;
     }
 
-    @Override
     public void render(Game g) {
 
         Character character = g.getPlayers().get(0).getCharacters().get(0);
 
-        Game.clearTerm();
+        Utils.clearTerm();
 
         write(0, 0, g.getMap().visual());
         write(0, g.getMap().getHeight() + 1, "x: " + character.getX() + ", y: " + character.getY());

@@ -4,7 +4,7 @@ import org.jline.terminal.Terminal;
 
 import java.io.IOException;
 
-public class TerminalGameInput extends GameInput {
+public class TerminalGameInput {
 
     private Terminal terminal;
 
@@ -14,7 +14,6 @@ public class TerminalGameInput extends GameInput {
         this.terminal = terminal;
     }
 
-    @Override
     public int getInput() {
 
         try {

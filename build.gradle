@@ -23,7 +23,7 @@ dependencies {
     implementation "org.jline:jline-terminal-jansi:$jlineVersion"
     implementation "org.jline:jline-style:$jlineVersion"
     implementation "org.jline:jline-reader:$jlineVersion"
-    implementation "com.github.LimeiloN:anscapes:0.3.0"
+    implementation "com.github.LimeiloN:anscapes:0.4.0"
     implementation "com.google.code.gson:gson:2.8.5"
 }
 

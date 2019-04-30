@@ -12,7 +12,7 @@ public class Bot extends AbstractPlayer {
     public Bot(List<Anscapes.Colors> availableColors) {
 
         // TODO remove bot name from list
-        super(Utils.pickRandom(AssetsManager.botNames()), Utils.pickRandomAndRemove(availableColors));
+        super("[BOT] " + Utils.pickRandom(AssetsManager.botNames()), Utils.pickRandomAndRemove(availableColors));
     }
 
     public Bot(String name, Anscapes.Colors color) {

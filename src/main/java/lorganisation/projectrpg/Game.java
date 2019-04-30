@@ -6,6 +6,7 @@ import lorganisation.projectrpg.map.LevelMap;
 import lorganisation.projectrpg.player.AbstractPlayer;
 import lorganisation.projectrpg.player.Bot;
 import lorganisation.projectrpg.player.Character;
+import lorganisation.projectrpg.player.Player;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -43,11 +44,13 @@ public class Game {
     /**
      * Gère le rendu à l'écran
      */
-    private GameRenderer renderer;
+    private TerminalGameRenderer renderer;
     /**
      * Gère les entrées utilisateurs
      */
-    private GameInput input;
+    private TerminalGameInput input;
+
+    private Terminal terminal;
 
     private List<Colors> availableColors;
 
@@ -59,10 +62,11 @@ public class Game {
      * @param renderer
      *     la sortie
      */
-    public Game(GameInput input, GameRenderer renderer) {
+    public Game(Terminal term, TerminalGameInput input, TerminalGameRenderer renderer) {
 
         this.renderer = renderer;
         this.input = input;
+        this.terminal = term;
         players = new ArrayList<>();
         availableColors = Utils.arrayToList(Colors.values());
     }
@@ -119,11 +123,14 @@ public class Game {
 
         Attributes attr = terminal.enterRawMode();
 
+        Utils.hideCursor();
+
         // TODO main menu
 
-        Game game = new Game(new TerminalGameInput(terminal), new TerminalGameRenderer(terminal));
+        Game game = new Game(terminal, new TerminalGameInput(terminal), new TerminalGameRenderer(terminal));
 
         // On affiche les maps disponibles et on demande au joueur de choisir
+        Utils.clearTerm();
         System.out.println("Available maps :");
         for (Map.Entry<String, String> e : AssetsManager.listMaps().entrySet())
             System.out.println(" - " + e.getKey() + " (" + e.getValue() + ")");
@@ -137,21 +144,14 @@ public class Game {
 
         LevelMap level = LevelMap.load(AssetsManager.listMaps().get(map));
         game.setMap(level);
-        // TODO resize terminal on map loading
+        //terminal.setSize(new Size(level.getWidth() + 50, level.getHeight() + 20));
 
-        // Pour l'instant il s'agit d'une partie toute bête
-
+        // TODO map selection menu
         game.lobby(terminal);
         game.start(terminal);
 
-        clearTerm();
+        Utils.clearTerm();
         terminal.close();
-    }
-
-    public static void clearTerm() {
-
-        System.out.print(Anscapes.CLEAR);
-        System.out.print(Anscapes.cursorPos(0, 0));
     }
 
     /**
@@ -231,35 +231,28 @@ public class Game {
      */
     public void lobby(Terminal terminal) {
 
-        //TODO: Limiter nombre de joueurs et de persos par joueurs selon si
+        //TODO: Limiter nombre de joueurs et de persos par joueurs selon
 
-        clearTerm();
-        writeFormatttedLine(2, "Préparation - Lobby", new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
-        writeFormatttedLine(2, String.valueOf(getMap().getStartPos().size()), new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
-
-        LineReader reader = LineReaderBuilder.builder()
-                                             .terminal(terminal)
-                                             .build();
+        Utils.clearTerm();
+        Utils.writeFormattedLine(1,
+                                 "LOBBY",
+                                 new String[] { Colors.MAGENTA.bg(), Anscapes.RESET },
+                                 true,
+                                 Utils.Align.CENTER,
+                                 0,
+                                 terminal.getWidth());
+        Utils.writeFormattedLine(2,
+                                 "Nombre de joueurs max : " + getMap().getStartPos().size(),
+                                 new String[] { Colors.RED.fg(), Anscapes.RESET },
+                                 true,
+                                 Utils.Align.CENTER,
+                                 0,
+                                 terminal.getWidth());
 
         // On récupère le nombre de personnage maximum par joueur ( <= nombre de personnages existant, interdiction de prendre 2 fois le même)
-        int characterCount;
-        String input;
-        do {
-            input = reader.readLine(" Entrez le nombre de personnages par joueur: ");
-            try {
-                characterCount = Integer.parseInt(input);
+        int characterCount = Utils.promptReadInt(terminal, "Entrez le nombre de personnages par joueur [1]: ", 1, (n) -> n > 0 && n < AssetsManager.characterNames().size());
 
-                if (!(characterCount <= AssetsManager.characterNames().size() && characterCount > 0))
-                    System.out.println("Il doit y avoir au minimum 1 personnage par joueur, et au maximum " + AssetsManager.characterNames().size() + Anscapes.moveUp(2));
-                else
-                    break;
-
-            } catch (NumberFormatException e) {
-                System.out.println("Veuillez entrer un nombre !");
-            }
-        } while (true);
-
-        newPlayer(terminal, reader, false);
+        newPlayer(false);
 
         int maxPlayers = getMap().getStartPos().size() / characterCount;
         for (int i = getPlayerCount(); i < maxPlayers; i++) {
@@ -268,15 +261,15 @@ public class Game {
             char action = (char) this.input.getInput();
 
             if (action == '*')
-                newPlayer(terminal, reader, true);
+                newPlayer(true);
             else if (action == '+')
-                newPlayer(terminal, reader, false);
+                newPlayer(false);
             else
                 break;
         }
 
         if (getPlayers().size() == 1)
-            newPlayer(terminal, reader, true);
+            newPlayer(true);
 
         for (AbstractPlayer player : getPlayers())
             pickCharacters(terminal, player, characterCount);
@@ -285,24 +278,17 @@ public class Game {
     /**
      * Créer et ajouter un joueur à la partie. Utilisé dans lobby()
      */
-    public void newPlayer(Terminal terminal, LineReader reader, boolean isBot) {
+    public void newPlayer(boolean isBot) {
 
         System.out.print(Anscapes.CLEAR_LINE);
 
         AbstractPlayer player = null;
-        String name;
-        Colors color;
         if (isBot) {
             player = new Bot(availableColors);
-            name = "BOT " + (getBotCount() + 1);
-            System.out.println(name);
-        } else
-            name = reader.readLine("Joueur " + (getPlayerCount() + 1) + ", lâche ton blaze bg: \n");
-
-        color = pickColor(terminal, name);
-
-        player.setName(name);
-        player.setColor(color);
+        } else {
+            String name = Utils.readLine(terminal, "Joueur " + (getPlayerCount() + 1) + ", lâche ton blaze bg: \n");
+            player = new Player(name, pickColor(terminal, name));
+        }
         addPlayer(player);
     }
 
@@ -334,9 +320,21 @@ public class Game {
      */
     public void pickCharacters(Terminal terminal, AbstractPlayer picker, int characterCount) {
 
-        clearTerm();
-        writeFormatttedLine(1, "Lobby - Choix des personnages", new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
-        writeFormatttedLine(2, picker.getName().toUpperCase(), new String[] { picker.getColor().fg(), "" }, true, Align.CENTER, 0, terminal.getWidth());
+        Utils.clearTerm();
+        Utils.writeFormattedLine(1,
+                                 "Lobby - Choix des personnages",
+                                 new String[] { "", "" },
+                                 true,
+                                 Utils.Align.CENTER,
+                                 0,
+                                 terminal.getWidth());
+        Utils.writeFormattedLine(2,
+                                 picker.getName().toUpperCase(),
+                                 new String[] { picker.getColor().fg(), "" },
+                                 true,
+                                 Utils.Align.CENTER,
+                                 0,
+                                 terminal.getWidth());
 
         LineReader reader = LineReaderBuilder.builder()
                                              .terminal(terminal)
@@ -350,27 +348,6 @@ public class Game {
     }
 
     /**
-     * Ecrit une ligne, avec alignement
-     */
-    public void writeFormatttedLine(int n, String s, String[] modifiers, boolean clear, Align alignment, int offset, int width) {
-
-        int x;
-        if (alignment.equals(Align.LEFT))
-            x = offset;
-        else if (alignment.equals(Align.RIGHT))
-            x = width - s.length() - offset;
-        else
-            x = (width - s.length()) / 2 + offset;
-
-        System.out.print(Anscapes.cursorPos(n, x)); // Aller à la ligne n
-
-        if (clear)
-            System.out.print(Anscapes.CLEAR_LINE);
-
-        System.out.println(modifiers[0] + s + modifiers[1] + Anscapes.RESET);
-    }
-
-    /**
      * Selection d'une couleur, une par joueurs, utilisé dans lobby()
      */
     public Colors pickColor(Terminal terminal, String pickerName) {
@@ -379,10 +356,11 @@ public class Game {
 
         int currentColor = 0;
         for (; ; ) {
-            System.out.print(availableColors.get(currentColor) + pickerName + Colors.WHITE.fg() + "    Q / D pour changer de couleur, ENTRER pour valider" + Anscapes.RESET); // Réécrit le pseudo avec la bonne couleur
+            System.out.print(availableColors.get(currentColor).fg() + pickerName + Anscapes.RESET + " | Q / D pour changer de couleur, ENTRER pour valider"); // Réécrit le pseudo avec la bonne couleur
 
             char read = (char) input.getInput();
-            if (read == 13) break; // (13 = SPACE)
+            if (read == 13)
+                break; // (13 = SPACE)
 
             switch (read) {
                 case 'q': {
@@ -409,8 +387,14 @@ public class Game {
      */
     public void start(Terminal terminal) {
 
-        clearTerm();
-        writeFormatttedLine(2, "'ZQSD' pour se déplacer, 'A' pour quitter, '123' pour changer de couleur.", new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
+        Utils.clearTerm();
+        Utils.writeFormattedLine(2,
+                                 "'ZQSD' pour se déplacer, 'A' pour quitter, '123' pour changer de couleur.",
+                                 new String[] { "", "" },
+                                 true,
+                                 Utils.Align.CENTER,
+                                 0,
+                                 terminal.getWidth());
 
         Character character = players.get(0).getCharacters().get(0);
 
@@ -452,9 +436,4 @@ public class Game {
             renderer.render(this);
         }
     }
-
-    enum Align {
-        LEFT, CENTER, RIGHT
-    }
-
 }
