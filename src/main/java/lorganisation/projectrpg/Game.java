@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -157,6 +156,7 @@ public class Game {
     public static void clearTerm() {
 
         System.out.print(Anscapes.CLEAR);
+        System.out.print(Anscapes.cursorPos(0,0));
     }
 
     /**
@@ -234,7 +234,7 @@ public class Game {
     /**
      * Choix du nombre de joueurs et du nombre de personnages
      */
-    public void lobby(Terminal terminal) { //Limiter nombre de joueurs et de persos par joueurs selon si
+    public void lobby(Terminal terminal) { //TODO: Limiter nombre de joueurs et de persos par joueurs selon si
         clearTerm();
         System.out.println("Préparation - Lobby");
 
@@ -259,13 +259,12 @@ public class Game {
                 System.out.println("Veuillez entrer un nombre !");
             }
         } while (true);
-
         AbstractPlayer player1 = new Player();
             System.out.print(Anscapes.CLEAR_LINE);
             player1.setName(reader.readLine("Joueur " + (getPlayerCount()+1) + ", lâche ton blaze bg: \n"));
                 player1.setColor(pickColor(terminal, player1));
                     addPlayer(player1);
-        System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Lancer la partie (Autre)");
+        System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Choix des personnages");
         for (;;) {
             char action = (char) this.input.getInput();
             if (action == '*') { //Faire méthode createPlayer(boolean isBot = true)
@@ -335,7 +334,7 @@ public class Game {
             System.out.print(availableColors.get(currentColor) + picker.getName() + Anscapes.RESET); // Réécrit le pseudo avec la bonne couleur
 
             char read = (char) input.getInput();
-            if (read == '.') break; // Pas trouvé comment récupérer si il appuie sur entrer
+            if (read == 13) break; // Pas trouvé comment récupérer si il appuie sur entrer (13 = SPACE)
 
             switch(read) {
                 case 'q': {

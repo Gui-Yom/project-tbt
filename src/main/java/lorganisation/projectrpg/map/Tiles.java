@@ -12,9 +12,9 @@ public enum Tiles implements Tile {
     // The value field must be unique
 
     BLANK(AnsiColors.ColorBG.BG_WHITE + " " + Anscapes.RESET, true),
-    ROCK(AnsiColors.ColorBG.BG_WHITE_BRIGHT + "\u2588" + Anscapes.RESET, false),
+    ROCK(AnsiColors.ColorBG.BG_WHITE_BRIGHT + " " + Anscapes.RESET, false),
     GRASS(AnsiColors.ColorBG.BG_GREEN + " " + Anscapes.RESET, true),
-    WATER(AnsiColors.ColorFG.FG_BLUE_BRIGHT + "█" + Anscapes.RESET, false);
+    WATER(AnsiColors.ColorFG.FG_BLUE_BRIGHT + " " + Anscapes.RESET, false);
 
     private String icon;
     private boolean canStepOn;
