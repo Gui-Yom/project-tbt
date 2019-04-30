@@ -139,15 +139,8 @@ public class Game {
 
         // Pour l'instant il s'agit d'une partie toute bête
 
-        //AbstractPlayer player = new Player(AnsiColors.ColorFG.FG_YELLOW_BRIGHT);
         game.lobby(terminal);
-        Coords startPos = level.getStartPos().get(0);
-        AbstractPlayer player = game.getPlayers().get(0);
-        player.addCharacter(new Character(startPos.getX(), startPos.getY(), "Mage", 'M'));
-
-        game.addPlayer(player);
-
-        game.start();
+        game.start(terminal);
 
         clearTerm();
         terminal.close();
@@ -156,7 +149,7 @@ public class Game {
     public static void clearTerm() {
 
         System.out.print(Anscapes.CLEAR);
-        System.out.print(Anscapes.cursorPos(0,0));
+        System.out.print(Anscapes.cursorPos(0, 0));
     }
 
     /**
@@ -236,11 +229,12 @@ public class Game {
      */
     public void lobby(Terminal terminal) { //TODO: Limiter nombre de joueurs et de persos par joueurs selon si
         clearTerm();
-        System.out.println("Préparation - Lobby");
+        writeFormatttedLine(2, "Préparation - Lobby", new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
+        writeFormatttedLine(2, String.valueOf(getMap().getStartPos().size()), new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
 
         LineReader reader = LineReaderBuilder.builder()
-                .terminal(terminal)
-                .build();
+                                             .terminal(terminal)
+                                             .build();
 
         // On récupère le nombre de personnage maximum par joueur ( <= nombre de personnages existant, interdiction de prendre 2 fois le même)
         int characterCount;
@@ -250,55 +244,71 @@ public class Game {
             try {
                 characterCount = Integer.parseInt(input);
 
-                if(!(characterCount <= AssetsManager.characterNames().size() && characterCount > 0)) {
-                    System.out.println("Il doit y avoir au minimum 1 personnage par joueur, et au maximum "+AssetsManager.characterNames().size() + Anscapes.moveUp(2));
-                } else {
+                if (!(characterCount <= AssetsManager.characterNames().size() && characterCount > 0))
+                    System.out.println("Il doit y avoir au minimum 1 personnage par joueur, et au maximum " + AssetsManager.characterNames().size() + Anscapes.moveUp(2));
+                else
                     break;
-                }
-            } catch(NumberFormatException e){
+
+            } catch (NumberFormatException e) {
                 System.out.println("Veuillez entrer un nombre !");
             }
         } while (true);
-        AbstractPlayer player1 = new Player();
-            System.out.print(Anscapes.CLEAR_LINE);
-            player1.setName(reader.readLine("Joueur " + (getPlayerCount()+1) + ", lâche ton blaze bg: \n"));
-                player1.setColor(pickColor(terminal, player1));
-                    addPlayer(player1);
-        System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Choix des personnages");
-        for (;;) {
+
+        newPlayer(terminal, reader, false);
+
+        int maxPlayers = getMap().getStartPos().size() / characterCount;
+        for (int i = getPlayerCount(); i < maxPlayers; i++) {
+            System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Choix des personnages");
+
             char action = (char) this.input.getInput();
-            if (action == '*') { //Faire méthode createPlayer(boolean isBot = true)
-                AbstractPlayer bot = new Bot();
-                    System.out.print(Anscapes.CLEAR_LINE);
-                    String botName = "BOT " + (getBotCount()+1);
-                        System.out.println(botName);
-                            bot.setName(botName);
-                                bot.setColor(pickColor(terminal, bot));
-                                    addPlayer(bot);
-            } else if (action == '+'){ //Faire méthode createPlayer(boolean isBot=false)
-                AbstractPlayer player = new Player();
-                    System.out.print(Anscapes.CLEAR_LINE);
-                    player.setName(reader.readLine("Joueur " + (getPlayerCount()+1) + ", lâche ton blaze bg: \n"));
-                        player.setColor(pickColor(terminal, player));
-                            addPlayer(player);
-            } else {
+
+            if (action == '*')
+                newPlayer(terminal, reader, true);
+            else if (action == '+')
+                newPlayer(terminal, reader, false);
+            else
                 break;
-            }
-            System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Lancer la partie (Autre)");
         }
 
-        //Si joueur tout seul alors rajouter BOT
+        if (getPlayers().size() == 1)
+            newPlayer(terminal, reader, true);
 
+        for (AbstractPlayer player : getPlayers())
+            pickCharacters(terminal, player, characterCount);
+    }
+
+    /**
+     * Créer et ajouter un joueur à la partie. Utilisé dans lobby()
+     */
+    public void newPlayer(Terminal terminal, LineReader reader, boolean isBot) {
+
+        System.out.print(Anscapes.CLEAR_LINE);
+
+        AbstractPlayer player = isBot ? new Bot() : new Player();
+        String name;
+        ColorFG color;
+        if (isBot) {
+            name = "BOT " + (getBotCount() + 1);
+            System.out.println(name);
+        } else
+            name = reader.readLine("Joueur " + (getPlayerCount() + 1) + ", lâche ton blaze bg: \n");
+
+        color = pickColor(terminal, name);
+
+        player.setName(name);
+        player.setColor(color);
+        addPlayer(player);
     }
 
     /**
      * Donne le nombre de joueurs non-bot dans la partie
      */
     public int getPlayerCount() {
+
         int count = 0;
 
         for (AbstractPlayer player : getPlayers())
-            if(!player.isBot())
+            if (!player.isBot())
                 count++;
 
         return count;
@@ -306,47 +316,103 @@ public class Game {
 
 
     /**
+     * Donne les couleurs non-utilisées par les autres joueurs, et la carte utilisée
+     */
+    public List<ColorFG> getAvailableColors() {
+
+        ColorFG[] colors = ColorFG.values();
+        List<ColorFG> availableColors = new ArrayList<>();
+        boolean mustAdd;
+        for (ColorFG color : colors) {
+            mustAdd = true;
+            for (AbstractPlayer player : getPlayers())
+                if (player.getColor() == color) // Aussi enlever les couleurs utilisées par la map sélectionnée histoire de pas avoir de perso. invisible
+                    mustAdd = false;
+            if (mustAdd)
+                availableColors.add(color);
+        }
+
+        return availableColors;
+    }
+
+    /**
      * Donne le nombre de BOTs non-bot dans la partie
      */
     public int getBotCount() {
+
         return getPlayers().size() - getPlayerCount();
+    }
+
+
+    /**
+     * Selection d'un certain nombre de personnages pour un joueur
+     */
+    public void pickCharacters(Terminal terminal, AbstractPlayer picker, int characterCount) {
+
+        clearTerm();
+        writeFormatttedLine(1, "Lobby - Choix des personnages", new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
+        writeFormatttedLine(2, picker.getName().toUpperCase(), new String[] { picker.getColor().toString(), "" }, true, Align.CENTER, 0, terminal.getWidth());
+
+        LineReader reader = LineReaderBuilder.builder()
+                                             .terminal(terminal)
+                                             .completer(new StringsCompleter(AssetsManager.characterNames()))
+                                             .build();
+
+        for (int current = 1; current <= characterCount; current++) {
+            String characterName = reader.readLine("Personnage " + current + ": ").trim();
+            picker.addCharacter(new Character(characterName, this));
+        }
+    }
+
+    /**
+     * Ecrit une ligne, avec alignement
+     */
+    public void writeFormatttedLine(int n, String s, String[] modifiers, boolean clear, Align alignment, int offset, int width) {
+
+        int x;
+        if (alignment.equals(Align.LEFT))
+            x = offset;
+        else if (alignment.equals(Align.RIGHT))
+            x = width - s.length() - offset;
+        else
+            x = (width - s.length()) / 2 + offset;
+
+        System.out.print(Anscapes.cursorPos(n, x)); // Aller à la ligne n
+
+        if (clear)
+            System.out.print(Anscapes.CLEAR_LINE);
+
+        System.out.println(modifiers[0] + s + modifiers[1] + Anscapes.RESET);
     }
 
     /**
      * Selection d'une couleur, une par joueurs, utilisé dans lobby()
      */
-    public ColorFG pickColor(Terminal terminal, AbstractPlayer picker) { //Créer méthodes writeLine pour avoir affichage propre, getLine pour récupérer proprement un String, getKey pour récupérer proprement une touche
+    public ColorFG pickColor(Terminal terminal, String pickerName) {
 
         //Récupère couleurs dispo. (non utilisées par autres joueurs) => Faire méthode
-        ColorFG[] colors = ColorFG.values();
-        List<ColorFG> availableColors = new ArrayList<>();
-        for (ColorFG color : colors) {
-            availableColors.add(color);
-            for (AbstractPlayer player : getPlayers())
-                if (player.getColor() == color) // Aussi enlever les couleurs utilisées par la map sélectionnée histoire de pas avoir de perso invisible
-                    availableColors.remove(color);
-        }
+        List<ColorFG> availableColors = getAvailableColors();
 
-        System.out.print(Anscapes.moveUp(1)); // Retour à la ligne ou le mec a mis son pseudo
+        System.out.print(Anscapes.movePreviousLine(1)); // Retour à la ligne ou le mec a mis son pseudo pour overwrite
 
         int currentColor = 0;
-        for (;;) {
-            System.out.print(availableColors.get(currentColor) + picker.getName() + Anscapes.RESET); // Réécrit le pseudo avec la bonne couleur
+        for (; ; ) {
+            System.out.print(availableColors.get(currentColor) + pickerName + AnsiColors.ColorFG.FG_WHITE + "    Q / D pour changer de couleur, ENTRER pour valider" + Anscapes.RESET); // Réécrit le pseudo avec la bonne couleur
 
             char read = (char) input.getInput();
-            if (read == 13) break; // Pas trouvé comment récupérer si il appuie sur entrer (13 = SPACE)
+            if (read == 13) break; // (13 = SPACE)
 
-            switch(read) {
+            switch (read) {
                 case 'q': {
                     currentColor = (currentColor + availableColors.size() - 1) % availableColors.size();
                     break;
                 }
                 case 'd': {
-                    currentColor = (currentColor+1) % availableColors.size();
+                    currentColor = (currentColor + 1) % availableColors.size();
                     break;
                 }
             }
-            System.out.print(Anscapes.moveLeft(picker.getName().length() + 1)); //On revient au début de la ligne
+            System.out.print(Anscapes.moveLeft(terminal.getWidth()) + Anscapes.CLEAR_LINE); //On revient au début de la ligne
         }
         System.out.println();
 
@@ -357,15 +423,14 @@ public class Game {
     /**
      * Lance la partie. La partie continue à l'infinie pour l'instant. (ou jusqu'a ce que le joueur appuie sur A)
      */
-    public void start() {
+    public void start(Terminal terminal) {
 
         clearTerm();
-        System.out.println("'ZQSD' pour se déplacer, 'A' pour quitter, '123' pour changer de couleur.");
+        writeFormatttedLine(2, "'ZQSD' pour se déplacer, 'A' pour quitter, '123' pour changer de couleur.", new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
 
         Character character = players.get(0).getCharacters().get(0);
 
         for (; ; ) {
-
             char read = (char) input.getInput();
 
             if (read == 'a')
@@ -402,6 +467,10 @@ public class Game {
             // Render the level with the player
             renderer.render(this);
         }
+    }
+
+    enum Align {
+        LEFT, CENTER, RIGHT
     }
 
 }

@@ -1,5 +1,7 @@
 package lorganisation.projectrpg.player;
 
+import lorganisation.projectrpg.Game;
+
 public class Character {
 
     protected int x = 0;
@@ -20,6 +22,14 @@ public class Character {
         this.y = y;
         this.type = type;
         this.icon = icon;
+    }
+    public Character(String type, Game game) {
+        this.type = type;
+        this.icon = 0;
+        this.x = 2;
+        this.y = 3;
+
+        //TODO: use game to get spawn point
     }
 
     @Override
