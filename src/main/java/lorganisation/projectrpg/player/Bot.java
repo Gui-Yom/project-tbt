@@ -1,20 +1,23 @@
 package lorganisation.projectrpg.player;
 
-import com.limelion.anscapes.AnsiColors;
+import com.limelion.anscapes.Anscapes;
+import lorganisation.projectrpg.AssetsManager;
 import lorganisation.projectrpg.Game;
+import lorganisation.projectrpg.Utils;
+
+import java.util.List;
 
 public class Bot extends AbstractPlayer {
 
-    public Bot() {
+    public Bot(List<Anscapes.Colors> availableColors) {
 
-        super();
-        setName("BOT"); // Récupérer nombre de BOTs et ajouter son numéro à la suite (e.g.: BOT 1, BOT 2, etc...
+        // TODO remove bot name from list
+        super(Utils.pickRandom(AssetsManager.botNames()), Utils.pickRandomAndRemove(availableColors));
     }
 
-    public Bot(AnsiColors c) {
+    public Bot(String name, Anscapes.Colors color) {
 
-        super(c);
-        setName("BOT");
+        super(name, color);
     }
 
     @Override

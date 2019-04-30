@@ -1,6 +1,6 @@
 package lorganisation.projectrpg.player;
 
-import com.limelion.anscapes.AnsiColors;
+import com.limelion.anscapes.Anscapes;
 import lorganisation.projectrpg.Game;
 
 import java.util.ArrayList;
@@ -8,17 +8,13 @@ import java.util.List;
 
 public abstract class AbstractPlayer {
 
-    protected AnsiColors playerColor;
+    protected Anscapes.Colors playerColor;
     protected List<Character> characters;
     protected String name;
 
-    public AbstractPlayer() {
+    public AbstractPlayer(String name, Anscapes.Colors c) {
 
-        this(AnsiColors.ColorFG.FG_BLUE_BRIGHT);
-    }
-
-    public AbstractPlayer(AnsiColors c) {
-
+        this.name = name;
         this.playerColor = c;
         this.characters = new ArrayList<>();
     }
@@ -37,12 +33,14 @@ public abstract class AbstractPlayer {
                '}';
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+
+        return this.name;
     }
 
-    public String getName() {
-        return this.name;
+    public void setName(String name) {
+
+        this.name = name;
     }
 
     public void addCharacter(Character c) {
@@ -55,12 +53,12 @@ public abstract class AbstractPlayer {
         return characters;
     }
 
-    public AnsiColors getColor() {
+    public Anscapes.Colors getColor() {
 
         return playerColor;
     }
 
-    public void setColor(AnsiColors color) {
+    public void setColor(Anscapes.Colors color) {
 
         this.playerColor = color;
     }

@@ -1,18 +1,13 @@
 package lorganisation.projectrpg.player;
 
-import com.limelion.anscapes.AnsiColors;
+import com.limelion.anscapes.Anscapes;
 import lorganisation.projectrpg.Game;
 
 public class Player extends AbstractPlayer {
 
-    public Player() {
+    public Player(String name, Anscapes.Colors c) {
 
-        super();
-    }
-
-    public Player(AnsiColors c) {
-
-        super(c);
+        super(name, c);
     }
 
     @Override

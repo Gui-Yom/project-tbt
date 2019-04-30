@@ -1,7 +1,8 @@
 package lorganisation.projectrpg.map;
 
 import com.limelion.anscapes.Anscapes;
-import com.limelion.anscapes.AnsiColors;
+
+import static com.limelion.anscapes.Anscapes.Colors;
 
 /**
  * Représente une case d'une map. Le joueur peut ou non la traverser. TODO changer vers une vraie classe Tiles,
@@ -9,10 +10,10 @@ import com.limelion.anscapes.AnsiColors;
  */
 public enum Tiles implements Tile {
 
-    BLANK(AnsiColors.ColorBG.BG_WHITE + " " + Anscapes.RESET, true),
-    ROCK(AnsiColors.ColorBG.BG_WHITE_BRIGHT + " " + Anscapes.RESET, false),
-    GRASS(AnsiColors.ColorBG.BG_GREEN + " " + Anscapes.RESET, true),
-    WATER(AnsiColors.ColorBG.BG_BLUE_BRIGHT + " " + Anscapes.RESET, false);
+    BLANK(Colors.WHITE.bg() + " " + Anscapes.RESET, true),
+    ROCK(Colors.WHITE_BRIGHT.bg() + " " + Anscapes.RESET, false),
+    GRASS(Colors.GREEN.bg() + " " + Anscapes.RESET, true),
+    WATER(Colors.BLUE_BRIGHT.bg() + " " + Anscapes.RESET, false);
 
     private String icon;
     private boolean canStepOn;

@@ -1,14 +1,11 @@
 package lorganisation.projectrpg;
 
 import com.limelion.anscapes.Anscapes;
-import com.limelion.anscapes.AnsiColors;
-import com.limelion.anscapes.AnsiColors.ColorFG;
 import com.limelion.anscapes.ImgConverter;
 import lorganisation.projectrpg.map.LevelMap;
 import lorganisation.projectrpg.player.AbstractPlayer;
 import lorganisation.projectrpg.player.Bot;
 import lorganisation.projectrpg.player.Character;
-import lorganisation.projectrpg.player.Player;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -25,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.limelion.anscapes.Anscapes.Colors;
 
 /**
  * La classe principale du jeu.
@@ -50,6 +49,8 @@ public class Game {
      */
     private GameInput input;
 
+    private List<Colors> availableColors;
+
     /**
      * On crée un Game à partir d'une entrée et d'une sortie.
      *
@@ -63,6 +64,7 @@ public class Game {
         this.renderer = renderer;
         this.input = input;
         players = new ArrayList<>();
+        availableColors = Utils.arrayToList(Colors.values());
     }
 
     public static void main(String[] args) throws IOException {
@@ -227,7 +229,10 @@ public class Game {
     /**
      * Choix du nombre de joueurs et du nombre de personnages
      */
-    public void lobby(Terminal terminal) { //TODO: Limiter nombre de joueurs et de persos par joueurs selon si
+    public void lobby(Terminal terminal) {
+
+        //TODO: Limiter nombre de joueurs et de persos par joueurs selon si
+
         clearTerm();
         writeFormatttedLine(2, "Préparation - Lobby", new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
         writeFormatttedLine(2, String.valueOf(getMap().getStartPos().size()), new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
@@ -284,10 +289,11 @@ public class Game {
 
         System.out.print(Anscapes.CLEAR_LINE);
 
-        AbstractPlayer player = isBot ? new Bot() : new Player();
+        AbstractPlayer player = null;
         String name;
-        ColorFG color;
+        Colors color;
         if (isBot) {
+            player = new Bot(availableColors);
             name = "BOT " + (getBotCount() + 1);
             System.out.println(name);
         } else
@@ -314,27 +320,6 @@ public class Game {
         return count;
     }
 
-
-    /**
-     * Donne les couleurs non-utilisées par les autres joueurs, et la carte utilisée
-     */
-    public List<ColorFG> getAvailableColors() {
-
-        ColorFG[] colors = ColorFG.values();
-        List<ColorFG> availableColors = new ArrayList<>();
-        boolean mustAdd;
-        for (ColorFG color : colors) {
-            mustAdd = true;
-            for (AbstractPlayer player : getPlayers())
-                if (player.getColor() == color) // Aussi enlever les couleurs utilisées par la map sélectionnée histoire de pas avoir de perso. invisible
-                    mustAdd = false;
-            if (mustAdd)
-                availableColors.add(color);
-        }
-
-        return availableColors;
-    }
-
     /**
      * Donne le nombre de BOTs non-bot dans la partie
      */
@@ -351,7 +336,7 @@ public class Game {
 
         clearTerm();
         writeFormatttedLine(1, "Lobby - Choix des personnages", new String[] { "", "" }, true, Align.CENTER, 0, terminal.getWidth());
-        writeFormatttedLine(2, picker.getName().toUpperCase(), new String[] { picker.getColor().toString(), "" }, true, Align.CENTER, 0, terminal.getWidth());
+        writeFormatttedLine(2, picker.getName().toUpperCase(), new String[] { picker.getColor().fg(), "" }, true, Align.CENTER, 0, terminal.getWidth());
 
         LineReader reader = LineReaderBuilder.builder()
                                              .terminal(terminal)
@@ -388,16 +373,13 @@ public class Game {
     /**
      * Selection d'une couleur, une par joueurs, utilisé dans lobby()
      */
-    public ColorFG pickColor(Terminal terminal, String pickerName) {
-
-        //Récupère couleurs dispo. (non utilisées par autres joueurs) => Faire méthode
-        List<ColorFG> availableColors = getAvailableColors();
+    public Colors pickColor(Terminal terminal, String pickerName) {
 
         System.out.print(Anscapes.movePreviousLine(1)); // Retour à la ligne ou le mec a mis son pseudo pour overwrite
 
         int currentColor = 0;
         for (; ; ) {
-            System.out.print(availableColors.get(currentColor) + pickerName + AnsiColors.ColorFG.FG_WHITE + "    Q / D pour changer de couleur, ENTRER pour valider" + Anscapes.RESET); // Réécrit le pseudo avec la bonne couleur
+            System.out.print(availableColors.get(currentColor) + pickerName + Colors.WHITE.fg() + "    Q / D pour changer de couleur, ENTRER pour valider" + Anscapes.RESET); // Réécrit le pseudo avec la bonne couleur
 
             char read = (char) input.getInput();
             if (read == 13) break; // (13 = SPACE)
@@ -416,8 +398,10 @@ public class Game {
         }
         System.out.println();
 
+        Colors color = availableColors.get(currentColor);
+        availableColors.remove(color);
 
-        return availableColors.get(currentColor);
+        return color;
     }
 
     /**
@@ -454,13 +438,13 @@ public class Game {
                         character.incX();
                     break;
                 case '1':
-                    players.get(0).setColor(AnsiColors.ColorFG.FG_RED_BRIGHT);
+                    players.get(0).setColor(Colors.RED_BRIGHT);
                     break;
                 case '2':
-                    players.get(0).setColor(AnsiColors.ColorFG.FG_BLUE_BRIGHT);
+                    players.get(0).setColor(Colors.BLUE_BRIGHT);
                     break;
                 case '3':
-                    players.get(0).setColor(AnsiColors.ColorFG.FG_GREEN_BRIGHT);
+                    players.get(0).setColor(Colors.GREEN_BRIGHT);
                     break;
             }
 

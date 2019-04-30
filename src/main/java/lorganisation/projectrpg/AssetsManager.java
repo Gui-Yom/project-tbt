@@ -6,9 +6,7 @@ import com.google.gson.annotations.Expose;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Cette classe gère les ressources du jeu. Du fait que l'on veuille pouvoir modifier les ressources du jeu facilement
@@ -44,6 +42,11 @@ public class AssetsManager {
      * Le registre des ressources
      */
     private static Registry registry;
+
+    /**
+     * Les noms des bots.
+     */
+    private static List<String> botNames;
 
     // Traitement effectué au chargement de la classe, cad au premier accès à celle-ci
     static {
@@ -166,6 +169,11 @@ public class AssetsManager {
         return new HashSet<>(listCharacters().values());
     }
 
+    public static List<String> botNames() {
+
+        return botNames;
+    }
+
     /**
      * Charge le registre des assets du jeu en mémoire.
      *
@@ -174,12 +182,28 @@ public class AssetsManager {
     public static boolean reload() {
 
         System.out.print("Loading ressources ...");
+
         try {
             registry = gson.fromJson(new InputStreamReader(openResource("registry.json")), Registry.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (registry == null) {
+
+        try {
+
+            botNames = new ArrayList<>();
+            Scanner scanner = new Scanner(openResource("bots.txt"));
+            String line = null;
+
+            while (scanner.hasNextLine())
+                if (!(line = scanner.nextLine()).equals(""))
+                    botNames.add(line);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (registry == null || botNames.size() == 0) {
             System.err.println(" FAIL !");
             return false;
         } else {
@@ -195,6 +219,9 @@ public class AssetsManager {
 
         if (!extract("registry.json")) {
             System.err.println("Unable to extract 'registry.json'.");
+        }
+        if (!extract("bots.txt")) {
+            System.err.println("Unable to extract 'bots.txt'.");
         }
         for (String s : mapFiles())
             if (!extract("maps/" + s))

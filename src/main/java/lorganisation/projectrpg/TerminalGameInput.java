@@ -1,6 +1,5 @@
 package lorganisation.projectrpg;
 
-import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
 import java.io.IOException;
@@ -24,10 +23,5 @@ public class TerminalGameInput extends GameInput {
             System.err.println("Error while trying to read data from terminal : " + e.getLocalizedMessage());
         }
         return -1;
-    }
-
-    public String promptLine(LineReader reader, String prompt) {
-
-        return reader.readLine(prompt);
     }
 }
