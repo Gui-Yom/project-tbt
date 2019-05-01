@@ -1,6 +1,7 @@
 package lorganisation.projectrpg.player;
 
 import lorganisation.projectrpg.Game;
+import lorganisation.projectrpg.map.StartPos;
 
 public class Character {
 
@@ -26,8 +27,9 @@ public class Character {
     public Character(String type, Game game) {
         this.type = type;
         this.icon = 0;
-        this.x = 2;
-        this.y = 3;
+        StartPos startPos = game.getMap().getNextStartPos();
+        this.x = startPos.getX();
+        this.y = startPos.getY();
 
         //TODO: use game to get spawn point
     }

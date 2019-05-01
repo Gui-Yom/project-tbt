@@ -427,15 +427,6 @@ public class Game {
                     if (map.canCollide(character.getX() + 1, character.getY()))
                         character.incX();
                     break;
-                case '1':
-                    players.get(0).setColor(Colors.RED_BRIGHT);
-                    break;
-                case '2':
-                    players.get(0).setColor(Colors.BLUE_BRIGHT);
-                    break;
-                case '3':
-                    players.get(0).setColor(Colors.GREEN_BRIGHT);
-                    break;
             }
 
             // Render the level with the player

@@ -1,7 +1,6 @@
 package lorganisation.projectrpg.map;
 
 import lorganisation.projectrpg.AssetsManager;
-import lorganisation.projectrpg.Coords;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,14 +23,13 @@ public class LevelMap {
     private String name;
     private String description;
     private int maxPlayers;
-    private List<Coords> startPos;
+    private List<StartPos> startPos;
 
     public LevelMap(String name, int width, int height) {
-
-        this(width, height, blankLevel(width, height), name, "", 4, Collections.unmodifiableList(Collections.singletonList(new Coords(1, 1))));
+        this(width, height, blankLevel(width, height), name, "", 4, Collections.unmodifiableList(Collections.singletonList(new StartPos(1, 1))));
     }
 
-    public LevelMap(int width, int height, Tiles[][] tiles, String name, String description, int maxPlayers, List<Coords> startPos) {
+    public LevelMap(int width, int height, Tiles[][] tiles, String name, String description, int maxPlayers, List<StartPos> startPos) {
 
         this.width = width;
         this.height = height;
@@ -106,7 +104,7 @@ public class LevelMap {
         int linenum = 0;
 
         Map<Character, Tiles> conversion = new HashMap<>();
-        List<Coords> startpos = new ArrayList<>(1);
+        List<StartPos> startpos = new ArrayList<>(1);
         String description = "default empty map";
         int width = 10;
         int height = 10;
@@ -180,7 +178,7 @@ public class LevelMap {
                             String[] params = m.group(2).split(" ");
                             if (params.length == 2) {
                                 try {
-                                    startpos.add(new Coords(Integer.parseInt(params[0]), Integer.parseInt(params[1])));
+                                    startpos.add(new StartPos(Integer.parseInt(params[0]), Integer.parseInt(params[1])));
                                 } catch (NumberFormatException nfe) {
                                     System.err.println("Ligne " + linenum + " : 2 nombres sont attendus.");
                                 }
@@ -245,9 +243,17 @@ public class LevelMap {
         return maxPlayers;
     }
 
-    public List<Coords> getStartPos() {
+    public List<StartPos> getStartPos() {
 
         return startPos;
+    }
+
+    public StartPos getNextStartPos() {
+        for (StartPos sPos : startPos)
+            if(sPos.getCharacter() == null)
+                return sPos;
+
+        return null;
     }
 
     public int getWidth() {
