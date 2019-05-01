@@ -250,12 +250,12 @@ public class Game {
                                  terminal.getWidth());
 
         // On récupère le nombre de personnage maximum par joueur ( <= nombre de personnages existant, interdiction de prendre 2 fois le même)
-        int characterCount = Utils.promptReadInt(terminal, "Entrez le nombre de personnages par joueur [1]: ", 1, (n) -> n > 0 && n < AssetsManager.characterNames().size());
+        int characterCount = Utils.promptReadInt(terminal, "Entrez le nombre de personnages par joueur [1]: ", 1, (n) -> n > 0 && n <= AssetsManager.characterNames().size());
 
         newPlayer(false);
 
         int maxPlayers = getMap().getStartPos().size() / characterCount;
-        for (int i = getPlayerCount(); i < maxPlayers; i++) {
+        for (int i = getPlayers().size(); i < maxPlayers; i++) {
             System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Choix des personnages");
 
             char action = (char) this.input.getInput();
@@ -321,8 +321,9 @@ public class Game {
     public void pickCharacters(Terminal terminal, AbstractPlayer picker, int characterCount) {
 
         Utils.clearTerm();
+
         Utils.writeFormattedLine(1,
-                                 "Lobby - Choix des personnages",
+                                 "Lobby - Choix des personnages ",
                                  new String[] { "", "" },
                                  true,
                                  Utils.Align.CENTER,
@@ -343,7 +344,12 @@ public class Game {
 
         for (int current = 1; current <= characterCount; current++) {
             String characterName = reader.readLine("Personnage " + current + ": ").trim();
-            picker.addCharacter(new Character(characterName, this));
+            if(picker.hasCharacter(characterName)) {
+                --current;
+                System.out.print(Anscapes.movePreviousLine(1) + Anscapes.CLEAR_LINE); // TODO: Ajouter message d'erreur
+            } else
+                picker.addCharacter(new Character(characterName, this));
+
         }
     }
 

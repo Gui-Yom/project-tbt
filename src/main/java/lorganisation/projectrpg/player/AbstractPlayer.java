@@ -63,4 +63,11 @@ public abstract class AbstractPlayer {
         this.playerColor = color;
     }
 
+    public boolean hasCharacter(String type) {
+        for(Character character : characters)
+            if(character.getType().equalsIgnoreCase(type))
+                return true;
+        return false;
+    }
+
 }
