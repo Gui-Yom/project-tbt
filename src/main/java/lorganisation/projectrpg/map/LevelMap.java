@@ -253,7 +253,7 @@ public class LevelMap {
             if(sPos.getCharacter() == null)
                 return sPos;
 
-        return null;
+        return new StartPos(getWidth() / 2, getHeight() / 2);
     }
 
     public int getWidth() {

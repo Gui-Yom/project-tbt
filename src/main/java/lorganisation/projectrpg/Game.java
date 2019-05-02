@@ -7,6 +7,8 @@ import lorganisation.projectrpg.player.AbstractPlayer;
 import lorganisation.projectrpg.player.Bot;
 import lorganisation.projectrpg.player.Character;
 import lorganisation.projectrpg.player.Player;
+import lorganisation.projectrpg.utils.CyclicList;
+import lorganisation.projectrpg.utils.Utils;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -36,7 +38,7 @@ public class Game {
     /**
      * La liste des joueurs.
      */
-    private List<AbstractPlayer> players;
+    private CyclicList<AbstractPlayer> players;
     /**
      * La map du jeu
      */
@@ -54,6 +56,7 @@ public class Game {
 
     private List<Colors> availableColors;
 
+
     /**
      * On crée un Game à partir d'une entrée et d'une sortie.
      *
@@ -67,7 +70,7 @@ public class Game {
         this.renderer = renderer;
         this.input = input;
         this.terminal = term;
-        players = new ArrayList<>();
+        players = new CyclicList<>();
         availableColors = Utils.arrayToList(Colors.values());
     }
 
@@ -202,7 +205,7 @@ public class Game {
     /**
      * @return la liste des joueurs
      */
-    public List<AbstractPlayer> getPlayers() {
+    public CyclicList<AbstractPlayer> getPlayers() {
 
         return players;
     }
@@ -271,7 +274,7 @@ public class Game {
         if (getPlayers().size() == 1)
             newPlayer(true);
 
-        for (AbstractPlayer player : getPlayers())
+        for (AbstractPlayer player : getPlayers().asList())
             pickCharacters(terminal, player, characterCount);
     }
 
@@ -299,7 +302,7 @@ public class Game {
 
         int count = 0;
 
-        for (AbstractPlayer player : getPlayers())
+        for (AbstractPlayer player : getPlayers().asList())
             if (!player.isBot())
                 count++;
 
@@ -324,7 +327,7 @@ public class Game {
 
         Utils.writeFormattedLine(1,
                                  "Lobby - Choix des personnages ",
-                                 new String[] { "", "" },
+                                 null,
                                  true,
                                  Utils.Align.CENTER,
                                  0,
@@ -349,7 +352,6 @@ public class Game {
                 System.out.print(Anscapes.movePreviousLine(1) + Anscapes.CLEAR_LINE); // TODO: Ajouter message d'erreur
             } else
                 picker.addCharacter(new Character(characterName, this));
-
         }
     }
 
@@ -395,42 +397,70 @@ public class Game {
 
         Utils.clearTerm();
         Utils.writeFormattedLine(2,
-                                 "'ZQSD' pour se déplacer, 'A' pour quitter, '123' pour changer de couleur.",
-                                 new String[] { "", "" },
+                                 "'ZQSD' pour se déplacer, 'ESC' pour quitter",
+                                 null,
                                  true,
                                  Utils.Align.CENTER,
                                  0,
                                  terminal.getWidth());
 
-        Character character = players.get(0).getCharacters().get(0);
+        input.getInput();
 
-        for (; ; ) {
+        Character character;
+        AbstractPlayer player;
+        for (int turn = 0; ; turn++) {
+
+            // Render the level
+            renderer.render(this);
+
+
+            player = getPlayers().next();
+            character = player.getCharacters().next();
+            int movementsLeft = character.getPortee();
+            boolean hasAttacked = false;
+
+            System.out.print(Anscapes.cursorPos(character.getY() + 1, character.getX() + 1)); //have cursor blink on playing character
+
             char read = (char) input.getInput();
 
-            if (read == 'a')
+            if (read == 27) { // ESCAPE
                 break;
-
+            }
             switch (read) {
                 case 'z':
-                    if (map.canCollide(character.getX(), character.getY() - 1))
+                    if (map.canCollide(character.getX(), character.getY() - 1)) {
                         character.decY();
+                        movementsLeft--;
+                    }
                     break;
                 case 'q':
-                    if (map.canCollide(character.getX() - 1, character.getY()))
+                    if (map.canCollide(character.getX() - 1, character.getY())) {
                         character.decX();
+                        movementsLeft--;
+                    }
                     break;
                 case 's':
-                    if (map.canCollide(character.getX(), character.getY() + 1))
+                    if (map.canCollide(character.getX(), character.getY() + 1)) {
                         character.incY();
+                        movementsLeft--;
+                    }
                     break;
                 case 'd':
-                    if (map.canCollide(character.getX() + 1, character.getY()))
+                    if (map.canCollide(character.getX() + 1, character.getY())) {
                         character.incX();
+                        movementsLeft--;
+                    }
                     break;
+                case 'a': {
+                    //TODO: attack
+                    hasAttacked = true;
+                }
             }
 
-            // Render the level with the player
-            renderer.render(this);
+
+            //TODO: change so that player can attack but can't move with 0 movementsLeft
+            if(!(hasAttacked) || (movementsLeft <= 0)) //turn isn't finished
+                --turn; // don't change turn index
         }
     }
 }

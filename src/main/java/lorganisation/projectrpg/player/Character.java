@@ -27,11 +27,9 @@ public class Character {
     public Character(String type, Game game) {
         this.type = type;
         this.icon = 0;
-        StartPos startPos = game.getMap().getNextStartPos();
-        this.x = startPos.getX();
-        this.y = startPos.getY();
+        game.getMap().getNextStartPos().setCharacter(this);
 
-        //TODO: use game to get spawn point
+        //TODO: load character infos
     }
 
     @Override
@@ -57,7 +55,6 @@ public class Character {
     }
 
     public void setX(int x) {
-
         this.x = x;
     }
 

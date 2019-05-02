@@ -3,7 +3,7 @@ package lorganisation.projectrpg.player;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projectrpg.AssetsManager;
 import lorganisation.projectrpg.Game;
-import lorganisation.projectrpg.Utils;
+import lorganisation.projectrpg.utils.Utils;
 
 import java.util.List;
 

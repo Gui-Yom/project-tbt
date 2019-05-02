@@ -2,6 +2,7 @@ package lorganisation.projectrpg.player;
 
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projectrpg.Game;
+import lorganisation.projectrpg.utils.CyclicList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +10,14 @@ import java.util.List;
 public abstract class AbstractPlayer {
 
     protected Anscapes.Colors playerColor;
-    protected List<Character> characters;
+    protected CyclicList<Character> characters;
     protected String name;
 
     public AbstractPlayer(String name, Anscapes.Colors c) {
 
         this.name = name;
         this.playerColor = c;
-        this.characters = new ArrayList<>();
+        this.characters = new CyclicList<>();
     }
 
     public abstract Action play(Game game);
@@ -48,7 +49,7 @@ public abstract class AbstractPlayer {
         characters.add(c);
     }
 
-    public List<Character> getCharacters() {
+    public CyclicList<Character> getCharacters() {
 
         return characters;
     }
@@ -64,7 +65,7 @@ public abstract class AbstractPlayer {
     }
 
     public boolean hasCharacter(String type) {
-        for(Character character : characters)
+        for(Character character : characters.asList())
             if(character.getType().equalsIgnoreCase(type))
                 return true;
         return false;

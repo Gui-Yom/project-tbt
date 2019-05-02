@@ -1,7 +1,10 @@
 package lorganisation.projectrpg;
 
 import com.limelion.anscapes.Anscapes;
+import lorganisation.projectrpg.player.AbstractPlayer;
 import lorganisation.projectrpg.player.Character;
+import lorganisation.projectrpg.player.Player;
+import lorganisation.projectrpg.utils.Utils;
 import org.jline.terminal.Terminal;
 
 public class TerminalGameRenderer {
@@ -16,14 +19,13 @@ public class TerminalGameRenderer {
 
     public void render(Game g) {
 
-        Character character = g.getPlayers().get(0).getCharacters().get(0);
-
         Utils.clearTerm();
 
         write(0, 0, g.getMap().visual());
-        write(0, g.getMap().getHeight() + 1, "x: " + character.getX() + ", y: " + character.getY());
 
-        write(character.getX(), character.getY(), g.getPlayers().get(0).getColor().fg() + character.getIcon());
+        for (AbstractPlayer player : g.getPlayers().asList())
+            for (Character character : player.getCharacters().asList())
+                write(character.getX(), character.getY(), player.getColor().fg() + character.getIcon());
     }
 
     private void write(int x, int y, String s) {
