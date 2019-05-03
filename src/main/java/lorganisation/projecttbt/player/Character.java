@@ -1,14 +1,16 @@
-package lorganisation.projectrpg.player;
+package lorganisation.projecttbt.player;
 
-import lorganisation.projectrpg.Game;
-import lorganisation.projectrpg.map.StartPos;
+import lorganisation.projecttbt.AssetsManager;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Character {
 
     protected int x = 0;
     protected int y = 0;
     protected String type; // Type de personnage
-    protected char icon;
+    protected String icon;
 
     // Definition automatique des capacités à partir du type (dans un fichier texte par exemple)
     protected int portee; // Portée du déplacement
@@ -18,18 +20,19 @@ public class Character {
     protected int dommagesAttaque; // Dommages moyens par attaque
 
 
-    public Character(int x, int y, String type, char icon) {
+    public Character(int x, int y, String type, String icon) {
+
         this.x = x;
         this.y = y;
         this.type = type;
         this.icon = icon;
     }
-    public Character(String type, Game game) {
-        this.type = type;
-        this.icon = 0;
-        game.getMap().getNextStartPos().setCharacter(this);
 
-        //TODO: load character infos
+    public static Character load(String name) throws IOException {
+
+        InputStream is = AssetsManager.openResource(AssetsManager.gameCharacters().get(name));
+
+        return null;
     }
 
     @Override
@@ -55,6 +58,7 @@ public class Character {
     }
 
     public void setX(int x) {
+
         this.x = x;
     }
 
@@ -93,7 +97,7 @@ public class Character {
         return type;
     }
 
-    public char getIcon() {
+    public String getIcon() {
 
         return icon;
     }

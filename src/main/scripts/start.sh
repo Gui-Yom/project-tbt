@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar project-rpg.jar
+terminal --window --command="java -jar project-tbt.jar" --title="Project: TBT"

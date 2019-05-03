@@ -1,4 +1,4 @@
-package lorganisation.projectrpg.utils;
+package lorganisation.projecttbt.utils;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;

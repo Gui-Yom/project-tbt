@@ -1,6 +1,6 @@
-package lorganisation.projectrpg.map;
+package lorganisation.projecttbt.map;
 
-import lorganisation.projectrpg.AssetsManager;
+import lorganisation.projecttbt.AssetsManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +26,7 @@ public class LevelMap {
     private List<StartPos> startPos;
 
     public LevelMap(String name, int width, int height) {
+
         this(width, height, blankLevel(width, height), name, "", 4, Collections.unmodifiableList(Collections.singletonList(new StartPos(1, 1))));
     }
 
@@ -249,8 +250,9 @@ public class LevelMap {
     }
 
     public StartPos getNextStartPos() {
+
         for (StartPos sPos : startPos)
-            if(sPos.getCharacter() == null)
+            if (sPos.getCharacter() == null)
                 return sPos;
 
         return new StartPos(getWidth() / 2, getHeight() / 2);

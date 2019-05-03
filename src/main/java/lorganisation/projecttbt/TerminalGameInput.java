@@ -1,4 +1,4 @@
-package lorganisation.projectrpg;
+package lorganisation.projecttbt;
 
 import org.jline.terminal.Terminal;
 

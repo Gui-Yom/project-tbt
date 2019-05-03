@@ -1,5 +1,4 @@
-# project-rpg
-Un petit tactical rpg dans la console.
+# Project: TBT
 
 #### Inspirations
 Librement inspiré de :
@@ -80,13 +79,6 @@ de lui donner un avantage.
 Un mode Joueur vs IA est envisagé.
 
 ---
-
-### Organisation du code
-La classe principale est `lorganisation.projectrpg.Game`. 
-`lorganisation.projectrpg.map.LevelMap` représente une carte du jeu.
-Tout le rendu visuel est effectué dans `lorganisation.projectrpg.TerminalGameRenderer`.
-Le diagramme UML donne toutes les informations quand aux relations 
-entre les classes.
 
 ### Détails techniques
 Nous nous limiterons à l'interface de commande.

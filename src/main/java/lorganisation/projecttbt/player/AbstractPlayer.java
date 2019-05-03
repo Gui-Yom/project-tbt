@@ -1,19 +1,17 @@
-package lorganisation.projectrpg.player;
+package lorganisation.projecttbt.player;
 
 import com.limelion.anscapes.Anscapes;
-import lorganisation.projectrpg.Game;
-import lorganisation.projectrpg.utils.CyclicList;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.limelion.anscapes.AnsiColor;
+import lorganisation.projecttbt.Game;
+import lorganisation.projecttbt.utils.CyclicList;
 
 public abstract class AbstractPlayer {
 
-    protected Anscapes.Colors playerColor;
+    protected AnsiColor playerColor;
     protected CyclicList<Character> characters;
     protected String name;
 
-    public AbstractPlayer(String name, Anscapes.Colors c) {
+    public AbstractPlayer(String name, AnsiColor c) {
 
         this.name = name;
         this.playerColor = c;
@@ -54,7 +52,7 @@ public abstract class AbstractPlayer {
         return characters;
     }
 
-    public Anscapes.Colors getColor() {
+    public AnsiColor getColor() {
 
         return playerColor;
     }
@@ -65,8 +63,9 @@ public abstract class AbstractPlayer {
     }
 
     public boolean hasCharacter(String type) {
-        for(Character character : characters.asList())
-            if(character.getType().equalsIgnoreCase(type))
+
+        for (Character character : characters)
+            if (character.getType().equalsIgnoreCase(type))
                 return true;
         return false;
     }

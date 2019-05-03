@@ -1,4 +1,4 @@
-package lorganisation.projectrpg;
+package lorganisation.projecttbt;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
@@ -124,7 +124,7 @@ public class AssetsManager {
     /**
      * @return une map contenant les noms des maps comme clé et les noms des fichiers comme valeurs.
      */
-    public static Map<String, String> listMaps() {
+    public static Map<String, String> gameMaps() {
 
         return registry.maps;
     }
@@ -132,23 +132,23 @@ public class AssetsManager {
     /**
      * @return une liste des noms des map disponibles
      */
-    public static Set<String> mapNames() {
+    public static Set<String> gameMapNames() {
 
-        return listMaps().keySet();
+        return gameMaps().keySet();
     }
 
     /**
      * @return une liste des noms des fichiers des map disponibles
      */
-    public static Set<String> mapFiles() {
+    public static Set<String> gameMapFiles() {
 
-        return new HashSet<>(listMaps().values());
+        return new HashSet<>(gameMaps().values());
     }
 
     /**
-     * @return une map contenant les noms des charactères comme clé et les noms des fichiers comme valeurs.
+     * @return une map contenant les noms des caractères comme clé et les noms des fichiers comme valeurs.
      */
-    public static Map<String, String> listCharacters() {
+    public static Map<String, String> gameCharacters() {
 
         return registry.characters;
     }
@@ -156,17 +156,17 @@ public class AssetsManager {
     /**
      * @return une liste des noms des map disponibles
      */
-    public static Set<String> characterNames() {
+    public static Set<String> gameCharacterNames() {
 
-        return listCharacters().keySet();
+        return gameCharacters().keySet();
     }
 
     /**
      * @return une liste des noms des fichiers des map disponibles
      */
-    public static Set<String> characterFiles() {
+    public static Set<String> gameCharacterFiles() {
 
-        return new HashSet<>(listCharacters().values());
+        return new HashSet<>(gameCharacters().values());
     }
 
     public static List<String> botNames() {
@@ -196,7 +196,7 @@ public class AssetsManager {
             String line = null;
 
             while (scanner.hasNextLine())
-                if (!(line = scanner.nextLine()).equals(""))
+                if (!(line = scanner.nextLine().trim()).equals(""))
                     botNames.add(line);
 
         } catch (IOException e) {
@@ -210,25 +210,6 @@ public class AssetsManager {
             System.out.println(" OK");
             return true;
         }
-    }
-
-    /**
-     * Extrait les assets du jeu dans un dossier à côté du jar.
-     */
-    public static void extractAll() {
-
-        if (!extract("registry.json")) {
-            System.err.println("Unable to extract 'registry.json'.");
-        }
-        if (!extract("bots.txt")) {
-            System.err.println("Unable to extract 'bots.txt'.");
-        }
-        for (String s : mapFiles())
-            if (!extract("maps/" + s))
-                System.err.println("Unable to extract '" + s + "'.");
-        for (String s : characterFiles())
-            if (!extract("characters/" + s))
-                System.err.println("Unable to extract '" + s + "'.");
     }
 
     /**

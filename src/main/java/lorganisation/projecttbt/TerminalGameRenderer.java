@@ -1,10 +1,9 @@
-package lorganisation.projectrpg;
+package lorganisation.projecttbt;
 
 import com.limelion.anscapes.Anscapes;
-import lorganisation.projectrpg.player.AbstractPlayer;
-import lorganisation.projectrpg.player.Character;
-import lorganisation.projectrpg.player.Player;
-import lorganisation.projectrpg.utils.Utils;
+import lorganisation.projecttbt.player.AbstractPlayer;
+import lorganisation.projecttbt.player.Character;
+import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
 
 public class TerminalGameRenderer {
@@ -23,8 +22,8 @@ public class TerminalGameRenderer {
 
         write(0, 0, g.getMap().visual());
 
-        for (AbstractPlayer player : g.getPlayers().asList())
-            for (Character character : player.getCharacters().asList())
+        for (AbstractPlayer player : g.getPlayers())
+            for (Character character : player.getCharacters())
                 write(character.getX(), character.getY(), player.getColor().fg() + character.getIcon());
     }
 

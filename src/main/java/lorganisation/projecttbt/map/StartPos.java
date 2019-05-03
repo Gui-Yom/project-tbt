@@ -1,7 +1,7 @@
-package lorganisation.projectrpg.map;
+package lorganisation.projecttbt.map;
 
-import lorganisation.projectrpg.utils.Coords;
-import lorganisation.projectrpg.player.Character;
+import lorganisation.projecttbt.utils.Coords;
+import lorganisation.projecttbt.player.Character;
 
 public class StartPos extends Coords {
 

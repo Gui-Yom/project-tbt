@@ -28,10 +28,10 @@ dependencies {
 }
 
 // Define the main class for the application
-mainClassName = "lorganisation.projectrpg.Game"
-//mainClassName = "lorganisation.projectrpg.experiments.ResourceTest"
+mainClassName = "lorganisation.projecttbt.Game"
+//mainClassName = "lorganisation.projecttbt.experiments.ResourceTest"
 group = "lorganisation"
-version = "0.2.0"
+version = "0.3.0"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -48,7 +48,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 */
 
 shadowJar {
-    archiveFileName = "project-rpg.jar"
+    archiveFileName = "project-tbt.jar"
     manifest {
         attributes "Main-Class": mainClassName
     }

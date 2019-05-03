@@ -1,7 +1,7 @@
-package lorganisation.projectrpg.utils;
+package lorganisation.projecttbt.utils;
 
 /**
- * Une classe contenant des coordonnées (x,y)
+ * Une classe contenant des coordonnées (x,y) mutables.
  */
 public class Coords extends Pair<Integer, Integer> {
 

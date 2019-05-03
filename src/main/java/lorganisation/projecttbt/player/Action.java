@@ -1,4 +1,4 @@
-package lorganisation.projectrpg.player;
+package lorganisation.projecttbt.player;
 
 public enum Action {
 

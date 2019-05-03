@@ -1,14 +1,14 @@
-package lorganisation.projectrpg;
+package lorganisation.projecttbt;
 
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.ImgConverter;
-import lorganisation.projectrpg.map.LevelMap;
-import lorganisation.projectrpg.player.AbstractPlayer;
-import lorganisation.projectrpg.player.Bot;
-import lorganisation.projectrpg.player.Character;
-import lorganisation.projectrpg.player.Player;
-import lorganisation.projectrpg.utils.CyclicList;
-import lorganisation.projectrpg.utils.Utils;
+import lorganisation.projecttbt.map.LevelMap;
+import lorganisation.projecttbt.player.AbstractPlayer;
+import lorganisation.projecttbt.player.Bot;
+import lorganisation.projecttbt.player.Character;
+import lorganisation.projecttbt.player.Player;
+import lorganisation.projecttbt.utils.CyclicList;
+import lorganisation.projecttbt.utils.Utils;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -22,7 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -56,22 +56,16 @@ public class Game {
 
     private List<Colors> availableColors;
 
-
     /**
-     * On crée un Game à partir d'une entrée et d'une sortie.
-     *
-     * @param input
-     *     l'entrée
-     * @param renderer
-     *     la sortie
+     * @param term
      */
-    public Game(Terminal term, TerminalGameInput input, TerminalGameRenderer renderer) {
+    public Game(Terminal term) {
 
-        this.renderer = renderer;
-        this.input = input;
+        this.renderer = new TerminalGameRenderer(term);
+        this.input = new TerminalGameInput(term);
         this.terminal = term;
         players = new CyclicList<>();
-        availableColors = Utils.arrayToList(Colors.values());
+        availableColors = Arrays.asList(Colors.values());
     }
 
     public static void main(String[] args) throws IOException {
@@ -79,10 +73,23 @@ public class Game {
         // Aucune vérification, balec
         if (args != null && args.length == 1) {
 
+            // Met en place l'environement de développement.
+            // Extrait les ressources du jeu
             System.out.println("Mise en place de l'environnement de développement :");
             System.out.println("    Extraction des ressources ...");
 
-            AssetsManager.extractAll();
+            if (!AssetsManager.extract("registry.json")) {
+                System.err.println("Unable to extract 'registry.json'.");
+            }
+            if (!AssetsManager.extract("bots.txt")) {
+                System.err.println("Unable to extract 'bots.txt'.");
+            }
+            for (String s : AssetsManager.gameMapFiles())
+                if (!AssetsManager.extract("maps/" + s))
+                    System.err.println("Unable to extract '" + s + "'.");
+            for (String s : AssetsManager.gameCharacterFiles())
+                if (!AssetsManager.extract("characters/" + s))
+                    System.err.println("Unable to extract '" + s + "'.");
 
             System.out.println("Mise en place de l'environnement de développement :");
             System.out.println("    Extraction des ressources ... OK");
@@ -110,13 +117,13 @@ public class Game {
         }
 
         Terminal terminal = TerminalBuilder.builder()
-                                           .encoding(StandardCharsets.UTF_8)
+                                           .encoding(StandardCharsets.UTF_16LE)
                                            .jansi(true)
                                            .system(true)
-                                           .name("Game")
+                                           .name("Project: TBT")
                                            .nativeSignals(true)
-                                           //.type("windows-vtp")
-                                           .signalHandler(Game::handleSignal)
+                                           .type("windows-vtp")
+                                           //.signalHandler(Utils::handleSignal)
                                            .build();
 
         if (terminal instanceof DumbTerminal) {
@@ -130,65 +137,31 @@ public class Game {
 
         // TODO main menu
 
-        Game game = new Game(terminal, new TerminalGameInput(terminal), new TerminalGameRenderer(terminal));
+        Game game = new Game(terminal);
 
         // On affiche les maps disponibles et on demande au joueur de choisir
         Utils.clearTerm();
         System.out.println("Available maps :");
-        for (Map.Entry<String, String> e : AssetsManager.listMaps().entrySet())
+        for (Map.Entry<String, String> e : AssetsManager.gameMaps().entrySet())
             System.out.println(" - " + e.getKey() + " (" + e.getValue() + ")");
 
         LineReader reader = LineReaderBuilder.builder()
                                              .terminal(terminal)
-                                             .completer(new StringsCompleter(AssetsManager.mapNames()))
+                                             .completer(new StringsCompleter(AssetsManager.gameMapNames()))
                                              .build();
 
         String map = reader.readLine("Choose a map : ").trim();
 
-        LevelMap level = LevelMap.load(AssetsManager.listMaps().get(map));
+        LevelMap level = LevelMap.load(AssetsManager.gameMaps().get(map));
         game.setMap(level);
         //terminal.setSize(new Size(level.getWidth() + 50, level.getHeight() + 20));
 
-        // TODO map selection menu
-        game.lobby(terminal);
-        game.start(terminal);
+        // TODO map selection menu, make players vote for map
+        game.lobby();
+        game.start();
 
         Utils.clearTerm();
         terminal.close();
-    }
-
-    /**
-     * Cette méthode gère les signaux.
-     *
-     * @param sig
-     *     le signal à gérer
-     *
-     * @see <a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signaux, systèmes POSIX</a>
-     */
-    private static void handleSignal(Terminal.Signal sig) {
-
-        switch (sig) {
-            case INT:
-                System.out.println("Received SIGINT !");
-                System.exit(0);
-                break;
-            case QUIT:
-                System.out.println("Received SIGQUIT !");
-                break;
-            case TSTP:
-                System.out.println("Received SIGTSTP !");
-                break;
-            case CONT:
-                System.out.println("Received SIGCONT !");
-                break;
-            case INFO:
-                System.out.println("Received SIGINFO !");
-                break;
-            case WINCH:
-                // On window resize
-                System.out.println("Received SIGWINCH !");
-                break;
-        }
     }
 
     /**
@@ -232,7 +205,7 @@ public class Game {
     /**
      * Choix du nombre de joueurs et du nombre de personnages
      */
-    public void lobby(Terminal terminal) {
+    public void lobby() {
 
         //TODO: Limiter nombre de joueurs et de persos par joueurs selon
 
@@ -253,7 +226,7 @@ public class Game {
                                  terminal.getWidth());
 
         // On récupère le nombre de personnage maximum par joueur ( <= nombre de personnages existant, interdiction de prendre 2 fois le même)
-        int characterCount = Utils.promptReadInt(terminal, "Entrez le nombre de personnages par joueur [1]: ", 1, (n) -> n > 0 && n <= AssetsManager.characterNames().size());
+        int characterCount = Utils.promptReadInt(terminal, "Entrez le nombre de personnages par joueur [1]: ", 1, (n) -> n > 0 && n <= AssetsManager.gameCharacterNames().size());
 
         newPlayer(false);
 
@@ -274,7 +247,7 @@ public class Game {
         if (getPlayers().size() == 1)
             newPlayer(true);
 
-        for (AbstractPlayer player : getPlayers().asList())
+        for (AbstractPlayer player : players)
             pickCharacters(terminal, player, characterCount);
     }
 
@@ -302,7 +275,7 @@ public class Game {
 
         int count = 0;
 
-        for (AbstractPlayer player : getPlayers().asList())
+        for (AbstractPlayer player : getPlayers())
             if (!player.isBot())
                 count++;
 
@@ -342,12 +315,12 @@ public class Game {
 
         LineReader reader = LineReaderBuilder.builder()
                                              .terminal(terminal)
-                                             .completer(new StringsCompleter(AssetsManager.characterNames()))
+                                             .completer(new StringsCompleter(AssetsManager.gameCharacterNames()))
                                              .build();
 
         for (int current = 1; current <= characterCount; current++) {
             String characterName = reader.readLine("Personnage " + current + ": ").trim();
-            if(picker.hasCharacter(characterName)) {
+            if (picker.hasCharacter(characterName)) {
                 --current;
                 System.out.print(Anscapes.movePreviousLine(1) + Anscapes.CLEAR_LINE); // TODO: Ajouter message d'erreur
             } else
@@ -393,7 +366,7 @@ public class Game {
     /**
      * Lance la partie. La partie continue à l'infinie pour l'instant. (ou jusqu'a ce que le joueur appuie sur A)
      */
-    public void start(Terminal terminal) {
+    public void start() {
 
         Utils.clearTerm();
         Utils.writeFormattedLine(2,
@@ -459,7 +432,7 @@ public class Game {
 
 
             //TODO: change so that player can attack but can't move with 0 movementsLeft
-            if(!(hasAttacked) || (movementsLeft <= 0)) //turn isn't finished
+            if (!(hasAttacked) || (movementsLeft <= 0)) //turn isn't finished
                 --turn; // don't change turn index
         }
     }

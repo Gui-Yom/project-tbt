@@ -1,4 +1,4 @@
-package lorganisation.projectrpg.map;
+package lorganisation.projecttbt.map;
 
 public interface Tile {
 
