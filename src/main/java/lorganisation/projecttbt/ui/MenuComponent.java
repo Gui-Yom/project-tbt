@@ -9,4 +9,8 @@ public abstract class MenuComponent {
 
     public abstract String render();
 
+    public Coords getCoords() {
+
+        return coords;
+    }
 }

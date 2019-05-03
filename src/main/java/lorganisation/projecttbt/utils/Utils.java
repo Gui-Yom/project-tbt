@@ -5,6 +5,8 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -12,6 +14,11 @@ import java.util.function.Function;
  * Une classe comportant différentes méthodes utilitaires.
  */
 public class Utils {
+
+    public static <T> List<T> arrToList(T[] arr) {
+
+        return new ArrayList<>(Arrays.asList(arr));
+    }
 
     /**
      * @param list

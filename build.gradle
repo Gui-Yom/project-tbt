@@ -78,7 +78,7 @@ task play(type: Exec) {
         commandLine "C:/Windows/System32/cmd.exe", "/C start cmd /C call start.bat"
     } else {
         // Unix
-        commandLine "echo Not supported"
+        commandLine "bash $buildDir/libs/start.sh"
     }
 }
 

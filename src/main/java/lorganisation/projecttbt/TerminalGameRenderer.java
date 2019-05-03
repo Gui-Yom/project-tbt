@@ -3,6 +3,9 @@ package lorganisation.projecttbt;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
+import lorganisation.projecttbt.ui.Menu;
+import lorganisation.projecttbt.ui.MenuComponent;
+import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
 
@@ -25,6 +28,17 @@ public class TerminalGameRenderer {
         for (AbstractPlayer player : g.getPlayers())
             for (Character character : player.getCharacters())
                 write(character.getX(), character.getY(), player.getColor().fg() + character.getIcon());
+    }
+
+    public void render(Menu menu) {
+
+        for (MenuComponent component : menu.getComponents()) {
+
+            Coords coords = component.getCoords();
+
+            if (coords != null)
+                System.out.print(component.render());
+        }
     }
 
     private void write(int x, int y, String s) {

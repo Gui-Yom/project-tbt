@@ -3,10 +3,8 @@ package lorganisation.projecttbt;
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.ImgConverter;
 import lorganisation.projecttbt.map.LevelMap;
-import lorganisation.projecttbt.player.AbstractPlayer;
-import lorganisation.projecttbt.player.Bot;
 import lorganisation.projecttbt.player.Character;
-import lorganisation.projecttbt.player.Player;
+import lorganisation.projecttbt.player.*;
 import lorganisation.projecttbt.utils.CyclicList;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.reader.LineReader;
@@ -22,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +55,7 @@ public class Game {
 
     /**
      * @param term
+     *     une référence vers l'objet Terminal à utiliser
      */
     public Game(Terminal term) {
 
@@ -65,54 +63,21 @@ public class Game {
         this.input = new TerminalGameInput(term);
         this.terminal = term;
         players = new CyclicList<>();
-        availableColors = Arrays.asList(Colors.values());
+        availableColors = Utils.arrToList(Colors.values());
     }
 
     public static void main(String[] args) throws IOException {
 
-        // Aucune vérification, balec
+        // J'hésite à utiliser commons-cli mais ça ne ferai que rajouter du bordel
         if (args != null && args.length == 1) {
 
-            // Met en place l'environement de développement.
-            // Extrait les ressources du jeu
-            System.out.println("Mise en place de l'environnement de développement :");
-            System.out.println("    Extraction des ressources ...");
-
-            if (!AssetsManager.extract("registry.json")) {
-                System.err.println("Unable to extract 'registry.json'.");
-            }
-            if (!AssetsManager.extract("bots.txt")) {
-                System.err.println("Unable to extract 'bots.txt'.");
-            }
-            for (String s : AssetsManager.gameMapFiles())
-                if (!AssetsManager.extract("maps/" + s))
-                    System.err.println("Unable to extract '" + s + "'.");
-            for (String s : AssetsManager.gameCharacterFiles())
-                if (!AssetsManager.extract("characters/" + s))
-                    System.err.println("Unable to extract '" + s + "'.");
-
-            System.out.println("Mise en place de l'environnement de développement :");
-            System.out.println("    Extraction des ressources ... OK");
+            devenv();
             System.exit(0);
         }
 
         if (args != null && args.length == 4) {
 
-            ImgConverter converter = ImgConverter.builder()
-                                                 .mode(ImgConverter.Mode.valueOf(args[1]))
-                                                 .smoothing(true)
-                                                 .reductionScale(Integer.parseInt(args[2]))
-                                                 .build();
-
-            File f = new File(args[3]);
-            if (!f.exists()) {
-                System.err.println("Given file doesn't exist. ('" + f.getAbsolutePath() + "')");
-                System.exit(-1);
-            }
-
-            BufferedImage image = ImageIO.read(f);
-
-            System.out.print(converter.convert(image));
+            convert(ImgConverter.Mode.valueOf(args[1]), Integer.parseInt(args[2]), new File(args[3]));
             System.exit(0);
         }
 
@@ -135,33 +100,70 @@ public class Game {
 
         Utils.hideCursor();
 
-        // TODO main menu
-
         Game game = new Game(terminal);
 
         // On affiche les maps disponibles et on demande au joueur de choisir
         Utils.clearTerm();
-        System.out.println("Available maps :");
-        for (Map.Entry<String, String> e : AssetsManager.gameMaps().entrySet())
-            System.out.println(" - " + e.getKey() + " (" + e.getValue() + ")");
 
-        LineReader reader = LineReaderBuilder.builder()
-                                             .terminal(terminal)
-                                             .completer(new StringsCompleter(AssetsManager.gameMapNames()))
-                                             .build();
+        game.mainMenu();
+        Utils.clearTerm();
 
-        String map = reader.readLine("Choose a map : ").trim();
-
-        LevelMap level = LevelMap.load(AssetsManager.gameMaps().get(map));
-        game.setMap(level);
-        //terminal.setSize(new Size(level.getWidth() + 50, level.getHeight() + 20));
-
-        // TODO map selection menu, make players vote for map
+        game.mapSelection();
+        Utils.clearTerm();
         game.lobby();
+        Utils.clearTerm();
         game.start();
 
         Utils.clearTerm();
+        Utils.showCursor();
         terminal.close();
+    }
+
+    private static void devenv() {
+
+        // Met en place l'environement de développement.
+        // Extrait les ressources du jeu
+        System.out.println("Mise en place de l'environnement de développement :");
+        System.out.println("    Extraction des ressources ...");
+
+        if (!AssetsManager.extract("registry.json")) {
+            System.err.println("Unable to extract 'registry.json'.");
+        }
+        if (!AssetsManager.extract("bots.txt")) {
+            System.err.println("Unable to extract 'bots.txt'.");
+        }
+        for (String s : AssetsManager.gameMapFiles())
+            if (!AssetsManager.extract("maps/" + s))
+                System.err.println("Unable to extract '" + s + "'.");
+        for (String s : AssetsManager.gameCharacterFiles())
+            if (!AssetsManager.extract("characters/" + s))
+                System.err.println("Unable to extract '" + s + "'.");
+
+        System.out.println("Mise en place de l'environnement de développement :");
+        System.out.println("    Extraction des ressources ... OK");
+    }
+
+    private static void convert(ImgConverter.Mode mode, int reduction, File f) {
+
+        ImgConverter converter = ImgConverter.builder()
+                                             .mode(mode)
+                                             .smoothing(true)
+                                             .reductionScale(reduction)
+                                             .build();
+
+        if (!f.exists()) {
+            System.err.println("Given file doesn't exist. ('" + f.getAbsolutePath() + "')");
+            System.exit(-1);
+        }
+
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.print(converter.convert(image));
     }
 
     /**
@@ -202,14 +204,41 @@ public class Game {
         this.map = map;
     }
 
+    public void mainMenu() {
+
+        MainMenu mainMenu = new MainMenu();
+        renderer.render(mainMenu);
+
+        int key;
+        do {
+            key = input.getInput();
+            mainMenu.sendEvent((char) key);
+        } while (key != 13);
+    }
+
+    public void mapSelection() {
+
+        System.out.println("Available maps :");
+        for (Map.Entry<String, String> e : AssetsManager.gameMaps().entrySet())
+            System.out.println(" - " + e.getKey() + " (" + e.getValue() + ")");
+
+        LineReader reader = LineReaderBuilder.builder()
+                                             .terminal(terminal)
+                                             .completer(new StringsCompleter(AssetsManager.gameMapNames()))
+                                             .build();
+
+        String map = reader.readLine("Choose a map : ").trim();
+
+        //terminal.setSize(new Size(level.getWidth() + 50, level.getHeight() + 20));
+        this.map = LevelMap.load(AssetsManager.gameMaps().get(map));
+    }
+
     /**
      * Choix du nombre de joueurs et du nombre de personnages
      */
     public void lobby() {
 
         //TODO: Limiter nombre de joueurs et de persos par joueurs selon
-
-        Utils.clearTerm();
         Utils.writeFormattedLine(1,
                                  "LOBBY",
                                  new String[] { Colors.MAGENTA.bg(), Anscapes.RESET },
@@ -323,8 +352,11 @@ public class Game {
             if (picker.hasCharacter(characterName)) {
                 --current;
                 System.out.print(Anscapes.movePreviousLine(1) + Anscapes.CLEAR_LINE); // TODO: Ajouter message d'erreur
-            } else
-                picker.addCharacter(new Character(characterName, this));
+            } else {
+                Character character = CharacterTemplate.getCharacterTemplate(characterName).createCharacter();
+                map.getNextStartPos().setCharacter(character);
+                picker.addCharacter(character);
+            }
         }
     }
 
@@ -341,7 +373,7 @@ public class Game {
 
             char read = (char) input.getInput();
             if (read == 13)
-                break; // (13 = SPACE)
+                break; // (13 = ENTER)
 
             switch (read) {
                 case 'q': {
@@ -368,7 +400,6 @@ public class Game {
      */
     public void start() {
 
-        Utils.clearTerm();
         Utils.writeFormattedLine(2,
                                  "'ZQSD' pour se déplacer, 'ESC' pour quitter",
                                  null,
@@ -377,7 +408,7 @@ public class Game {
                                  0,
                                  terminal.getWidth());
 
-        input.getInput();
+        input.getInput(); // wait for user keypress to skip menu
 
         Character character;
         AbstractPlayer player;

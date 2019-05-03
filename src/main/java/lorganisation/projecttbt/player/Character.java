@@ -1,14 +1,9 @@
 package lorganisation.projecttbt.player;
 
-import lorganisation.projecttbt.AssetsManager;
-
-import java.io.IOException;
-import java.io.InputStream;
-
 public class Character {
 
-    protected int x = 0;
-    protected int y = 0;
+    protected int x;
+    protected int y;
     protected String type; // Type de personnage
     protected String icon;
 
@@ -19,6 +14,16 @@ public class Character {
     protected int defense; // Valeur du bouclier
     protected int dommagesAttaque; // Dommages moyens par attaque
 
+    private Character(String type, String icon, int portee, int hp, int mp, int defense, int dommagesAttaque) {
+
+        this.type = type;
+        this.icon = icon;
+        this.portee = portee;
+        this.hp = hp;
+        this.mp = mp;
+        this.defense = defense;
+        this.dommagesAttaque = dommagesAttaque;
+    }
 
     public Character(int x, int y, String type, String icon) {
 
@@ -28,11 +33,8 @@ public class Character {
         this.icon = icon;
     }
 
-    public static Character load(String name) throws IOException {
-
-        InputStream is = AssetsManager.openResource(AssetsManager.gameCharacters().get(name));
-
-        return null;
+    public Character(CharacterTemplate template) {
+        this(template.type, template.icon, template.portee, template.hp, template.mp, template.defense, template.dommagesAttaque);
     }
 
     @Override
