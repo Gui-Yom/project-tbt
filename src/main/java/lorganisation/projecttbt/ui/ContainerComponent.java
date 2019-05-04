@@ -4,5 +4,5 @@ public abstract class ContainerComponent<E> extends MenuComponent {
 
     protected E selectedItem;
 
-    public abstract E getSelectedItem();
+    public abstract E getValue();
 }

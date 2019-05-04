@@ -6,6 +6,8 @@ import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.player.*;
 import lorganisation.projecttbt.utils.CyclicList;
+import lorganisation.projecttbt.utils.Pair;
+import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -63,7 +65,7 @@ public class Game {
         this.input = new TerminalGameInput(term);
         this.terminal = term;
         players = new CyclicList<>();
-        availableColors = Utils.arrToList(Colors.values());
+        availableColors = Utils.arrayToList(Colors.values());
     }
 
     public static void main(String[] args) throws IOException {
@@ -159,11 +161,10 @@ public class Game {
         BufferedImage image = null;
         try {
             image = ImageIO.read(f);
+            System.out.print(converter.convert(image));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.print(converter.convert(image));
     }
 
     /**
@@ -207,13 +208,7 @@ public class Game {
     public void mainMenu() {
 
         MainMenu mainMenu = new MainMenu();
-        renderer.render(mainMenu);
-
-        int key;
-        do {
-            key = input.getInput();
-            mainMenu.sendEvent((char) key);
-        } while (key != 13);
+        mainMenu.display(input, renderer);
     }
 
     public void mapSelection() {
@@ -240,18 +235,15 @@ public class Game {
 
         //TODO: Limiter nombre de joueurs et de persos par joueurs selon
         Utils.writeFormattedLine(1,
-                                 "LOBBY",
-                                 new String[] { Colors.MAGENTA.bg(), Anscapes.RESET },
-                                 true,
-                                 Utils.Align.CENTER,
                                  0,
+                                 new StyledString("LOBBY", Pair.of(0, Colors.MAGENTA.bg())),
+                                 Utils.Align.CENTER,
                                  terminal.getWidth());
         Utils.writeFormattedLine(2,
-                                 "Nombre de joueurs max : " + getMap().getStartPos().size(),
-                                 new String[] { Colors.RED.fg(), Anscapes.RESET },
-                                 true,
-                                 Utils.Align.CENTER,
                                  0,
+                                 new StyledString("Nombre de joueurs max : " + getMap().getStartPos().size(),
+                                                  Pair.of(0, Colors.RED.fg())),
+                                 Utils.Align.CENTER,
                                  terminal.getWidth());
 
         // On récupère le nombre de personnage maximum par joueur ( <= nombre de personnages existant, interdiction de prendre 2 fois le même)
@@ -328,18 +320,14 @@ public class Game {
         Utils.clearTerm();
 
         Utils.writeFormattedLine(1,
-                                 "Lobby - Choix des personnages ",
-                                 null,
-                                 true,
-                                 Utils.Align.CENTER,
                                  0,
+                                 new StyledString("Lobby - Choix des personnages"),
+                                 Utils.Align.CENTER,
                                  terminal.getWidth());
         Utils.writeFormattedLine(2,
-                                 picker.getName().toUpperCase(),
-                                 new String[] { picker.getColor().fg(), "" },
-                                 true,
-                                 Utils.Align.CENTER,
                                  0,
+                                 new StyledString(picker.getName().toUpperCase(), Pair.of(0, picker.getColor().fg())),
+                                 Utils.Align.CENTER,
                                  terminal.getWidth());
 
         LineReader reader = LineReaderBuilder.builder()
@@ -401,11 +389,13 @@ public class Game {
     public void start() {
 
         Utils.writeFormattedLine(2,
-                                 "'ZQSD' pour se déplacer, 'ESC' pour quitter",
-                                 null,
-                                 true,
-                                 Utils.Align.CENTER,
                                  0,
+                                 new StyledString("'Z Q S D' pour se déplacer, 'ESC' pour quitter",
+                                                  Pair.of(1, Colors.YELLOW.fg()),
+                                                  Pair.of(7, Anscapes.RESET),
+                                                  Pair.of(28, Colors.YELLOW.fg()),
+                                                  Pair.of(31, Anscapes.RESET)),
+                                 Utils.Align.CENTER,
                                  terminal.getWidth());
 
         input.getInput(); // wait for user keypress to skip menu

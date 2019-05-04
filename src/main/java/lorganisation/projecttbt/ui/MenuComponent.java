@@ -1,16 +1,16 @@
 package lorganisation.projecttbt.ui;
 
 import lorganisation.projecttbt.utils.Coords;
+import org.jline.terminal.Terminal;
 
 public abstract class MenuComponent {
 
     protected Coords coords;
-    protected String id;
-
-    public abstract String render();
 
     public Coords getCoords() {
 
         return coords;
     }
+
+    public abstract String render(Terminal term);
 }

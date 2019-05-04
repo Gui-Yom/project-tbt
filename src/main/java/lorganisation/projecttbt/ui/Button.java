@@ -1,5 +1,7 @@
 package lorganisation.projecttbt.ui;
 
+import org.jline.terminal.Terminal;
+
 public class Button extends ActionComponent {
 
     public Button(char key, Runnable action) {
@@ -9,7 +11,7 @@ public class Button extends ActionComponent {
     }
 
     @Override
-    public String render() {
+    public String render(Terminal terminal) {
 
         return null;
     }

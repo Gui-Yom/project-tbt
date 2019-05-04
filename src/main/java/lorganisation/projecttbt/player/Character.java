@@ -34,6 +34,7 @@ public class Character {
     }
 
     public Character(CharacterTemplate template) {
+
         this(template.type, template.icon, template.portee, template.hp, template.mp, template.defense, template.dommagesAttaque);
     }
 

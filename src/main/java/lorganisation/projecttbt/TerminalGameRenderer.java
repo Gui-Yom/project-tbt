@@ -1,6 +1,5 @@
 package lorganisation.projecttbt;
 
-import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.ui.Menu;
@@ -23,11 +22,11 @@ public class TerminalGameRenderer {
 
         Utils.clearTerm();
 
-        write(0, 0, g.getMap().visual());
+        Utils.writeAt(0, 0, g.getMap().visual());
 
         for (AbstractPlayer player : g.getPlayers())
             for (Character character : player.getCharacters())
-                write(character.getX(), character.getY(), player.getColor().fg() + character.getIcon());
+                Utils.writeAt(character.getX(), character.getY(), player.getColor().fg() + character.getIcon());
     }
 
     public void render(Menu menu) {
@@ -37,17 +36,7 @@ public class TerminalGameRenderer {
             Coords coords = component.getCoords();
 
             if (coords != null)
-                System.out.print(component.render());
+                System.out.print(component.render(terminal));
         }
-    }
-
-    private void write(int x, int y, String s) {
-
-        // La première case sur un terminal est (1,1)
-        // On décale pour pouvoir mettre (0,0)
-        // On inverse x et y, car la convention est ligne, colonne
-        System.out.print(Anscapes.cursorPos(y + 1, x + 1));
-        System.out.print(s + Anscapes.RESET);
-        System.out.print(Anscapes.cursorPos(y + 1, x + 1)); // On refout le curseur là où on a écrit pour avoir le blinking sur cette case et pas celle d'après
     }
 }

@@ -23,6 +23,11 @@ public class Pair<U, V> implements JsonSerializer<Pair<U, V>>, JsonDeserializer<
 
     }
 
+    public static <U, V> Pair<U, V> of(U u, V v) {
+
+        return new Pair<>(u, v);
+    }
+
     public U getU() {
 
         return u;

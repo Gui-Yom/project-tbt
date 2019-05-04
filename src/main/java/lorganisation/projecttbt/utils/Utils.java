@@ -5,9 +5,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -15,9 +13,19 @@ import java.util.function.Function;
  */
 public class Utils {
 
-    public static <T> List<T> arrToList(T[] arr) {
+    public static <T> List<T> arrayToList(T[] arr) {
 
         return new ArrayList<>(Arrays.asList(arr));
+    }
+
+    public static <U, V> Map<U, V> pairArrayToMap(Pair<U, V>[] pairs) {
+
+        Map<U, V> map = new HashMap<>();
+
+        for (Pair<U, V> p : pairs)
+            map.put(p.getU(), p.getV());
+
+        return map;
     }
 
     /**
@@ -63,26 +71,61 @@ public class Utils {
     }
 
     /**
+     * Ecrit un String à une position donnée
+     *
+     * @param x
+     * @param y
+     * @param s
+     */
+    public static void writeAt(int x, int y, String s) {
+
+        // La première case sur un terminal est (1,1)
+        // On décale pour pouvoir mettre (0,0)
+        // On inverse x et y, car la convention est ligne, colonne
+        System.out.print(Anscapes.cursorPos(y + 1, x + 1));
+        System.out.print(s + Anscapes.RESET);
+        System.out.print(Anscapes.cursorPos(y + 1, x + 1)); // On refout le curseur là où on a écrit pour avoir le blinking sur cette case et pas celle d'après
+    }
+
+    /**
      * Ecrit une ligne, avec alignement
      */
-    public static void writeFormattedLine(int n, String s, String[] modifiers, boolean clear, Align alignment, int offset, int width) {
+    public static void writeFormattedLine(int row, int col, StyledString s, Align alignment, int width) {
 
-        if (modifiers == null) modifiers = new String[] { "", "" };
+        System.out.println(formattedLine(row, col, s, alignment, width) + Anscapes.RESET);
+    }
+
+    /**
+     * @param row
+     * @param col
+     * @param s
+     * @param alignment
+     * @param width
+     *
+     * @return
+     */
+    public static String formattedLine(int row, int col, StyledString s, Align alignment, int width) {
+
+        Coords coords = coordinatesOfFormattedLine(row, col, s.length(), alignment, width);
+
+        String result = Anscapes.cursorPos(coords.getY() + 1, coords.getX() + 1); // Aller à la ligne n
+
+        result += s;
+
+        return result;
+    }
+
+    public static Coords coordinatesOfFormattedLine(int row, int col, int length, Align alignment, int width) {
 
         int x;
         if (alignment == Align.LEFT)
-            x = offset;
+            x = col;
         else if (alignment == Align.RIGHT)
-            x = width - s.length() - offset;
+            x = width - length - col;
         else
-            x = (width - s.length()) / 2 + offset;
+            x = (width - length) / 2 + col;
 
-        System.out.print(Anscapes.cursorPos(n, x)); // Aller à la ligne n
-
-        if (clear)
-            System.out.print(Anscapes.CLEAR_LINE);
-
-        System.out.println(modifiers[0] + s + modifiers[1] + Anscapes.RESET);
+        return new Coords(x, row);
     }
 
     /**

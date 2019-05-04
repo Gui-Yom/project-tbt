@@ -1,5 +1,7 @@
 package lorganisation.projecttbt.ui;
 
+import org.jline.terminal.Terminal;
+
 public class TextBox extends ContainerComponent<String> {
 
     private String prompt;
@@ -12,20 +14,21 @@ public class TextBox extends ContainerComponent<String> {
     }
 
     public void sendEvent(int key) {
-        if(key == 8) //backspace
+
+        if (key == 8) //backspace
             builder.deleteCharAt(builder.length() - 1);
         else
-            builder.append((char)key);
+            builder.append((char) key);
     }
 
     @Override
-    public String render() {
+    public String render(Terminal term) {
 
         return prompt;
     }
 
     @Override
-    public String getSelectedItem() {
+    public String getValue() {
 
         return null;
     }
