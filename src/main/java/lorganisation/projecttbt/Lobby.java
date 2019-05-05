@@ -1,8 +1,8 @@
 package lorganisation.projecttbt;
 
-import lorganisation.projecttbt.ui.Menu;
+import lorganisation.projecttbt.ui.Screen;
 
-public class Lobby extends Menu {
+public class Lobby extends Screen {
 
     public Lobby() {
 

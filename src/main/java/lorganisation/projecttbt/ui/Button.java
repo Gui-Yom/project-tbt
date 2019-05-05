@@ -15,4 +15,10 @@ public class Button extends ActionComponent {
 
         return null;
     }
+
+    @Override
+    public boolean handleEvent(int key) {
+
+        return false;
+    }
 }

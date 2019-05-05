@@ -3,35 +3,32 @@ package lorganisation.projecttbt.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Menu {
+public abstract class Screen {
 
-    protected List<MenuComponent> components;
+    protected List<Widget> components;
 
-    public Menu() {
+    public Screen() {
 
         components = new ArrayList<>();
     }
 
-    public List<MenuComponent> getComponents() {
+    public List<Widget> getComponents() {
 
         return components;
     }
 
-    public void addComponent(MenuComponent component) {
+    public void addComponent(Widget component) {
 
         components.add(component);
     }
 
     public void sendEvent(char key) {
 
-
-        for (MenuComponent component : components) {
+        for (Widget component : components)
             if (component instanceof ActionComponent) {
                 ActionComponent ac = (ActionComponent) component;
-                if (key == ac.getKey()) {
+                if (key == ac.getKey())
                     ac.action.run();
-                }
             }
-        }
     }
 }

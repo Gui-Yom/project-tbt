@@ -2,23 +2,31 @@ package lorganisation.projecttbt.ui;
 
 import org.jline.terminal.Terminal;
 
-public class TextBox extends ContainerComponent<String> {
+public class TextBox extends ContainerWidget<String> {
 
     private String prompt;
     private StringBuilder builder;
+    private int maxSize;
+    private int typedLength;
 
-    public TextBox(String prompt) {
+    public TextBox(String prompt, int maxSize) {
 
         this.prompt = prompt;
+        this.maxSize = maxSize;
         this.builder = new StringBuilder();
+        this.typedLength = 0;
+
+        for (int i = 0; i < this.maxSize; i++)
+            this.builder.append("_");
     }
 
-    public void sendEvent(int key) {
+    public boolean handleEvent(int key) {
 
         if (key == 8) //backspace
-            builder.deleteCharAt(builder.length() - 1);
+            builder.deleteCharAt(typedLength - 1);
         else
-            builder.append((char) key);
+            builder.replace(typedLength - 1, typedLength, String.valueOf((char) key));
+        return false;
     }
 
     @Override

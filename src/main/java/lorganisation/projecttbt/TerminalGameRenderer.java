@@ -2,8 +2,8 @@ package lorganisation.projecttbt;
 
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
-import lorganisation.projecttbt.ui.Menu;
-import lorganisation.projecttbt.ui.MenuComponent;
+import lorganisation.projecttbt.ui.Screen;
+import lorganisation.projecttbt.ui.Widget;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
@@ -29,14 +29,19 @@ public class TerminalGameRenderer {
                 Utils.writeAt(character.getX(), character.getY(), player.getColor().fg() + character.getIcon());
     }
 
-    public void render(Menu menu) {
+    public void render(Screen screen) {
 
-        for (MenuComponent component : menu.getComponents()) {
+        for (Widget component : screen.getComponents()) {
 
             Coords coords = component.getCoords();
 
             if (coords != null)
-                System.out.print(component.render(terminal));
+                renderComponent(component);
         }
+    }
+
+    public void renderComponent(Widget component) {
+
+        System.out.print(component.render(terminal));
     }
 }

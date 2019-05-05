@@ -5,6 +5,8 @@ import com.limelion.anscapes.ImgConverter;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.player.*;
+import lorganisation.projecttbt.ui.menus.MainScreen;
+import lorganisation.projecttbt.ui.menus.MapSelectionScreen;
 import lorganisation.projecttbt.utils.CyclicList;
 import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
@@ -23,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
 import static com.limelion.anscapes.Anscapes.Colors;
 
@@ -112,6 +113,7 @@ public class Game {
 
         game.mapSelection();
         Utils.clearTerm();
+
         game.lobby();
         Utils.clearTerm();
         game.start();
@@ -207,13 +209,16 @@ public class Game {
 
     public void mainMenu() {
 
-        MainMenu mainMenu = new MainMenu();
+        MainScreen mainMenu = new MainScreen();
         mainMenu.display(input, renderer);
     }
 
     public void mapSelection() {
 
-        System.out.println("Available maps :");
+        MapSelectionScreen mapSelectionMenu = new MapSelectionScreen(this);
+        mapSelectionMenu.display(input, renderer);
+
+        /*System.out.println("Available maps :");
         for (Map.Entry<String, String> e : AssetsManager.gameMaps().entrySet())
             System.out.println(" - " + e.getKey() + " (" + e.getValue() + ")");
 
@@ -225,7 +230,7 @@ public class Game {
         String map = reader.readLine("Choose a map : ").trim();
 
         //terminal.setSize(new Size(level.getWidth() + 50, level.getHeight() + 20));
-        this.map = LevelMap.load(AssetsManager.gameMaps().get(map));
+        this.map = LevelMap.load(AssetsManager.gameMaps().get(map));*/
     }
 
     /**
@@ -234,13 +239,14 @@ public class Game {
     public void lobby() {
 
         //TODO: Limiter nombre de joueurs et de persos par joueurs selon
+        System.out.println(getMap());
         Utils.writeFormattedLine(1,
-                                 0,
+                                 2,
                                  new StyledString("LOBBY", Pair.of(0, Colors.MAGENTA.bg())),
                                  Utils.Align.CENTER,
                                  terminal.getWidth());
         Utils.writeFormattedLine(2,
-                                 0,
+                                 5,
                                  new StyledString("Nombre de joueurs max : " + getMap().getStartPos().size(),
                                                   Pair.of(0, Colors.RED.fg())),
                                  Utils.Align.CENTER,
@@ -391,10 +397,10 @@ public class Game {
         Utils.writeFormattedLine(2,
                                  0,
                                  new StyledString("'Z Q S D' pour se déplacer, 'ESC' pour quitter",
-                                                  Pair.of(1, Colors.YELLOW.fg()),
-                                                  Pair.of(7, Anscapes.RESET),
-                                                  Pair.of(28, Colors.YELLOW.fg()),
-                                                  Pair.of(31, Anscapes.RESET)),
+                                                  Pair.of(2, Colors.YELLOW.fg()),
+                                                  Pair.of(8, Anscapes.RESET),
+                                                  Pair.of(29, Colors.YELLOW.fg()),
+                                                  Pair.of(32, Anscapes.RESET)),
                                  Utils.Align.CENTER,
                                  terminal.getWidth());
 

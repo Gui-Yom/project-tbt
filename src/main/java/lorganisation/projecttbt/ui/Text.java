@@ -6,7 +6,7 @@ import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
 
-public class Text extends MenuComponent {
+public class Text extends Widget {
 
     protected StyledString stext;
     protected Utils.Align alignement;
@@ -35,7 +35,13 @@ public class Text extends MenuComponent {
 
     @Override
     public String render(Terminal term) {
-        //tu peux pas faire une formatted line ici psk il faut la width du terminal (pour qu'il puisse l'aligner)
-        return Utils.formattedLine(coords.getX(), coords.getY(), stext, alignement, term.getWidth()) + Anscapes.RESET;
+        // /!\ col = X, line = Y
+        return Utils.formattedLine(coords.getY(), coords.getX(), stext, alignement, term.getWidth()) + Anscapes.RESET;
+    }
+
+    @Override
+    public boolean handleEvent(int key) {
+
+        return false;
     }
 }

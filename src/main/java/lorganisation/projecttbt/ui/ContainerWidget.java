@@ -1,6 +1,6 @@
 package lorganisation.projecttbt.ui;
 
-public abstract class ContainerComponent<E> extends MenuComponent {
+public abstract class ContainerWidget<E> extends Widget {
 
     protected E selectedItem;
 

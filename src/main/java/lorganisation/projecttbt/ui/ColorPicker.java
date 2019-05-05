@@ -5,7 +5,7 @@ import org.jline.terminal.Terminal;
 
 import java.util.List;
 
-public class ColorPicker extends ContainerComponent<AnsiColor> {
+public class ColorPicker extends ContainerWidget<AnsiColor> {
 
     private List<AnsiColor> availableColors;
 
@@ -18,6 +18,12 @@ public class ColorPicker extends ContainerComponent<AnsiColor> {
     public String render(Terminal term) {
 
         return null;
+    }
+
+    @Override
+    public boolean handleEvent(int key) {
+
+        return false;
     }
 
     @Override
