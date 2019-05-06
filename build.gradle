@@ -30,8 +30,8 @@ dependencies {
 }
 
 // Define the main class for the application
-//mainClassName = "lorganisation.projecttbt.Game"
-mainClassName = "lorganisation.projecttbt.experiments.LanternaIntegration"
+mainClassName = "lorganisation.projecttbt.Game"
+//mainClassName = "lorganisation.projecttbt.experiments.LanternaIntegration"
 group = "lorganisation"
 version = "0.3.0"
 

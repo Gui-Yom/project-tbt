@@ -30,6 +30,12 @@ public abstract class Screen {
                 ActionWidget ac = (ActionWidget) component;
                 if (key == ac.getKey())
                     ac.action.run();
+            } else if (component instanceof TextField) {
+                TextField tf = (TextField) component;
+                tf.handleEvent(key);
+            } else if (component instanceof IntegerField) {
+                IntegerField iF = (IntegerField) component;
+                iF.handleEvent(key);
             }
     }
 }

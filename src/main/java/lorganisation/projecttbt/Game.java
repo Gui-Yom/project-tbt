@@ -5,9 +5,10 @@ import com.limelion.anscapes.ImgConverter;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.player.*;
-import lorganisation.projecttbt.ui.menus.LobbyScreen;
-import lorganisation.projecttbt.ui.menus.MainScreen;
-import lorganisation.projecttbt.ui.menus.MapSelectionScreen;
+import lorganisation.projecttbt.ui.screens.LobbyScreen;
+import lorganisation.projecttbt.ui.screens.MainScreen;
+import lorganisation.projecttbt.ui.screens.MapSelectionScreen;
+import lorganisation.projecttbt.ui.screens.TestScreen;
 import lorganisation.projecttbt.utils.CyclicList;
 import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
@@ -107,6 +108,9 @@ public class Game {
         Game game = new Game(terminal);
 
         // On affiche les maps disponibles et on demande au joueur de choisir
+        Utils.clearTerm();
+
+        (new TestScreen()).display(game.input, game.renderer);
         Utils.clearTerm();
 
         game.mainMenu();
@@ -239,7 +243,7 @@ public class Game {
      */
     public void lobby() {
 
-        LobbyScreen lobbyScreen = new LobbyScreen();
+        LobbyScreen lobbyScreen = new LobbyScreen(getMap());
         lobbyScreen.display(input, renderer);
 
         //TODO: Limiter nombre de joueurs et de persos par joueurs selon

@@ -18,9 +18,22 @@ public class StyledString implements CharSequence {
             this.modifiers = new TreeMap<>(Utils.pairArrayToMap(modifiers));
     }
 
+    public StyledString(String text, Map<Integer, String> modifiers, Pair<Integer, String>... otherModifiers) {
+
+        this.text = text;
+
+        for (Pair<Integer, String> modifier : otherModifiers)
+            modifiers.put(modifier.getU(), modifier.getV());
+        this.modifiers = modifiers;
+    }
+
     public String text() {
 
         return text;
+    }
+
+    public void setText(String string) {
+        this.text = string;
     }
 
     public Map<Integer, String> modifiers() {

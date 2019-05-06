@@ -33,7 +33,7 @@ public class LanternaIntegration {
 
             WindowsTerminal terminal = new WindowsTerminal(term);
             /*
-            The DefaultTerminalFactory class doesn't provide any helper method for creating a Text GUI, you'll need to
+            The DefaultTerminalFactory class doesn't provide any helper method for creating a Label GUI, you'll need to
              get a Screen like we did in the previous tutorial and start it so it puts the terminal in private mode.
              */
             Screen screen = new TerminalScreen(terminal);
@@ -94,7 +94,7 @@ public class LanternaIntegration {
             Since the grid has two columns, we can do something like this to add components when we don't need to
             customize them any further.
              */
-            contentPanel.addComponent(new Label("Text Box (aligned)"));
+            contentPanel.addComponent(new Label("Label Box (aligned)"));
             contentPanel.addComponent(
                 new TextBox()
                     .setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.BEGINNING, GridLayout.Alignment.CENTER)));

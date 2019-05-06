@@ -1,34 +1,53 @@
 package lorganisation.projecttbt.ui;
 
+import com.limelion.anscapes.Anscapes;
+import lorganisation.projecttbt.utils.Coords;
+import lorganisation.projecttbt.utils.Pair;
+import lorganisation.projecttbt.utils.StyledString;
+import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
 
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 public class TextField extends ContainerWidget<String> {
 
-    private String prompt;
+    private StyledString prompt;
     private StringBuilder builder;
+    private Utils.Align alignement;
+    private Map<Integer, String> modifiers;
     private int maxSize;
-    private int typedLength;
 
-    public TextField(String prompt, int maxSize) {
+    public TextField(Coords coords, StyledString prompt, Utils.Align alignement, int maxSize, Pair<Integer, String>... modifiers) {
 
+        this.modifiers = new TreeMap<>();
+
+        if (prompt.modifiers() != null)
+            for (Integer index : prompt.modifiers().keySet())
+                this.modifiers.put(index, prompt.modifiers().get(index));
+
+        if (modifiers != null)
+            for (Pair<Integer, String> modifier : modifiers)
+                this.modifiers.put(modifier.getU() + prompt.text().length(), modifier.getV());
+
+
+        this.alignement = alignement;
+        this.coords = coords;
         this.prompt = prompt;
         this.maxSize = maxSize;
         this.builder = new StringBuilder();
-        this.typedLength = 0;
-
-        for (int i = 0; i < this.maxSize; i++)
-            this.builder.append("_");
     }
 
     public boolean handleEvent(int key) {
 
-        if (key == 8) //backspace
-            builder.deleteCharAt(typedLength - 1);
-        else if (Pattern.compile("([a-zA-Z_ @.\\-0-9])").matcher(String.valueOf(key)).find()) {
-            builder.replace(typedLength - 1, typedLength, String.valueOf((char) key));
-            typedLength = builder.indexOf("_");
+        int typedLength = builder.length();
+
+        if (key == 8) {//backspace
+            if (typedLength > 0)
+                builder.deleteCharAt(typedLength - 1);
+        } else if (builder.length() < maxSize && Pattern.compile("([a-zA-Z_@. 0-9])").matcher(String.valueOf(key)).find()) {
+            builder.append((char) key);
         } else
             return false;
 
@@ -38,12 +57,18 @@ public class TextField extends ContainerWidget<String> {
     @Override
     public String render(Terminal term) {
 
-        return prompt + builder.substring(0, maxSize);
+        StringBuilder fill = new StringBuilder();
+        for (int i = 0; i < maxSize - builder.length(); ++i)
+            fill.append("_");
+        StyledString string = new StyledString(prompt.text() + builder.toString() + fill.toString(), this.modifiers);
+
+
+        return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getWidth()) + Anscapes.RESET;
     }
 
     @Override
     public String getValue() {
 
-        return builder.substring(0 , builder.indexOf("_", maxSize));
+        return builder.toString().trim();
     }
 }
