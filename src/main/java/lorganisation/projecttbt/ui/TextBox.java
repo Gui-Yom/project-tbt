@@ -26,18 +26,19 @@ public class TextBox extends ContainerWidget<String> {
             builder.deleteCharAt(typedLength - 1);
         else
             builder.replace(typedLength - 1, typedLength, String.valueOf((char) key));
-        return false;
+
+        return true;
     }
 
     @Override
     public String render(Terminal term) {
 
-        return prompt;
+        return prompt + builder.substring(0, maxSize);
     }
 
     @Override
     public String getValue() {
 
-        return null;
+        return builder.substring(0 , maxSize);
     }
 }

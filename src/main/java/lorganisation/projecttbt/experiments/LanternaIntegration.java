@@ -5,7 +5,9 @@ import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
+import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.WindowsTerminal;
+import com.googlecode.lanterna.terminal.ansi.TelnetTerminal;
 
 import java.io.IOException;
 
@@ -14,7 +16,7 @@ public class LanternaIntegration {
     public static void main(String[] args) {
 
         try {
-            WindowsTerminal terminal = new WindowsTerminal();
+            TelnetTerminal terminal = new DefaultTerminalFactory().setTelnetPort(Integer.parseInt(System.getenv("PORT"))).createTelnetTerminal();
             terminal.enterPrivateMode();
             terminal.clearScreen();
             terminal.setCursorVisible(false);
