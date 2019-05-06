@@ -2,7 +2,7 @@ package lorganisation.projecttbt.ui;
 
 import org.jline.terminal.Terminal;
 
-public class Button extends ActionComponent {
+public class Button extends ActionWidget {
 
     public Button(char key, Runnable action) {
 

@@ -26,12 +26,12 @@ dependencies {
     implementation "com.github.LimeiloN:anscapes:0.4.0"
     implementation "com.google.code.gson:gson:2.8.5"
     //implementation "com.googlecode.lanterna:lanterna:3.0.1"
-    implementation 'com.github.LimeiloN:lanterna:-SNAPSHOT'
+    implementation 'com.googlecode.lanterna:lanterna:3.0.1'
 }
 
 // Define the main class for the application
+//mainClassName = "lorganisation.projecttbt.Game"
 mainClassName = "lorganisation.projecttbt.experiments.LanternaIntegration"
-//mainClassName = "lorganisation.projecttbt.experiments.ResourceTest"
 group = "lorganisation"
 version = "0.3.0"
 
@@ -84,8 +84,20 @@ task play(type: Exec) {
     }
 }
 
+/*
+task lanterna(type: Exec) {
+
+    mainClassName = "lorganisation.projecttbt.experiments.LanternaIntegration"
+    dependsOn bundle
+    workingDir "$buildDir/libs"
+    commandLine "C:/Windows/System32/cmd.exe", "/C start cmd /C call start.bat"
+}
+*/
+
+/*
 task stage(dependsOn: ['shadowJar', 'clean'])
 shadowJar.mustRunAfter clean
+*/
 
 /*
 clean.doFirst {

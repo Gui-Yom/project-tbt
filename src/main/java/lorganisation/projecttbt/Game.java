@@ -5,6 +5,7 @@ import com.limelion.anscapes.ImgConverter;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.player.*;
+import lorganisation.projecttbt.ui.menus.LobbyScreen;
 import lorganisation.projecttbt.ui.menus.MainScreen;
 import lorganisation.projecttbt.ui.menus.MapSelectionScreen;
 import lorganisation.projecttbt.utils.CyclicList;
@@ -238,8 +239,12 @@ public class Game {
      */
     public void lobby() {
 
+        LobbyScreen lobbyScreen = new LobbyScreen();
+        lobbyScreen.display(input, renderer);
+
         //TODO: Limiter nombre de joueurs et de persos par joueurs selon
-        System.out.println(getMap());
+
+        /*System.out.println(getMap());
         Utils.writeFormattedLine(1,
                                  2,
                                  new StyledString("LOBBY", Pair.of(0, Colors.MAGENTA.bg())),
@@ -275,7 +280,7 @@ public class Game {
             newPlayer(true);
 
         for (AbstractPlayer player : players)
-            pickCharacters(terminal, player, characterCount);
+            pickCharacters(terminal, player, characterCount);*/
     }
 
     /**

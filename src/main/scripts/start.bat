@@ -1,4 +1,4 @@
 @echo off
 @rem chcp 65001
-javaw -jar project-tbt.jar %*
+java -jar project-tbt.jar %*
 pause

@@ -46,6 +46,6 @@ public class MapSelectionScreen extends Screen {
             } catch (NumberFormatException ex) {/**/}
         } while (!(mapIndex >= 0 && mapIndex < AssetsManager.gameMapNames().size()));
 
-        sendEvent((char) inputValue);
+        keyPressed((char) inputValue);
     }
 }

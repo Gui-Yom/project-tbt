@@ -6,6 +6,7 @@ import java.util.List;
 public abstract class Screen {
 
     protected List<Widget> components;
+    protected Widget selected;
 
     public Screen() {
 
@@ -22,11 +23,11 @@ public abstract class Screen {
         components.add(component);
     }
 
-    public void sendEvent(char key) {
+    public void keyPressed(char key) {
 
         for (Widget component : components)
-            if (component instanceof ActionComponent) {
-                ActionComponent ac = (ActionComponent) component;
+            if (component instanceof ActionWidget) {
+                ActionWidget ac = (ActionWidget) component;
                 if (key == ac.getKey())
                     ac.action.run();
             }
