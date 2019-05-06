@@ -39,6 +39,6 @@ public class TextBox extends ContainerWidget<String> {
     @Override
     public String getValue() {
 
-        return builder.substring(0 , maxSize);
+        return builder.substring(0 , builder.indexOf("_", maxSize));
     }
 }

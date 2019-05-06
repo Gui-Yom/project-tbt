@@ -84,6 +84,9 @@ task play(type: Exec) {
     }
 }
 
+task stage(dependsOn: ['shadowJar', 'clean'])
+shadowJar.mustRunAfter clean
+
 /*
 clean.doFirst {
     delete "temp"
