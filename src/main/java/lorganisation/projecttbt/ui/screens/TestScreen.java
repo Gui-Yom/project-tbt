@@ -23,7 +23,7 @@ public class TestScreen extends Screen {
         addComponent(new Label(new Coords(0, 5), new StyledString("PRESS ENTER TO PASS"), Utils.Align.CENTER));
         //addComponent(new TextField(new Coords(2, 8), new StyledString("PLEASE TYPE IN SOME SHIT: "), Utils.Align.LEFT, 10));
         addComponent(new IntegerField(new Coords(2, 8), new StyledString("PLEASE TYPE IN SOME SHIT: "), Utils.Align.LEFT, 1, 1, 100));
-
+        addComponent(new IntegerField(new Coords(2, 8), new StyledString("PLEASE TYPE IN SOME SHIT: "), Utils.Align.LEFT, 1, 1, 100));
     }
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {

@@ -23,13 +23,15 @@ public class TextField extends ContainerWidget<String> {
 
         this.modifiers = new TreeMap<>();
 
-        if (prompt.modifiers() != null)
+        if (prompt.modifiers() != null) {
             for (Integer index : prompt.modifiers().keySet())
                 this.modifiers.put(index, prompt.modifiers().get(index));
+        }
 
-        if (modifiers != null)
+        if (modifiers != null) {
             for (Pair<Integer, String> modifier : modifiers)
                 this.modifiers.put(modifier.getU() + prompt.text().length(), modifier.getV());
+        }
 
 
         this.alignement = alignement;
@@ -37,6 +39,8 @@ public class TextField extends ContainerWidget<String> {
         this.prompt = prompt;
         this.maxSize = maxSize;
         this.builder = new StringBuilder();
+
+        setFocusable(true);
     }
 
     public boolean handleEvent(int key) {

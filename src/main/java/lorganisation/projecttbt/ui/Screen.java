@@ -1,16 +1,44 @@
 package lorganisation.projecttbt.ui;
 
+import lorganisation.projecttbt.utils.CyclicList;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Screen {
 
-    protected List<Widget> components;
-    protected Widget selected;
+    protected CyclicList<Widget> components;
+    protected Widget focus = null;
+    protected char focusKey = '\uE009';//TAB by default
 
     public Screen() {
 
-        components = new ArrayList<>();
+        components = new CyclicList<>();
+    }
+
+    public Widget setFocused(Widget widget) {
+        if(widget.isFocusable() && widget.isVisible() && components.contains(widget)) {
+            widget.onFocus();
+            return this.focus = widget;
+        } else
+            return null;
+    }
+
+    public Widget setFocused(int i) {
+        return setFocused(components.get(i));
+    }
+
+    public Widget getFocusedWidget() {
+        return this.focus;
+    }
+
+    public Widget nextFocused() {
+        int i = components.size();
+        while(setFocused(components.next()) == null) {
+            if(i-- <= 0) return null;
+        }
+
+        return getFocusedWidget();
     }
 
     public List<Widget> getComponents() {
@@ -18,12 +46,16 @@ public abstract class Screen {
         return components;
     }
 
-    public void addComponent(Widget component) {
+    public Widget addComponent(Widget component) {
 
         components.add(component);
+        return component;
     }
 
     public void keyPressed(char key) {
+
+        if(key == focusKey)
+            nextFocused();
 
         for (Widget component : components)
             if (component instanceof ActionWidget) {

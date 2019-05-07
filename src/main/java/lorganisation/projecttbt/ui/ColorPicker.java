@@ -12,6 +12,8 @@ public class ColorPicker extends ContainerWidget<AnsiColor> {
     public ColorPicker(List<AnsiColor> availableColors) {
 
         this.availableColors = availableColors;
+
+        setFocusable(true);
     }
 
     @Override

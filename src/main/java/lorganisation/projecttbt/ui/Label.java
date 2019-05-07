@@ -16,6 +16,8 @@ public class Label extends Widget {
         this.coords = coords;
         this.stext = text;
         this.alignement = alignement;
+
+        setFocusable(false);
     }
 
     public StyledString getStyledText() {

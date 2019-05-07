@@ -8,6 +8,13 @@ public class Button extends ActionWidget {
 
         this.key = key;
         this.action = action;
+
+        setVisible(false);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return false;
     }
 
     @Override

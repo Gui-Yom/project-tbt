@@ -42,4 +42,9 @@ public class CyclicList<E> extends ArrayList<E> {
 
         return get((index >= size() - 1) ? (index = 0) : ++index);
     }
+
+    public void setAt(int i) {
+        if(index >= 0 && index < size())
+            this.index = i;
+    }
 }

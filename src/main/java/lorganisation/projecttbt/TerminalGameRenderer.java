@@ -31,13 +31,8 @@ public class TerminalGameRenderer {
 
     public void render(Screen screen) {
 
-        for (Widget component : screen.getComponents()) {
-
-            Coords coords = component.getCoords();
-
-            if (coords != null)
-                renderComponent(component);
-        }
+        for (Widget component : screen.getComponents())
+               if(component.isVisible()) renderComponent(component);
     }
 
     public void renderComponent(Widget component) {

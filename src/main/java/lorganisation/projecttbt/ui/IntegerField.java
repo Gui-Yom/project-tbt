@@ -40,6 +40,8 @@ public class IntegerField extends ContainerWidget<Integer> {
         this.value = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
+
+        setFocusable(true);
     }
 
     public boolean handleEvent(int key) {
