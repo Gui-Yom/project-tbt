@@ -31,7 +31,7 @@ public class TestScreen extends Screen {
         Utils.clearTerm();
         renderer.render(this);
 
-        Utils.writeAt(0,this.getFocusedWidget().getCoords().getY(), "> ");
+        Utils.writeAt(0,this.getFocusedWidget().getCoords().getY(), ">");
 
         while (!pass) {
             char key = (char) input.getInput();

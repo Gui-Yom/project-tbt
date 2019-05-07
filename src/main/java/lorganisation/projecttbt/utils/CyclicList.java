@@ -44,7 +44,7 @@ public class CyclicList<E> extends ArrayList<E> {
     }
 
     public void setAt(int i) {
-        if(index >= 0 && index < size())
+        if(i >= 0 && i < size())
             this.index = i;
     }
 }

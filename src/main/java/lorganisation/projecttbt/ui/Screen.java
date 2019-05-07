@@ -1,6 +1,7 @@
 package lorganisation.projecttbt.ui;
 
 import lorganisation.projecttbt.utils.CyclicList;
+import lorganisation.projecttbt.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public abstract class Screen {
     public Widget setFocused(Widget widget) {
         if(widget.isFocusable() && widget.isVisible() && components.contains(widget)) {
             //widget.onFocus();
+            components.setAt(components.indexOf(widget));
             return this.focus = widget;
         } else
             return null;
