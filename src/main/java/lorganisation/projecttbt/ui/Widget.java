@@ -14,6 +14,7 @@ public abstract class Widget {
         return coords;
     }
 
+    //TODO: implement this
     //public abstract void onFocus();
 
     public boolean isFocusable() {

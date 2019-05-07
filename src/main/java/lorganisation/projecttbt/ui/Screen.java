@@ -9,7 +9,7 @@ public abstract class Screen {
 
     protected CyclicList<Widget> components;
     protected Widget focus = null;
-    protected char focusKey = '\uE009';//TAB by default
+    protected char focusKey = (char)9;//TAB by default
 
     public Screen() {
 
@@ -18,7 +18,7 @@ public abstract class Screen {
 
     public Widget setFocused(Widget widget) {
         if(widget.isFocusable() && widget.isVisible() && components.contains(widget)) {
-            widget.onFocus();
+            //widget.onFocus();
             return this.focus = widget;
         } else
             return null;
@@ -57,17 +57,20 @@ public abstract class Screen {
         if(key == focusKey)
             nextFocused();
 
-        for (Widget component : components)
-            if (component instanceof ActionWidget) {
-                ActionWidget ac = (ActionWidget) component;
-                if (key == ac.getKey())
-                    ac.action.run();
-            } else if (component instanceof TextField) {
-                TextField tf = (TextField) component;
-                tf.handleEvent(key);
-            } else if (component instanceof IntegerField) {
-                IntegerField iF = (IntegerField) component;
-                iF.handleEvent(key);
-            }
+        if (getFocusedWidget() == null) {
+            for (Widget component : components)
+                if (component instanceof ActionWidget) {
+                    ActionWidget ac = (ActionWidget) component;
+                    if (key == ac.getKey())
+                        ac.action.run();
+                } else if (component instanceof TextField) {
+                    TextField tf = (TextField) component;
+                    tf.handleEvent(key);
+                } else if (component instanceof IntegerField) {
+                    IntegerField iF = (IntegerField) component;
+                    iF.handleEvent(key);
+                }
+        } else
+            getFocusedWidget().handleEvent(key);
     }
 }
