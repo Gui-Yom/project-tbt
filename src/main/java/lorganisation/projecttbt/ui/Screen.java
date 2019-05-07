@@ -56,10 +56,25 @@ public abstract class Screen {
 
     public void keyPressed(char key) {
 
-        if(key == focusKey)
+        if(key == focusKey) {
             nextFocused();
+            return;
+        }
 
-        if (getFocusedWidget() == null) {
+        if (getFocusedWidget() != null) { // if a widget is in focus
+            for (Widget component : components)
+                if (component instanceof ActionWidget) {
+                    ActionWidget ac = (ActionWidget) component;
+                    if (key == ac.getKey()) {
+                        ac.action.run();
+                        return; // and no other ButtonWidget controls the key pressed
+                    }
+                }
+
+            getFocusedWidget().handleEvent(key); // then send key to focused Widget
+
+        } else {
+
             for (Widget component : components)
                 if (component instanceof ActionWidget) {
                     ActionWidget ac = (ActionWidget) component;
@@ -72,7 +87,6 @@ public abstract class Screen {
                     IntegerField iF = (IntegerField) component;
                     iF.handleEvent(key);
                 }
-        } else
-            getFocusedWidget().handleEvent(key);
+        }
     }
 }

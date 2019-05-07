@@ -50,7 +50,7 @@ public class TextField extends ContainerWidget<String> {
         if (key == 8) {//backspace
             if (typedLength > 0)
                 builder.deleteCharAt(typedLength - 1);
-        } else if (builder.length() < maxSize && Pattern.compile("([a-zA-Z_@. 0-9])").matcher(String.valueOf(key)).find()) {
+        } else if (builder.length() < maxSize && Pattern.compile("^\\w{1}$").matcher(String.valueOf((char)key)).find()) {
             builder.append((char) key);
         } else
             return false;

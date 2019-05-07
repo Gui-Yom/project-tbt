@@ -243,7 +243,7 @@ public class Game {
      */
     public void lobby() {
 
-        LobbyScreen lobbyScreen = new LobbyScreen(getMap());
+        LobbyScreen lobbyScreen = new LobbyScreen(this);
         lobbyScreen.display(input, renderer);
 
         //TODO: Limiter nombre de joueurs et de persos par joueurs selon
@@ -285,6 +285,13 @@ public class Game {
 
         for (AbstractPlayer player : players)
             pickCharacters(terminal, player, characterCount);*/
+    }
+
+    /**
+     * Renvoie la liste des couleurs disponibles pour les joueurs
+     */
+    public List<Colors> getAvailableColors() {
+        return this.availableColors;
     }
 
     /**
