@@ -59,8 +59,7 @@ public class Game {
     private List<Colors> availableColors;
 
     /**
-     * @param term
-     *     une référence vers l'objet Terminal à utiliser
+     * @param term une référence vers l'objet Terminal à utiliser
      */
     public Game(Terminal term) {
 
@@ -110,7 +109,7 @@ public class Game {
         // On affiche les maps disponibles et on demande au joueur de choisir
         Utils.clearTerm();
 
-        (new TestScreen()).display(game.input, game.renderer);
+        (new TestScreen(game)).display(game.input, game.renderer);
         Utils.clearTerm();
 
         game.mainMenu();
@@ -141,12 +140,12 @@ public class Game {
         if (!AssetsManager.extract("bots.txt")) {
             System.err.println("Unable to extract 'bots.txt'.");
         }
-        for (String s : AssetsManager.gameMapFiles())
-            if (!AssetsManager.extract("maps/" + s))
-                System.err.println("Unable to extract '" + s + "'.");
-        for (String s : AssetsManager.gameCharacterFiles())
-            if (!AssetsManager.extract("characters/" + s))
-                System.err.println("Unable to extract '" + s + "'.");
+        for (String file : AssetsManager.gameMapFiles())
+            if (!AssetsManager.extract(file))
+                System.err.println("Unable to extract '" + file + "'.");
+        for (String file : AssetsManager.gameCharacterFiles())
+            if (!AssetsManager.extract(file))
+                System.err.println("Unable to extract '" + file + "'.");
 
         System.out.println("Mise en place de l'environnement de développement :");
         System.out.println("    Extraction des ressources ... OK");
@@ -177,8 +176,7 @@ public class Game {
     /**
      * Ajoute un joueur dans le jeu.
      *
-     * @param player
-     *     le joueur à ajouter
+     * @param player le joueur à ajouter
      */
     public void addPlayer(AbstractPlayer player) {
 
@@ -204,8 +202,7 @@ public class Game {
     /**
      * Défini la map du jeu
      *
-     * @param map
-     *     la map à utiliser
+     * @param map la map à utiliser
      */
     public void setMap(LevelMap map) {
 
@@ -291,6 +288,7 @@ public class Game {
      * Renvoie la liste des couleurs disponibles pour les joueurs
      */
     public List<Colors> getAvailableColors() {
+
         return this.availableColors;
     }
 

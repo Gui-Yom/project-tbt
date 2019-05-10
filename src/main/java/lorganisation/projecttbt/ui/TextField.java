@@ -21,6 +21,7 @@ public class TextField extends ContainerWidget<String> {
 
     public TextField(Coords coords, StyledString prompt, Utils.Align alignement, int maxSize, Pair<Integer, String>... modifiers) {
 
+
         this.modifiers = new TreeMap<>();
 
         if (prompt.modifiers() != null) {
@@ -40,6 +41,7 @@ public class TextField extends ContainerWidget<String> {
         this.maxSize = maxSize;
         this.builder = new StringBuilder();
 
+        addControl(-1, "TYPE (use keyboard idiot)");
         setFocusable(true);
     }
 
@@ -50,7 +52,7 @@ public class TextField extends ContainerWidget<String> {
         if (key == 8) {//backspace
             if (typedLength > 0)
                 builder.deleteCharAt(typedLength - 1);
-        } else if (builder.length() < maxSize && Pattern.compile("^\\w{1}$").matcher(String.valueOf((char)key)).find()) {
+        } else if (builder.length() < maxSize && Pattern.compile("^\\w{1}$").matcher(String.valueOf((char) key)).find()) {
             builder.append((char) key);
         } else
             return false;

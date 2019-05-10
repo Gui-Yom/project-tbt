@@ -41,6 +41,10 @@ public class IntegerField extends ContainerWidget<Integer> {
         this.minValue = minValue;
         this.maxValue = maxValue;
 
+
+        addControl(-1, "TYPE (numbers only)");
+        addControl('+', "+ -> Increment by one");
+        addControl('-', "- -> Decrement by one");
         setFocusable(true);
     }
 
@@ -53,7 +57,7 @@ public class IntegerField extends ContainerWidget<Integer> {
         else if (key == '-')//down arrow c galere
             increment(-1);
         else if (Pattern.compile("([0-9])").matcher(String.valueOf(key)).find()) {
-            appendChar((char)key);
+            appendChar((char) key);
         } else {
             return false;
         }
@@ -62,14 +66,16 @@ public class IntegerField extends ContainerWidget<Integer> {
     }
 
     private boolean removeChar() {
-            if (this.value/10 < minValue) { //test without last value
-                this.value = minValue;
-            } else
-                this.value = this.value/10;
-            return true;
+
+        if (this.value / 10 < minValue) { //test without last value
+            this.value = minValue;
+        } else
+            this.value = this.value / 10;
+        return true;
     }
 
     private boolean appendChar(char key) {
+
         try {
             int temp = this.value * 10 + Integer.parseInt(String.valueOf(key));
             if (temp <= this.maxValue && temp >= minValue) {
@@ -83,7 +89,8 @@ public class IntegerField extends ContainerWidget<Integer> {
     }
 
     private boolean increment(int howMuch) {
-        if(this.value + howMuch > maxValue)
+
+        if (this.value + howMuch > maxValue)
             this.value = maxValue;
         else if (this.value + howMuch < minValue)
             this.value = minValue;

@@ -28,8 +28,7 @@ dependencies {
 }
 
 // Define the main class for the application
-//mainClassName = "lorganisation.projecttbt.Game"
-mainClassName = "lorganisation.projecttbt.experiments.AssetsListing"
+mainClassName = "lorganisation.projecttbt.Game"
 group = "lorganisation"
 version = "0.3.0"
 
@@ -80,6 +79,18 @@ task play(type: Exec) {
         // Unix, for XFCE's terminal only
         commandLine "/bin/bash terminal --window --command=\"bash start.sh\" --title=\"Project: TBT\" --hide-menubar --hide-toolbar --hide-borders"
     }
+}
+
+task experiment(type: Exec) {
+
+    dependsOn bundle
+
+    //def mainClass = "lorganisation.projecttbt.experiments.LanternaIntegration"
+    def mainClass = "lorganisation.projecttbt.experiments.FeederTest"
+
+    workingDir "$buildDir/libs"
+    // C:\Windows\System32\cmd.exe /C start cmd /C "echo a && pause"
+    commandLine "C:/Windows/System32/cmd.exe", "/C start cmd /K java -cp project-tbt.jar $mainClass"
 }
 
 /*

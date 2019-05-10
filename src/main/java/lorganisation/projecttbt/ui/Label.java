@@ -31,6 +31,7 @@ public class Label extends Widget {
     }
 
     public void setText(String string) {
+
         stext.setText(string);
     }
 

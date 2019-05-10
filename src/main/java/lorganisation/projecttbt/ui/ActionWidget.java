@@ -6,15 +6,20 @@ package lorganisation.projecttbt.ui;
 public abstract class ActionWidget extends Widget {
 
     protected Runnable action;
-    protected char key;
-
-    public char getKey() {
-
-        return key;
-    }
 
     public Runnable getAction() {
 
         return action;
+    }
+
+    @Override
+    public boolean handleEvent(int key) {
+
+        if (getControls().get(key) != null) {
+            action.run();
+            return true;
+        }
+
+        return false;
     }
 }

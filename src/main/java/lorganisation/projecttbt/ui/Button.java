@@ -1,31 +1,36 @@
 package lorganisation.projecttbt.ui;
 
+import lorganisation.projecttbt.utils.Coords;
+import lorganisation.projecttbt.utils.Pair;
+import lorganisation.projecttbt.utils.StyledString;
+import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
 
 public class Button extends ActionWidget {
 
-    public Button(char key, Runnable action) {
+    private Utils.Align alignement;
+    private StyledString string;
 
-        this.key = key;
+    public Button(Coords coords, StyledString string, Utils.Align alignement, Runnable action, boolean focusable, Pair<Integer, String>... controls) {
+
+        setControls(Utils.pairArrayToMap(controls));
+
+        this.string = string;
+        this.alignement = alignement;
+        this.coords = coords;
         this.action = action;
 
-        setVisible(false);
+        setFocusable(focusable);
+        setVisible(true);
     }
 
-    @Override
-    public boolean isVisible() {
-        return false;
+    public StyledString getText() {
+        return this.string;
     }
 
     @Override
     public String render(Terminal terminal) {
 
-        return null;
-    }
-
-    @Override
-    public boolean handleEvent(int key) {
-
-        return false;
+        return Utils.formattedLine(coords.getY(), coords.getX(), this.string, this.alignement, terminal.getWidth());
     }
 }

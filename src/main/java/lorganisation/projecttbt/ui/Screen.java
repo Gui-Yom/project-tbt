@@ -1,16 +1,14 @@
 package lorganisation.projecttbt.ui;
 
 import lorganisation.projecttbt.utils.CyclicList;
-import lorganisation.projecttbt.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Screen {
 
     protected CyclicList<Widget> components;
     protected Widget focus = null;
-    protected char focusKey = (char)9;//TAB by default
+    protected char focusKey = (char) 9;//TAB by default
 
     public Screen() {
 
@@ -18,7 +16,8 @@ public abstract class Screen {
     }
 
     public Widget setFocused(Widget widget) {
-        if(widget.isFocusable() && widget.isVisible() && components.contains(widget)) {
+
+        if (widget.isFocusable() && widget.isVisible() && components.contains(widget)) {
             //widget.onFocus();
             components.setAt(components.indexOf(widget));
             return this.focus = widget;
@@ -27,17 +26,20 @@ public abstract class Screen {
     }
 
     public Widget setFocused(int i) {
+
         return setFocused(components.get(i));
     }
 
     public Widget getFocusedWidget() {
+
         return this.focus;
     }
 
     public Widget nextFocused() {
+
         int i = components.size();
-        while(setFocused(components.next()) == null) {
-            if(i-- <= 0) return null;
+        while (setFocused(components.next()) == null) {
+            if (i-- <= 0) return null;
         }
 
         return getFocusedWidget();
@@ -56,37 +58,27 @@ public abstract class Screen {
 
     public void keyPressed(char key) {
 
-        if(key == focusKey) {
+        if (key == focusKey && getFocusedWidget() != null) {
+
+            getFocusedWidget().onFocusLost();
+
             nextFocused();
+
+            getFocusedWidget().onFocused();
+
             return;
         }
 
-        if (getFocusedWidget() != null) { // if a widget is in focus
-            for (Widget component : components)
-                if (component instanceof ActionWidget) {
-                    ActionWidget ac = (ActionWidget) component;
-                    if (key == ac.getKey()) {
-                        ac.action.run();
-                        return; // and no other ButtonWidget controls the key pressed
-                    }
-                }
+        //first execute InvisibleButtons & unFocusable Buttons (require no focus and has priority)
+        for (Widget widget : components)
+            if (widget instanceof Button || widget instanceof InvisibleButton) {
+                if (!(widget instanceof Button && widget.isFocusable()) && widget.handleEvent(key))
+                    return;
+            }
 
-            getFocusedWidget().handleEvent(key); // then send key to focused Widget
+        // if a widget is focused
+        if (getFocusedWidget() != null)
+            getFocusedWidget().handleEvent(key); // let it handle the keyPressed event
 
-        } else {
-
-            for (Widget component : components)
-                if (component instanceof ActionWidget) {
-                    ActionWidget ac = (ActionWidget) component;
-                    if (key == ac.getKey())
-                        ac.action.run();
-                } else if (component instanceof TextField) {
-                    TextField tf = (TextField) component;
-                    tf.handleEvent(key);
-                } else if (component instanceof IntegerField) {
-                    IntegerField iF = (IntegerField) component;
-                    iF.handleEvent(key);
-                }
-        }
     }
 }

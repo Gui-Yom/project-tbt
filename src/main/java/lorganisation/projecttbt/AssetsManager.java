@@ -1,11 +1,14 @@
 package lorganisation.projecttbt;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.Expose;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.*;
 import java.util.*;
 
 /**
@@ -25,7 +28,6 @@ public class AssetsManager {
         @Override
         public URL getResource(String name) {
 
-            name = (name.startsWith("assets/") ? "" : "assets/") + name;
             URL res = AssetsManager.class.getClassLoader().getResource(name);
             if (res != null)
                 return res;
@@ -38,15 +40,15 @@ public class AssetsManager {
      * Le parser JSON
      */
     private static final Gson gson = new Gson();
-    /**
-     * Le registre des ressources
-     */
-    private static Registry registry;
 
     /**
      * Les noms des bots.
      */
     private static List<String> botNames;
+
+    private static Map<String, String> maps;
+
+    private static Map<String, String> characters;
 
     // Traitement effectué au chargement de la classe, cad au premier accès à celle-ci
     static {
@@ -72,8 +74,7 @@ public class AssetsManager {
      * }
      * }</pre>
      *
-     * @param path
-     *     le chemin d'accès à la ressource.
+     * @param path le chemin d'accès à la ressource.
      *
      * @return un stream permettant de lire l'asset du jeu.
      */
@@ -94,8 +95,7 @@ public class AssetsManager {
     /**
      * Cherche une ressource à l'intérieur ou à l'extérieur du jar
      *
-     * @param path
-     *     le chemin de la ressource
+     * @param path le chemin de la ressource
      *
      * @return l'URL de la ressource ou null si elle n'existe pas
      */
@@ -103,7 +103,7 @@ public class AssetsManager {
 
         // ressource extraite
         if (allowFromFile) {
-            File ext = new File("assets/" + path);
+            File ext = new File(path);
             if (ext.exists()) {
                 try {
                     return ext.toURI().toURL();
@@ -126,7 +126,7 @@ public class AssetsManager {
      */
     public static Map<String, String> gameMaps() {
 
-        return registry.maps;
+        return maps;
     }
 
     /**
@@ -150,7 +150,7 @@ public class AssetsManager {
      */
     public static Map<String, String> gameCharacters() {
 
-        return registry.characters;
+        return characters;
     }
 
     /**
@@ -175,24 +175,34 @@ public class AssetsManager {
     }
 
     /**
-     * Charge le registre des assets du jeu en mémoire.
+     * Détecte les assets du jeu et charge leur chemin en mémoire. Détecte d'abord les assets du jar, puis ceux à
+     * l'extérieur.Les assets à l'extérieur ont la priorité.
      *
-     * @return true si le registre a bien été chargé
+     * @return true si les ressources ont été trouvées
      */
     public static boolean reload() {
 
         System.out.print("Loading ressources ...");
 
+        maps = new HashMap<>();
+        characters = new HashMap<>();
+
         try {
-            registry = gson.fromJson(new InputStreamReader(openResource("registry.json")), Registry.class);
-        } catch (IOException e) {
+
+            listFiles("assets/maps", "*.map")
+                .forEach(s -> maps.put(s.substring(0, s.lastIndexOf('.')), "assets/maps/" + s));
+
+            listFiles("assets/characters", "*.json")
+                .forEach(s -> characters.put(s.substring(0, s.lastIndexOf('.')), "assets/characters/" + s));
+
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
 
         try {
 
             botNames = new ArrayList<>();
-            Scanner scanner = new Scanner(openResource("bots.txt"));
+            Scanner scanner = new Scanner(openResource("assets/bots.txt"));
             String line = null;
 
             while (scanner.hasNextLine())
@@ -203,7 +213,7 @@ public class AssetsManager {
             e.printStackTrace();
         }
 
-        if (registry == null || botNames.size() == 0) {
+        if (maps == null || characters == null || botNames.size() == 0) {
             System.err.println(" FAIL !");
             return false;
         } else {
@@ -215,15 +225,14 @@ public class AssetsManager {
     /**
      * Extrait une ressource du jar. Il s'agit juste d'une copie de données vers un nouveau fichier.
      *
-     * @param path
-     *     le chemin de la ressource à extraire
+     * @param path le chemin de la ressource à extraire
      *
      * @return true si l'extraction a réussie
      */
     public static boolean extract(String path) {
 
         System.out.println("Extracting " + path);
-        File f = new File((path.startsWith("assets/") ? "" : "assets/") + path);
+        File f = new File(path);
         if (f.exists())
             f.delete();
         else {
@@ -255,19 +264,78 @@ public class AssetsManager {
     }
 
     /**
-     * Contient les références vers les assets du jeu
+     * Liste les fichiers dans un dossier du jar.
+     *
+     * @param dir        the directory
+     * @param globFilter glob filter for filenames
+     *
+     * @return a list of files matching the filter
+     *
+     * @throws URISyntaxException
+     * @throws IOException
      */
-    private static class Registry {
+    public static List<String> listFilesInJar(String dir, String globFilter) throws IOException, URISyntaxException {
 
-        /**
-         * Une liste de paires contenant chacune le nom de la map et son fichier.
-         */
-        @Expose
-        Map<String, String> maps;
-        /**
-         * Une liste de paires contenant chacune le nom du caractère et son fichier.
-         */
-        @Expose
-        Map<String, String> characters;
+        List<String> files = new ArrayList<>();
+
+        try (FileSystem fs = getJarFileSystem();
+             DirectoryStream<Path> dirStream = Files.newDirectoryStream(fs.getPath(dir), globFilter)) {
+
+            dirStream.forEach(path -> files.add(path.getName(path.getNameCount() - 1).toString()));
+        }
+
+        return files;
+    }
+
+    private static List<String> listFilesOutside(String dir, String globFilter) throws IOException {
+
+        List<String> files = new ArrayList<>();
+
+        File f = new File(dir);
+        if (!f.exists())
+            return files;
+
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(Paths.get(dir), globFilter)) {
+
+            dirStream.forEach(path -> files.add(path.getName(path.getNameCount() - 1).toString()));
+        }
+
+        return files;
+    }
+
+    public static List<String> listFiles(String dir, String globFilter) throws IOException, URISyntaxException {
+
+        List<String> files = new ArrayList<>();
+
+        files.addAll(listFilesInJar(dir, globFilter));
+
+        listFilesOutside(dir, globFilter).forEach(s -> {
+            boolean exist = false;
+            for (int i = 0; i < files.size(); i++) {
+                if (files.get(i).equals(s))
+                    exist = true;
+            }
+            if (!exist)
+                files.add(s);
+        });
+
+        return files;
+    }
+
+    private static FileSystem getJarFileSystem() throws IOException {
+
+        URI uri = null;
+        // This should not happen unless the jar has been packed without assets
+        try {
+            uri = AssetsManager.class.getClassLoader().getResource("assets").toURI();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            return FileSystems.getFileSystem(uri);
+        } catch (FileSystemNotFoundException e) {
+            return FileSystems.newFileSystem(uri, Collections.emptyMap());
+        }
     }
 }

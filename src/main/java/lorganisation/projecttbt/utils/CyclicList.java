@@ -28,6 +28,13 @@ public class CyclicList<E> extends ArrayList<E> {
         this(Arrays.asList(arr));
     }
 
+    public E current() {
+
+        if (index() == -1) return next();
+
+        return get(index);
+    }
+
     public int index() {
 
         return index;
@@ -38,13 +45,19 @@ public class CyclicList<E> extends ArrayList<E> {
         index = -1;
     }
 
+    public E prev() {
+
+        return get((index <= 0) ? (index = size() - 1) : --index);
+    }
+
     public E next() {
 
         return get((index >= size() - 1) ? (index = 0) : ++index);
     }
 
     public void setAt(int i) {
-        if(i >= 0 && i < size())
+
+        if (i >= 0 && i < size())
             this.index = i;
     }
 }

@@ -164,8 +164,7 @@ public class Utils {
     /**
      * Cette méthode gère les signaux.
      *
-     * @param sig
-     *     le signal à gérer
+     * @param sig le signal à gérer
      *
      * @see <a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signaux, systèmes POSIX</a>
      */

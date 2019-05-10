@@ -33,6 +33,7 @@ public class StyledString implements CharSequence {
     }
 
     public void setText(String string) {
+
         this.text = string;
     }
 

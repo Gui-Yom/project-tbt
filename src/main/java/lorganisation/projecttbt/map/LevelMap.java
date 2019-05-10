@@ -78,13 +78,11 @@ public class LevelMap {
     /**
      * Charge une map depuis un fichier .map
      *
-     * @param name
-     *     le nom de la map à charger (ex: 'blankmap.map')
+     * @param name le nom de la map à charger (ex: 'blankmap.map')
      *
      * @return la map chargée en mémoire
      *
-     * @throws IOException
-     *     si il est impossible d'accéder à la ressource spécifiée
+     * @throws IOException si il est impossible d'accéder à la ressource spécifiée
      */
     public static LevelMap load(String name) {
 
