@@ -1,5 +1,7 @@
 package lorganisation.projecttbt.ui;
 
+import com.googlecode.lanterna.input.KeyStroke;
+
 /**
  * Un composant capable d'effectuer une action lorsque activé même lorsqu'il n'est pas sélectionné.
  */
@@ -13,7 +15,7 @@ public abstract class ActionWidget extends Widget {
     }
 
     @Override
-    public boolean handleEvent(int key) {
+    public boolean handleEvent(KeyStroke key) {
 
         if (getControls().get(key) != null) {
             action.run();

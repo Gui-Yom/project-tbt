@@ -16,6 +16,8 @@ public class StyledString implements CharSequence {
         this.text = text;
         if (modifiers != null && modifiers.length != 0)
             this.modifiers = new TreeMap<>(Utils.pairArrayToMap(modifiers));
+        else
+            this.modifiers = new TreeMap<>();
     }
 
     public StyledString(String text, Map<Integer, String> modifiers, Pair<Integer, String>... otherModifiers) {
@@ -71,6 +73,13 @@ public class StyledString implements CharSequence {
                     sb.append(modifiers.get(i));
 
                 sb.append(text.charAt(i));
+            }
+
+            int max = Utils.getSetMaximum(modifiers.keySet());
+            if (max >= text.length()) {
+                for (int i = text.length(); i <= max; i++) {
+                    sb.append(modifiers.get(i));
+                }
             }
 
             sb.append(Anscapes.RESET);

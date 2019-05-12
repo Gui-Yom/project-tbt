@@ -88,7 +88,7 @@ public class LevelMap {
 
         InputStream is = null;
         try {
-            is = AssetsManager.openResource("maps/" + name);
+            is = AssetsManager.openResource("assets/maps/" + name);
         } catch (IOException e) {
             e.printStackTrace();
         }

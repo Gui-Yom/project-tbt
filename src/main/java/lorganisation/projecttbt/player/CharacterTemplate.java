@@ -40,7 +40,7 @@ public class CharacterTemplate {
         if (characterTemplates.containsKey(name))
             return characterTemplates.get(name);
 
-        Reader reader = new InputStreamReader(AssetsManager.openResource("characters/" + AssetsManager.gameCharacters().get(name)));
+        Reader reader = new InputStreamReader(AssetsManager.openResource("assets/characters/" + AssetsManager.gameCharacters().get(name)));
 
         return gson.fromJson(reader, CharacterTemplate.class);
     }

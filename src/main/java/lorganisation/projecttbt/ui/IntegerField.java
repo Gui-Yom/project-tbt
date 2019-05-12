@@ -1,12 +1,15 @@
 package lorganisation.projecttbt.ui;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
+import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
-import org.jline.terminal.Terminal;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
@@ -42,22 +45,22 @@ public class IntegerField extends ContainerWidget<Integer> {
         this.maxValue = maxValue;
 
 
-        addControl(-1, "TYPE (numbers only)");
-        addControl('+', "+ -> Increment by one");
-        addControl('-', "- -> Decrement by one");
+        addControl(null, "USE THE FCKING KEYBOARD (numbers only)");
+        addControl(new KeyStroke('+', false, false), "+ -> Increment by one");
+        addControl(new KeyStroke('-', false, false), "- -> Decrement by one");
         setFocusable(true);
     }
 
-    public boolean handleEvent(int key) {
+    public boolean handleEvent(KeyStroke key) {
 
-        if (key == 8) { //backspace
+        if (key.getKeyType().equals(KeyType.Backspace)) { //backspace
             removeChar();
-        } else if (key == '+') //uparrow c galere
+        } else if (key.getCharacter().equals('+')) //uparrow c galere
             increment(+1);
-        else if (key == '-')//down arrow c galere
+        else if (key.getCharacter().equals('-'))//down arrow c galere
             increment(-1);
-        else if (Pattern.compile("([0-9])").matcher(String.valueOf(key)).find()) {
-            appendChar((char) key);
+        else if (Pattern.compile("([0-9])").matcher(key.getCharacter().toString()).find()) {
+            appendChar(key.getCharacter());
         } else {
             return false;
         }
@@ -101,16 +104,19 @@ public class IntegerField extends ContainerWidget<Integer> {
     }
 
     @Override
-    public String render(Terminal term) {
+    public String render(ANSITerminal term) {
 
         /*StringBuilder fill = new StringBuilder();
         for (int i = 0; i < maxValue / 10 - builder.length(); ++i)
             fill.append("_");*/
         StyledString string = new StyledString(prompt.text() + this.value + /*fill.toString() +*/ " +/- ", this.modifiers);
 
-
-        return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getWidth()) + Anscapes.RESET;
-
+        try {
+            return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getTerminalSize().getColumns()) + Anscapes.RESET;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

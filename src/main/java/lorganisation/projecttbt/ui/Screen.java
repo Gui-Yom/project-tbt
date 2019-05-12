@@ -1,5 +1,7 @@
 package lorganisation.projecttbt.ui;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import lorganisation.projecttbt.utils.CyclicList;
 
 import java.util.List;
@@ -8,11 +10,21 @@ public abstract class Screen {
 
     protected CyclicList<Widget> components;
     protected Widget focus = null;
-    protected char focusKey = (char) 9;//TAB by default
+    protected KeyStroke focusKey = new KeyStroke(KeyType.Tab); //TAB by default
 
     public Screen() {
 
         components = new CyclicList<>();
+    }
+
+    public void disableFocus() {
+
+        this.focus = null;
+    }
+
+    public void enableFocus() {
+
+        setFocused(components.current());
     }
 
     public Widget setFocused(Widget widget) {
@@ -56,29 +68,28 @@ public abstract class Screen {
         return component;
     }
 
-    public void keyPressed(char key) {
+    public void keyPressed(KeyStroke key) {
 
-        if (key == focusKey && getFocusedWidget() != null) {
+        if (key.equals(focusKey) && getFocusedWidget() != null) {
 
-            getFocusedWidget().onFocusLost();
+            //getFocusedWidget().onFocusLost();
 
             nextFocused();
 
-            getFocusedWidget().onFocused();
+            //getFocusedWidget().onFocused();
 
-            return;
+        } else {
+
+            //first execute InvisibleButtons & unFocusable Buttons (require no focus and has priority)
+            for (Widget widget : components)
+                if (widget instanceof Button || widget instanceof InvisibleButton) {
+                    if (!(widget instanceof Button && widget.isFocusable()) && !(widget instanceof InvisibleButton && !widget.isActivated()) && widget.handleEvent(key))
+                        return;
+                }
+
+            // if a widget is focused
+            if (getFocusedWidget() != null)
+                getFocusedWidget().handleEvent(key); // let it handle the keyPressed event
         }
-
-        //first execute InvisibleButtons & unFocusable Buttons (require no focus and has priority)
-        for (Widget widget : components)
-            if (widget instanceof Button || widget instanceof InvisibleButton) {
-                if (!(widget instanceof Button && widget.isFocusable()) && widget.handleEvent(key))
-                    return;
-            }
-
-        // if a widget is focused
-        if (getFocusedWidget() != null)
-            getFocusedWidget().handleEvent(key); // let it handle the keyPressed event
-
     }
 }

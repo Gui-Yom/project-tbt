@@ -55,7 +55,7 @@ shadowJar {
 
 task copyScripts(type: Copy) {
 
-    from "src/main/scripts"
+    from "src/main/dist"
     include "*"
     into "$buildDir/libs"
 }
@@ -85,8 +85,8 @@ task experiment(type: Exec) {
 
     dependsOn bundle
 
-    //def mainClass = "lorganisation.projecttbt.experiments.LanternaIntegration"
-    def mainClass = "lorganisation.projecttbt.experiments.FeederTest"
+    def mainClass = "lorganisation.projecttbt.experiments.LanternaIntegration"
+    //def mainClass = "lorganisation.projecttbt.experiments.FeederTest"
 
     workingDir "$buildDir/libs"
     // C:\Windows\System32\cmd.exe /C start cmd /C "echo a && pause"

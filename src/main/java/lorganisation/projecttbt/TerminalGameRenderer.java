@@ -1,19 +1,20 @@
 package lorganisation.projecttbt;
 
+import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
+import lorganisation.projecttbt.ui.InvisibleButton;
 import lorganisation.projecttbt.ui.Screen;
 import lorganisation.projecttbt.ui.Widget;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
-import org.jline.terminal.Terminal;
 
 public class TerminalGameRenderer {
 
-    private Terminal terminal;
+    private ANSITerminal terminal;
 
-    public TerminalGameRenderer(Terminal terminal) {
+    public TerminalGameRenderer(ANSITerminal terminal) {
 
         super();
         this.terminal = terminal;
@@ -38,16 +39,18 @@ public class TerminalGameRenderer {
         StringBuilder line = new StringBuilder();
         for (int i = 0; i < terminal.getWidth(); i++)
             line.append(' ');
-        System.out.print(Anscapes.cursorPos(terminal.getHeight() - 1, 0) + Anscapes.Colors.WHITE_BRIGHT.bg() + line.toString() + Anscapes.RESET);
+        System.out.print(Anscapes.cursorPos(terminal.getHeight() - 2, 0) + Anscapes.Colors.WHITE_BRIGHT.bg() + line.toString() + Anscapes.RESET);
 
         StringBuilder controls = new StringBuilder("| TAB : Switch between menus | ");
         //if (screen.getFocusedWidget() != null && screen.getFocusedWidget().getControls() != null)
         for (Widget widget : screen.getComponents())
-            if(!widget.isFocusable() || widget == screen.getFocusedWidget())
-                for(String description : widget.getControls().values())
+            if (((!widget.isFocusable() && widget.isActivated()) || widget == screen.getFocusedWidget()) && widget.getControls() != null) {
+                if ((widget instanceof InvisibleButton && !widget.isActivated())) continue;
+                for (String description : widget.getControls().values())
                     controls.append(description).append(" | ");
+            }
 
-        System.out.print(Utils.formattedLine(terminal.getHeight() - 1, 0, new StyledString(controls.toString()), Utils.Align.LEFT, terminal.getWidth()));
+        System.out.print(Utils.formattedLine(terminal.getHeight() - 2, 0, new StyledString(controls.toString()), Utils.Align.LEFT, terminal.getWidth()));
     }
 
     public void renderComponent(Widget component) {

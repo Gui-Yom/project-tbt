@@ -1,17 +1,32 @@
 package lorganisation.projecttbt.ui;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import lorganisation.projecttbt.utils.Pair;
-import lorganisation.projecttbt.utils.Utils;
-import org.jline.terminal.Terminal;
 
 public class InvisibleButton extends ActionWidget {
 
-    public InvisibleButton(Runnable action, Pair<Integer, String>... controls) {
+    public InvisibleButton(Runnable action, Pair<KeyStroke, String>... controls) {
 
-        setControls(Utils.pairArrayToMap(controls));
+
+        for (Pair<KeyStroke, String> control : controls) {
+            addControl(control.getU(), control.getV());
+        }
         this.action = action;
 
         setVisible(false);
+    }
+
+    @Override
+    public void setActivated(boolean activated) {
+
+        this.activated = activated;
+    }
+
+    @Override
+    public boolean isFocusable() {
+
+        return false;
     }
 
     @Override
@@ -21,8 +36,14 @@ public class InvisibleButton extends ActionWidget {
     }
 
     @Override
-    public String render(Terminal terminal) {
+    public String render(ANSITerminal terminal) {
 
         return null;
+    }
+
+    @Override
+    public boolean handleEvent(KeyStroke key) {
+
+        return false;
     }
 }

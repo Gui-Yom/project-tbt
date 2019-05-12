@@ -22,7 +22,7 @@ import java.util.*;
 public class AssetsManager {
 
     /**
-     * Un ClassLoader permettant de charger les assets depuis le dossier 'assets' dans le jar du jeu.
+     * Un ClassLoader permettant de charger des ressources depuis le jar.
      */
     private static final ClassLoader assets = new ClassLoader() {
         @Override
@@ -50,7 +50,7 @@ public class AssetsManager {
 
     private static Map<String, String> characters;
 
-    // Traitement effectué au chargement de la classe, cad au premier accès à celle-ci
+    // Comme un constructeur mais dans le domaine statique
     static {
         if (!reload())
             System.err.println("Unable to load registry !");
@@ -61,6 +61,31 @@ public class AssetsManager {
      */
     private AssetsManager() {
 
+    }
+
+    /**
+     * Charge un asset du jeu depuis le jar ou le dossier où est contenu le jar. Un try-with-resource est
+     * particulièrement adapté :
+     * <pre>{@code
+     * try (InputStream in = AssetsManager.openstream("dir/ressource.json") {
+     *     in.read();
+     * } catch (IOException ioe) {
+     *     ioe.printStackTrace();
+     * }
+     * }</pre>
+     *
+     * @param path          le chemin d'accès à la ressource.
+     * @param allowFromFile true pour autoriser le chargement depuis un fichier en dehors du jar.
+     *
+     * @return un stream permettant de lire l'asset du jeu.
+     */
+    public static InputStream openResource(String path, boolean allowFromFile) throws IOException {
+
+        URL res = AssetsManager.getResource(path, allowFromFile);
+        if (res != null)
+            return res.openStream();
+        else
+            throw new IOException("La ressource '" + path + "' n'existe pas.");
     }
 
     /**
@@ -77,16 +102,9 @@ public class AssetsManager {
      * @param path le chemin d'accès à la ressource.
      *
      * @return un stream permettant de lire l'asset du jeu.
+     *
+     * @see AssetsManager#openResource(String, boolean)
      */
-    public static InputStream openResource(String path, boolean allowFromFile) throws IOException {
-
-        URL res = AssetsManager.getResource(path, allowFromFile);
-        if (res != null)
-            return res.openStream();
-        else
-            throw new IOException("La ressource '" + path + "' n'existe pas.");
-    }
-
     public static InputStream openResource(String path) throws IOException {
 
         return openResource(path, true);
@@ -95,7 +113,8 @@ public class AssetsManager {
     /**
      * Cherche une ressource à l'intérieur ou à l'extérieur du jar
      *
-     * @param path le chemin de la ressource
+     * @param path          le chemin de la ressource
+     * @param allowFromFile true pour autoriser le chargement depuis un fichier en dehors du jar.
      *
      * @return l'URL de la ressource ou null si elle n'existe pas
      */
@@ -116,6 +135,13 @@ public class AssetsManager {
         return assets.getResource(path);
     }
 
+    /**
+     * Cherche une ressource à l'intérieur ou à l'extérieur du jar. La priorité est donnée aux fichiers extraits.
+     *
+     * @param path le chemin de la ressource
+     *
+     * @return l'URL de la ressource ou null si elle n'existe pas
+     */
     public static URL getResource(String path) {
 
         return getResource(path, true);
@@ -169,6 +195,9 @@ public class AssetsManager {
         return new HashSet<>(gameCharacters().values());
     }
 
+    /**
+     * @return une liste des noms des noms de bots.
+     */
     public static List<String> botNames() {
 
         return botNames;
@@ -274,7 +303,7 @@ public class AssetsManager {
      * @throws URISyntaxException
      * @throws IOException
      */
-    public static List<String> listFilesInJar(String dir, String globFilter) throws IOException, URISyntaxException {
+    private static List<String> listFilesInJar(String dir, String globFilter) throws IOException, URISyntaxException {
 
         List<String> files = new ArrayList<>();
 
@@ -303,7 +332,7 @@ public class AssetsManager {
         return files;
     }
 
-    public static List<String> listFiles(String dir, String globFilter) throws IOException, URISyntaxException {
+    private static List<String> listFiles(String dir, String globFilter) throws IOException, URISyntaxException {
 
         List<String> files = new ArrayList<>();
 

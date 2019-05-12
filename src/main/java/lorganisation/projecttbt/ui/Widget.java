@@ -1,46 +1,44 @@
 package lorganisation.projecttbt.ui;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import lorganisation.projecttbt.utils.Coords;
-import org.jline.terminal.Terminal;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
+/**
+ * Un composant de l'interface. (ex: un label ou un bouton)
+ */
 public abstract class Widget {
 
     protected Coords coords;
-    private boolean visibility = true;
-    private boolean focusable = false;
+    protected boolean visible = true;
+    protected boolean focusable = false;
+    protected boolean activated = true;
 
     // int : keyCode, String : displayName  => if keyCode < 0, implicit controls like TYPE (TextField)
-    private Map<Integer, String> controls = new TreeMap<>();
+    private Map<KeyStroke, String> controls = new HashMap<>();
 
     public Coords getCoords() {
 
         return coords;
     }
 
-    //TODO: implement this
+    // TODO Event system
+    // TODO implement onFocus
     //public abstract void onFocus();
+    //public abstract void onFocusLost();
 
-    public Map<Integer, String> getControls() {
+    public Map<KeyStroke, String> getControls() {
 
         return this.controls;
     }
 
-    public void setControls(Map<Integer, String> controls) {
-
-        this.controls = controls;
-    }
-
-    public void addControl(int keyCode, String description) {
+    public void addControl(KeyStroke keyCode, String description) {
 
         this.controls.put(keyCode, description);
     }
-
-    public void onFocused() {}
-
-    public void onFocusLost() {}
 
     public boolean isFocusable() {
 
@@ -52,17 +50,28 @@ public abstract class Widget {
         this.focusable = focus;
     }
 
+    public boolean isActivated() {
+
+        return this.activated;
+    }
+
+    public void setActivated(boolean activated) {
+
+        this.activated = activated;
+        setFocusable(activated);
+    }
+
     public boolean isVisible() {
 
-        return this.visibility;
+        return this.visible;
     }
 
     public void setVisible(boolean visible) {
 
-        this.visibility = visible;
+        this.visible = visible;
     }
 
-    public abstract String render(Terminal term);
+    public abstract String render(ANSITerminal terminal);
 
-    public abstract boolean handleEvent(int key);
+    public abstract boolean handleEvent(KeyStroke key);
 }

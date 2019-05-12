@@ -1,26 +1,28 @@
 package lorganisation.projecttbt;
 
-import org.jline.terminal.Terminal;
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 
 import java.io.IOException;
 
 public class TerminalGameInput {
 
-    private Terminal terminal;
+    private ANSITerminal terminal;
 
-    public TerminalGameInput(Terminal terminal) {
+    public TerminalGameInput(ANSITerminal terminal) {
 
         super();
         this.terminal = terminal;
     }
 
-    public int getInput() {
+    public KeyStroke getInput() {
 
         try {
-            return terminal.reader().read();
+            return terminal.readInput();
         } catch (IOException e) {
             System.err.println("Error while trying to read data from terminal : " + e.getLocalizedMessage());
+            e.printStackTrace();
+            return null;
         }
-        return -1;
     }
 }

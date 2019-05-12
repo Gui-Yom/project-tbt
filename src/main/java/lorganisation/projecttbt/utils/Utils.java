@@ -60,16 +60,6 @@ public class Utils {
         System.out.print(Anscapes.cursorPos(1, 1));
     }
 
-    public static void hideCursor() {
-
-        System.out.print(Anscapes.CURSOR_HIDE);
-    }
-
-    public static void showCursor() {
-
-        System.out.print(Anscapes.CURSOR_SHOW);
-    }
-
     /**
      * Ecrit un String à une position donnée
      *
@@ -194,9 +184,15 @@ public class Utils {
         }
     }
 
-    public static String readLine(Terminal term, String prompt) {
+    public static int getSetMaximum(Set<Integer> set) {
 
-        return LineReaderBuilder.builder().terminal(term).build().readLine(prompt);
+        Integer max = null;
+
+        for (Integer i : set)
+            if (max == null || i > max)
+                max = i;
+
+        return max != null ? max : 0;
     }
 
     public enum Align {

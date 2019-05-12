@@ -77,4 +77,10 @@ public class TextField extends ContainerWidget<String> {
 
         return builder.toString().trim();
     }
+
+    public void setValue(String str) {
+
+        if (str.length() <= maxSize)
+            this.builder = new StringBuilder(str);
+    }
 }

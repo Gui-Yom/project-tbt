@@ -1,28 +1,19 @@
 package lorganisation.projecttbt;
 
-import com.limelion.anscapes.Anscapes;
+import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.ImgConverter;
 import lorganisation.projecttbt.map.LevelMap;
-import lorganisation.projecttbt.player.Character;
-import lorganisation.projecttbt.player.*;
+import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.ui.screens.LobbyScreen;
 import lorganisation.projecttbt.ui.screens.MainScreen;
 import lorganisation.projecttbt.ui.screens.MapSelectionScreen;
 import lorganisation.projecttbt.ui.screens.TestScreen;
 import lorganisation.projecttbt.utils.CyclicList;
-import lorganisation.projecttbt.utils.Pair;
-import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.impl.completer.StringsCompleter;
-import org.jline.terminal.Attributes;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.DumbTerminal;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -54,14 +45,14 @@ public class Game {
      */
     private TerminalGameInput input;
 
-    private Terminal terminal;
+    private ANSITerminal terminal;
 
     private List<Colors> availableColors;
 
     /**
      * @param term une référence vers l'objet Terminal à utiliser
      */
-    public Game(Terminal term) {
+    public Game(ANSITerminal term) {
 
         this.renderer = new TerminalGameRenderer(term);
         this.input = new TerminalGameInput(term);
@@ -73,43 +64,40 @@ public class Game {
     public static void main(String[] args) throws IOException {
 
         // J'hésite à utiliser commons-cli mais ça ne ferai que rajouter du bordel
-        if (args != null && args.length == 1) {
+        if (args != null && args.length == 1 && args[0].equals("devenv")) {
 
-            devenv();
+            IntegratedDevenv.devenv();
             System.exit(0);
         }
 
-        if (args != null && args.length == 4) {
+        if (args != null && args.length == 4 && args[0].equals("convert")) {
 
-            convert(ImgConverter.Mode.valueOf(args[1]), Integer.parseInt(args[2]), new File(args[3]));
+            IntegratedDevenv.convert(ImgConverter.Mode.valueOf(args[1]), Integer.parseInt(args[2]), new File(args[3]));
             System.exit(0);
         }
 
-        Terminal terminal = TerminalBuilder.builder()
-                                           .encoding(StandardCharsets.UTF_16LE)
-                                           .jansi(true)
-                                           .system(true)
-                                           .name("Project: TBT")
-                                           .nativeSignals(true)
-                                           .type("windows-vtp")
-                                           //.signalHandler(Utils::handleSignal)
-                                           .build();
+        Terminal jlineTerminal = TerminalBuilder.builder()
+                                                .encoding(StandardCharsets.UTF_8)
+                                                .jansi(true)
+                                                .system(true)
+                                                .name("Project: TBT")
+                                                .nativeSignals(true)
+                                                //.type("windows-vtp")
+                                                //.signalHandler(Utils::handleSignal)
+                                                .build();
 
-        if (terminal instanceof DumbTerminal) {
+        if (jlineTerminal instanceof DumbTerminal) {
             System.err.println("This terminal isn't supported ! Aborting.");
             System.exit(-1);
         }
 
-        Attributes attr = terminal.enterRawMode();
-
-        Utils.hideCursor();
+        ANSITerminal terminal = new LanternaTerminal(jlineTerminal);
 
         Game game = new Game(terminal);
 
         // On affiche les maps disponibles et on demande au joueur de choisir
         Utils.clearTerm();
-
-        (new TestScreen(game)).display(game.input, game.renderer);
+        new TestScreen(game).display(game.input, game.renderer);
         Utils.clearTerm();
 
         game.mainMenu();
@@ -123,54 +111,8 @@ public class Game {
         game.start();
 
         Utils.clearTerm();
-        Utils.showCursor();
         terminal.close();
-    }
-
-    private static void devenv() {
-
-        // Met en place l'environement de développement.
-        // Extrait les ressources du jeu
-        System.out.println("Mise en place de l'environnement de développement :");
-        System.out.println("    Extraction des ressources ...");
-
-        if (!AssetsManager.extract("registry.json")) {
-            System.err.println("Unable to extract 'registry.json'.");
-        }
-        if (!AssetsManager.extract("bots.txt")) {
-            System.err.println("Unable to extract 'bots.txt'.");
-        }
-        for (String file : AssetsManager.gameMapFiles())
-            if (!AssetsManager.extract(file))
-                System.err.println("Unable to extract '" + file + "'.");
-        for (String file : AssetsManager.gameCharacterFiles())
-            if (!AssetsManager.extract(file))
-                System.err.println("Unable to extract '" + file + "'.");
-
-        System.out.println("Mise en place de l'environnement de développement :");
-        System.out.println("    Extraction des ressources ... OK");
-    }
-
-    private static void convert(ImgConverter.Mode mode, int reduction, File f) {
-
-        ImgConverter converter = ImgConverter.builder()
-                                             .mode(mode)
-                                             .smoothing(true)
-                                             .reductionScale(reduction)
-                                             .build();
-
-        if (!f.exists()) {
-            System.err.println("Given file doesn't exist. ('" + f.getAbsolutePath() + "')");
-            System.exit(-1);
-        }
-
-        BufferedImage image = null;
-        try {
-            image = ImageIO.read(f);
-            System.out.print(converter.convert(image));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        jlineTerminal.close();
     }
 
     /**
@@ -289,24 +231,10 @@ public class Game {
      */
     public List<Colors> getAvailableColors() {
 
+        for (AbstractPlayer absPlayer : getPlayers())
+            availableColors.remove(absPlayer.getColor());
+
         return this.availableColors;
-    }
-
-    /**
-     * Créer et ajouter un joueur à la partie. Utilisé dans lobby()
-     */
-    public void newPlayer(boolean isBot) {
-
-        System.out.print(Anscapes.CLEAR_LINE);
-
-        AbstractPlayer player = null;
-        if (isBot) {
-            player = new Bot(availableColors);
-        } else {
-            String name = Utils.readLine(terminal, "Joueur " + (getPlayerCount() + 1) + ", lâche ton blaze bg: \n");
-            player = new Player(name, pickColor(terminal, name));
-        }
-        addPlayer(player);
     }
 
     /**
@@ -331,13 +259,14 @@ public class Game {
         return getPlayers().size() - getPlayerCount();
     }
 
+    // Keep it until as model until CharacterSelectionScreen is made
 
     /**
      * Selection d'un certain nombre de personnages pour un joueur
      */
     public void pickCharacters(Terminal terminal, AbstractPlayer picker, int characterCount) {
 
-        Utils.clearTerm();
+        /*Utils.clearTerm();
 
         Utils.writeFormattedLine(1,
                                  0,
@@ -365,42 +294,7 @@ public class Game {
                 map.getNextStartPos().setCharacter(character);
                 picker.addCharacter(character);
             }
-        }
-    }
-
-    /**
-     * Selection d'une couleur, une par joueurs, utilisé dans lobby()
-     */
-    public Colors pickColor(Terminal terminal, String pickerName) {
-
-        System.out.print(Anscapes.movePreviousLine(1)); // Retour à la ligne ou le mec a mis son pseudo pour overwrite
-
-        int currentColor = 0;
-        for (; ; ) {
-            System.out.print(availableColors.get(currentColor).fg() + pickerName + Anscapes.RESET + " | Q / D pour changer de couleur, ENTRER pour valider"); // Réécrit le pseudo avec la bonne couleur
-
-            char read = (char) input.getInput();
-            if (read == 13)
-                break; // (13 = ENTER)
-
-            switch (read) {
-                case 'q': {
-                    currentColor = (currentColor + availableColors.size() - 1) % availableColors.size();
-                    break;
-                }
-                case 'd': {
-                    currentColor = (currentColor + 1) % availableColors.size();
-                    break;
-                }
-            }
-            System.out.print(Anscapes.moveLeft(terminal.getWidth()) + Anscapes.CLEAR_LINE); //On revient au début de la ligne
-        }
-        System.out.println();
-
-        Colors color = availableColors.get(currentColor);
-        availableColors.remove(color);
-
-        return color;
+        }*/
     }
 
     /**
@@ -408,7 +302,7 @@ public class Game {
      */
     public void start() {
 
-        Utils.writeFormattedLine(2,
+        /*Utils.writeFormattedLine(2,
                                  0,
                                  new StyledString("'Z Q S D' pour se déplacer, 'ESC' pour quitter",
                                                   Pair.of(2, Colors.YELLOW.fg()),
@@ -475,6 +369,6 @@ public class Game {
             //TODO: change so that player can attack but can't move with 0 movementsLeft
             if (!(hasAttacked) || (movementsLeft <= 0)) //turn isn't finished
                 --turn; // don't change turn index
-        }
+        }*/
     }
 }

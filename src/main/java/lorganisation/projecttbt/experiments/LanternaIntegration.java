@@ -1,20 +1,18 @@
 package lorganisation.projecttbt.experiments;
 
-import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.gui2.*;
-import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
-import com.googlecode.lanterna.gui2.dialogs.MessageDialogButton;
+import com.googlecode.lanterna.*;
+import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
+import lorganisation.projecttbt.LanternaTerminal;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.Random;
 
 public class LanternaIntegration {
 
@@ -27,153 +25,173 @@ public class LanternaIntegration {
                                            .system(true)
                                            .name("LanternaIntegration")
                                            .encoding(StandardCharsets.UTF_8)
-                                           .type("windows-vtp")
+                                           //.type("windows-vtp")
                                            .build();
 
-            term.enterRawMode();
+            //term.enterRawMode();
 
-            WindowsTerminal terminal = new WindowsTerminal(term);
+            LanternaTerminal terminal = new LanternaTerminal(term);
             /*
-            The DefaultTerminalFactory class doesn't provide any helper method for creating a Label GUI, you'll need to
+            The DefaultTerminalFactory class doesn't provide any helper method for creating a TerminalLabel GUI, you'll need to
              get a Screen like we did in the previous tutorial and start it so it puts the terminal in private mode.
              */
             Screen screen = new TerminalScreen(terminal);
             screen.startScreen();
 
             /*
-            There are a couple of different constructors to MultiWindowTextGUI, we are going to go with the defaults for
-            most of these values. The one thing to consider is threading; with the default options, lanterna will use
-            the calling thread for all UI operations which mean that you are basically letting the calling thread block
-            until the GUI is shut down. There is a separate TextGUIThread implementaiton you can use if you'd like
-            Lanterna to create a dedicated UI thread and not lock the caller. Just like with AWT and Swing, you should
-            be scheduling any kind of UI operation to always run on the UI thread but lanterna tries to be best-effort
-            if you attempt to mutate the GUI from another thread. Another default setting that will be applied is that
-            the background of the GUI will be solid blue.
+            Let's turn off the cursor for this tutorial
              */
-            final WindowBasedTextGUI textGUI = new MultiWindowTextGUI(screen);
+            screen.setCursorPosition(null);
 
             /*
-            Creating a new window is relatively uncomplicated, you can optionally supply a title for the window
+            Now let's draw some random content in the screen buffer
              */
-            final Window window = new BasicWindow("My Root Window");
+            Random random = new Random();
+            TerminalSize terminalSize = screen.getTerminalSize();
+            for (int column = 0; column < terminalSize.getColumns(); column++) {
+                for (int row = 0; row < terminalSize.getRows(); row++) {
+                    screen.setCharacter(column, row, new TextCharacter(
+                        ' ',
+                        TextColor.ANSI.DEFAULT,
+                        // This will pick a random background color
+                        TextColor.ANSI.values()[random.nextInt(TextColor.ANSI.values().length)]));
+                }
+            }
 
             /*
-            The window has no content initially, you need to call setComponent to populate it with something. In this
-            case, and quite often in fact, you'll want to use more than one component so we'll create a composite
-            'Panel' component that can hold multiple sub-components. This is where we decide what the layout manager
-            should be.
+            So at this point, we've only modified the back buffer in the screen, nothing is visible yet. In order to
+            move the content from the back buffer to the front buffer and refresh the screen, we need to call refresh()
              */
-            Panel contentPanel = new Panel(new GridLayout(2));
+            screen.refresh();
 
             /*
-             * Lanterna contains a number of built-in layout managers, the simplest one being LinearLayout that simply
-             * arranges components in either a horizontal or a vertical line. In this tutorial, we'll use the GridLayout
-             * which is based on the layout manager with the same name in SWT. In the constructor above we have
-             * specified that we want to have a grid with two columns, below we customize the layout further by adding
-             * some spacing between the columns.
+            Now there should be completely random colored cells in the terminal (assuming your terminal (emulator)
+            supports colors). Let's look at it for two seconds or until the user press a key.
              */
-            GridLayout gridLayout = (GridLayout) contentPanel.getLayoutManager();
-            gridLayout.setHorizontalSpacing(3);
+            long startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis() - startTime < 2000) {
+                // The call to pollInput() is not blocking, unlike readInput()
+                if (screen.pollInput() != null) {
+                    break;
+                }
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException ignore) {
+                    break;
+                }
+            }
 
             /*
-            One of the most basic components is the Label, which simply displays a static text. In the example below,
-            we use the layout data field attached to each component to give the layout manager extra hints about how it
-            should be placed. Obviously the layout data has to be created from the same layout manager as the container
-            is using, otherwise it will be ignored.
+            Ok, now we loop and keep modifying the screen until the user exits by pressing escape on the keyboard or the
+            input stream is closed. When using the Swing/AWT bundled emulator, if the user closes the window this will
+            result in an EOF KeyStroke.
              */
-            Label title = new Label("This is a label that spans two columns");
-            title.setLayoutData(GridLayout.createLayoutData(
-                GridLayout.Alignment.BEGINNING, // Horizontal alignment in the grid cell if the cell is larger than the component's preferred size
-                GridLayout.Alignment.BEGINNING, // Vertical alignment in the grid cell if the cell is larger than the component's preferred size
-                true,       // Give the component extra horizontal space if available
-                false,        // Give the component extra vertical space if available
-                2,                  // Horizontal span
-                1));                  // Vertical span
-            contentPanel.addComponent(title);
+            while (true) {
+                KeyStroke keyStroke = screen.pollInput();
+                if (keyStroke != null && (keyStroke.getKeyType() == KeyType.Escape || keyStroke.getKeyType() == KeyType.EOF)) {
+                    break;
+                }
 
-            /*
-            Since the grid has two columns, we can do something like this to add components when we don't need to
-            customize them any further.
-             */
-            contentPanel.addComponent(new Label("Label Box (aligned)"));
-            contentPanel.addComponent(
-                new TextBox()
-                    .setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.BEGINNING, GridLayout.Alignment.CENTER)));
+                /*
+                Screens will automatically listen and record size changes, but you have to let the Screen know when is
+                a good time to update its internal buffers. Usually you should do this at the start of your "drawing"
+                loop, if you have one. This ensures that the dimensions of the buffers stays constant and doesn't change
+                while you are drawing content. The method doReizeIfNecessary() will check if the terminal has been
+                resized since last time it was called (or since the screen was created if this is the first time
+                calling) and update the buffer dimensions accordingly. It returns null if the terminal has not changed
+                size since last time.
+                 */
+                TerminalSize newSize = screen.doResizeIfNecessary();
+                if (newSize != null) {
+                    terminalSize = newSize;
+                }
 
-            /*
-            Here is an example of customizing the regular text box component so it masks the content and can work for
-            password input.
-             */
-            contentPanel.addComponent(new Label("Password Box (right aligned)"));
-            contentPanel.addComponent(
-                new TextBox()
-                    .setMask('*')
-                    .setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.END, GridLayout.Alignment.CENTER)));
+                // Increase this to increase speed
+                final int charactersToModifyPerLoop = 1;
+                for (int i = 0; i < charactersToModifyPerLoop; i++) {
+                    /*
+                    We pick a random location
+                     */
+                    TerminalPosition cellToModify = new TerminalPosition(
+                        random.nextInt(terminalSize.getColumns()),
+                        random.nextInt(terminalSize.getRows()));
 
-            /*
-            While we are not going to demonstrate all components here, here is an example of combo-boxes, one that is
-            read-only and one that is editable.
-             */
-            contentPanel.addComponent(new Label("Read-only Combo Box (forced size)"));
-            List<String> timezonesAsStrings = new ArrayList<>(Arrays.asList(TimeZone.getAvailableIDs()));
-            ComboBox<String> readOnlyComboBox = new ComboBox<>(timezonesAsStrings);
-            readOnlyComboBox.setReadOnly(true);
-            readOnlyComboBox.setPreferredSize(new TerminalSize(20, 1));
-            contentPanel.addComponent(readOnlyComboBox);
+                    /*
+                    Pick a random background color again
+                     */
+                    TextColor.ANSI color = TextColor.ANSI.values()[random.nextInt(TextColor.ANSI.values().length)];
 
-            contentPanel.addComponent(new Label("Editable Combo Box (filled)"));
-            contentPanel.addComponent(
-                new ComboBox<>("Item #1", "Item #2", "Item #3", "Item #4")
-                    .setReadOnly(false)
-                    .setLayoutData(GridLayout.createHorizontallyFilledLayoutData(1)));
+                    /*
+                    Update it in the back buffer, notice that just like TerminalPosition and TerminalSize, TextCharacter
+                    objects are immutable so the withBackgroundColor(..) call below returns a copy with the background color
+                    modified.
+                     */
+                    TextCharacter characterInBackBuffer = screen.getBackCharacter(cellToModify);
+                    characterInBackBuffer = characterInBackBuffer.withBackgroundColor(color);
+                    characterInBackBuffer = characterInBackBuffer.withCharacter(' ');   // Because of the label box further down, if it shrinks
+                    screen.setCharacter(cellToModify, characterInBackBuffer);
+                }
 
-            /*
-            Some user interactions, like buttons, work by registering callback methods. In this example here, we're
-            using one of the pre-defined dialogs when the button is triggered.
-             */
-            contentPanel.addComponent(new Label("InvisibleButton (centered)"));
-            contentPanel.addComponent(new Button("InvisibleButton", () -> MessageDialog.showMessageDialog(textGUI, "MessageBox", "This is a message box", MessageDialogButton.OK)).setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.CENTER, GridLayout.Alignment.CENTER)));
+                /*
+                Just like with Terminal, it's probably easier to draw using TextGraphics. Let's do that to put a little
+                box with information on the size of the terminal window
+                 */
+                String sizeLabel = "Terminal Size: " + terminalSize;
+                TerminalPosition labelBoxTopLeft = new TerminalPosition(1, 1);
+                TerminalSize labelBoxSize = new TerminalSize(sizeLabel.length() + 2, 3);
+                TerminalPosition labelBoxTopRightCorner = labelBoxTopLeft.withRelativeColumn(labelBoxSize.getColumns() - 1);
+                TextGraphics textGraphics = screen.newTextGraphics();
+                //This isn't really needed as we are overwriting everything below anyway, but just for demonstrative purpose
+                textGraphics.fillRectangle(labelBoxTopLeft, labelBoxSize, ' ');
 
-            /*
-            Close off with an empty row and a separator, then a button to close the window
-             */
-            contentPanel.addComponent(
-                new EmptySpace()
-                    .setLayoutData(
-                        GridLayout.createHorizontallyFilledLayoutData(2)));
-            contentPanel.addComponent(
-                new Separator(Direction.HORIZONTAL)
-                    .setLayoutData(
-                        GridLayout.createHorizontallyFilledLayoutData(2)));
-            contentPanel.addComponent(
-                new Button("Close", window::close).setLayoutData(
-                    GridLayout.createHorizontallyEndAlignedLayoutData(2)));
+                /*
+                Draw horizontal lines, first upper then lower
+                 */
+                textGraphics.drawLine(
+                    labelBoxTopLeft.withRelativeColumn(1),
+                    labelBoxTopLeft.withRelativeColumn(labelBoxSize.getColumns() - 2),
+                    Symbols.DOUBLE_LINE_HORIZONTAL);
+                textGraphics.drawLine(
+                    labelBoxTopLeft.withRelativeRow(2).withRelativeColumn(1),
+                    labelBoxTopLeft.withRelativeRow(2).withRelativeColumn(labelBoxSize.getColumns() - 2),
+                    Symbols.DOUBLE_LINE_HORIZONTAL);
 
-            /*
-            We now have the content panel fully populated with components. A common mistake is to forget to attach it to
-            the window, so let's make sure to do that.
-             */
-            window.setComponent(contentPanel);
+                /*
+                Manually do the edges and (since it's only one) the vertical lines, first on the left then on the right
+                 */
+                textGraphics.setCharacter(labelBoxTopLeft, Symbols.DOUBLE_LINE_TOP_LEFT_CORNER);
+                textGraphics.setCharacter(labelBoxTopLeft.withRelativeRow(1), Symbols.DOUBLE_LINE_VERTICAL);
+                textGraphics.setCharacter(labelBoxTopLeft.withRelativeRow(2), Symbols.DOUBLE_LINE_BOTTOM_LEFT_CORNER);
+                textGraphics.setCharacter(labelBoxTopRightCorner, Symbols.DOUBLE_LINE_TOP_RIGHT_CORNER);
+                textGraphics.setCharacter(labelBoxTopRightCorner.withRelativeRow(1), Symbols.DOUBLE_LINE_VERTICAL);
+                textGraphics.setCharacter(labelBoxTopRightCorner.withRelativeRow(2), Symbols.DOUBLE_LINE_BOTTOM_RIGHT_CORNER);
 
-            /*
-            Now the window is created and fully populated. As discussed above regarding the threading model, we have the
-            option to fire off the GUI here and then later on decide when we want to stop it. In order for this to work,
-            you need a dedicated UI thread to run all the GUI operations, usually done by passing in a
-            SeparateTextGUIThread object when you create the TextGUI. In this tutorial, we are using the conceptually
-            simpler SameTextGUIThread, which essentially hijacks the caller thread and uses it as the GUI thread until
-            some stop condition is met. The absolutely simplest way to do this is to simply ask lanterna to display the
-            window and wait for it to be closed. This will initiate the event loop and make the GUI functional. In the
-            "Close" button above, we tied a call to the close() method on the Window object when the button is
-            triggered, this will then break the even loop and our call finally returns.
-             */
-            textGUI.addWindowAndWait(window);
+                /*
+                Finally put the text inside the box
+                 */
+                textGraphics.putString(labelBoxTopLeft.withRelative(1, 1), sizeLabel);
 
-            /*
-            When our call has returned, the window is closed and no longer visible. The screen still contains the last
-            state the TextGUI left it in, so we can easily add and display another window without any flickering. In
-            this case, we want to shut down the whole thing and return to the ordinary prompt. We just need to stop the
-            underlying Screen for this, the TextGUI system does not require any additional disassembly.
-             */
+                /*
+                Ok, we are done and can display the change. Let's also be nice and allow the OS to schedule other
+                threads so we don't clog up the core completely.
+                 */
+                screen.refresh();
+                Thread.yield();
+
+                /*
+                Every time we call refresh, the whole terminal is NOT re-drawn. Instead, the Screen will compare the
+                back and front buffers and figure out only the parts that have changed and only update those. This is
+                why in the code drawing the size information box above, we formattedLine it out every time we loop but it's
+                actually not sent to the terminal except for the first time because the Screen knows the content is
+                already there and has not changed. Because of this, you should never use the underlying Terminal object
+                when working with a Screen because that will cause modifications that the Screen won't know about.
+                 */
+            }
+
+            screen.stopScreen();
+            terminal.close();
+            term.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

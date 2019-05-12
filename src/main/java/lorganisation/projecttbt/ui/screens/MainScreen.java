@@ -43,7 +43,7 @@ public class MainScreen extends Screen {
 
         renderer.render(this);
 
-        keyPressed((char) input.getInput());
+        keyPressed( (char) input.getInput());
 
         if (!skip)
             display(input, renderer);
