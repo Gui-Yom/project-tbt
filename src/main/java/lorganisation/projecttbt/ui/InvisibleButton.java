@@ -40,10 +40,4 @@ public class InvisibleButton extends ActionWidget {
 
         return null;
     }
-
-    @Override
-    public boolean handleEvent(KeyStroke key) {
-
-        return false;
-    }
 }

@@ -1,10 +1,12 @@
 package lorganisation.projecttbt.ui;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.AnsiColor;
 import lorganisation.projecttbt.utils.*;
-import org.jline.terminal.Terminal;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ColorPicker extends ContainerWidget<AnsiColor> {
@@ -19,8 +21,8 @@ public class ColorPicker extends ContainerWidget<AnsiColor> {
         this.alignement = alignement;
 
 
-        addControl('d', "D : NEXT Color");
-        addControl('q', "Q : PREVIOUS Color");
+        addControl(new KeyStroke('d', false, false), "D : NEXT Color");
+        addControl(new KeyStroke('q', false, false), "Q : PREVIOUS Color");
         setFocusable(true);
     }
 
@@ -30,22 +32,25 @@ public class ColorPicker extends ContainerWidget<AnsiColor> {
     }
 
     @Override
-    public String render(Terminal term) {
+    public String render(ANSITerminal term) {
 
         StyledString string = new StyledString("  ", Pair.of(0, getValue().bg()));
 
 
-        return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getWidth()) + Anscapes.RESET;
+        try {
+            return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getTerminalSize().getColumns()) + Anscapes.RESET;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public boolean handleEvent(int keyCode) {
+    public boolean handleEvent(KeyStroke keyCode) {
 
-        char key = (char) keyCode;
-
-        if (key == 'd')
+        if (keyCode.getCharacter().equals('d'))
             return this.availableColors.next() != null;
-        else if (key == 'q')
+        else if (keyCode.getCharacter().equals('q'))
             return this.availableColors.prev() != null;
 
         return false;

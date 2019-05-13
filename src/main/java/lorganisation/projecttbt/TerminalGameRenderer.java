@@ -1,5 +1,6 @@
 package lorganisation.projecttbt;
 
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.player.AbstractPlayer;
@@ -9,6 +10,8 @@ import lorganisation.projecttbt.ui.Screen;
 import lorganisation.projecttbt.ui.Widget;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
+
+import java.io.IOException;
 
 public class TerminalGameRenderer {
 
@@ -33,13 +36,21 @@ public class TerminalGameRenderer {
 
     public void render(Screen screen) {
 
+        TerminalSize terminalSize;
+        try {
+            terminalSize = terminal.getTerminalSize();
+        } catch(IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
         for (Widget component : screen.getComponents())
             if (component.isVisible()) renderComponent(component);
 
         StringBuilder line = new StringBuilder();
-        for (int i = 0; i < terminal.getWidth(); i++)
+        for (int i = 0; i < terminalSize.getColumns(); i++)
             line.append(' ');
-        System.out.print(Anscapes.cursorPos(terminal.getHeight() - 2, 0) + Anscapes.Colors.WHITE_BRIGHT.bg() + line.toString() + Anscapes.RESET);
+        System.out.print(Anscapes.cursorPos(terminalSize.getRows() - 2, 0) + Anscapes.Colors.WHITE_BRIGHT.bg() + line.toString() + Anscapes.RESET);
 
         StringBuilder controls = new StringBuilder("| TAB : Switch between menus | ");
         //if (screen.getFocusedWidget() != null && screen.getFocusedWidget().getControls() != null)
@@ -50,7 +61,7 @@ public class TerminalGameRenderer {
                     controls.append(description).append(" | ");
             }
 
-        System.out.print(Utils.formattedLine(terminal.getHeight() - 2, 0, new StyledString(controls.toString()), Utils.Align.LEFT, terminal.getWidth()));
+        System.out.print(Utils.formattedLine(terminalSize.getRows() - 2, 0, new StyledString(controls.toString()), Utils.Align.LEFT, terminalSize.getColumns()));
     }
 
     public void renderComponent(Widget component) {

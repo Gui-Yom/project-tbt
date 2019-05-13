@@ -1,5 +1,7 @@
 package lorganisation.projecttbt.ui.screens;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
@@ -19,31 +21,38 @@ public class MainScreen extends Screen {
     public MainScreen() {
 
         super();
-        addComponent(new Label(new Coords(0, 2),
-                               new StyledString("Project: TBT",
-                                                Pair.of(0, Anscapes.Colors.RED_BRIGHT.fg()),
-                                                Pair.of(9, Anscapes.Colors.YELLOW.fg()),
-                                                Pair.of(10, Anscapes.Colors.BLUE.fg()),
-                                                Pair.of(11, Anscapes.Colors.GREEN.fg())),
-                               Utils.Align.CENTER));
-        addComponent(new Button(new Coords(0, 8
-        ),
+        Label lbl = new Label(new Coords(0, 2),
+                              new StyledString("Project: TBT",
+                                               Pair.of(0, Anscapes.Colors.RED_BRIGHT.fg()),
+                                               Pair.of(9, Anscapes.Colors.YELLOW.fg()),
+                                               Pair.of(10, Anscapes.Colors.BLUE.fg()),
+                                               Pair.of(11, Anscapes.Colors.GREEN.fg())),
+                              Utils.Align.CENTER);
+        addComponent(lbl);
+
+        Button btn = new Button(new Coords(0, 8),
                                 new StyledString("Press 'ENTER' to start",
                                                  Pair.of(12, Anscapes.BLINK_SLOW),
                                                  Pair.of(16, Anscapes.BLINK_OFF),
                                                  Pair.of(0, Anscapes.Colors.YELLOW.fg())),
-                                Utils.Align.CENTER, () -> skip = true, false, Pair.of(13, "ENTER : Commencer")));
-        addComponent(new InvisibleButton(() -> {
+                                Utils.Align.CENTER,
+                                () -> skip = true,
+                                false,
+                                Pair.of(new KeyStroke(KeyType.Enter), "ENTER : Commencer"));
+        addComponent(btn);
+
+        InvisibleButton ibtn = new InvisibleButton(() -> {
             Utils.clearTerm();
             System.exit(0);
-        }, Pair.of(27, "ESC : QUIT")));
+        }, Pair.of(new KeyStroke(KeyType.Escape), "ESC : QUIT"));
+        addComponent(ibtn);
     }
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
 
         renderer.render(this);
 
-        keyPressed( (char) input.getInput());
+        keyPressed(input.getInput());
 
         if (!skip)
             display(input, renderer);

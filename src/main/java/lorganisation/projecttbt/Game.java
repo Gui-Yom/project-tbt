@@ -1,13 +1,17 @@
 package lorganisation.projecttbt;
 
+import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
+import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
+import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.ImgConverter;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.ui.screens.LobbyScreen;
+import lorganisation.projecttbt.ui.screens.MainMenuLanterna;
 import lorganisation.projecttbt.ui.screens.MainScreen;
-import lorganisation.projecttbt.ui.screens.MapSelectionScreen;
-import lorganisation.projecttbt.ui.screens.TestScreen;
+import lorganisation.projecttbt.ui.screens.MapSelectionMenuLanterna;
 import lorganisation.projecttbt.utils.CyclicList;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
@@ -92,16 +96,23 @@ public class Game {
         }
 
         ANSITerminal terminal = new LanternaTerminal(jlineTerminal);
+        Screen screen = new TerminalScreen(terminal);
+
+        WindowBasedTextGUI gui = new MultiWindowTextGUI(screen/*, new DefaultWindowManager(), new Background()*/);
+        //gui.setTheme(LanternaThemes.getRegisteredTheme("default"));
 
         Game game = new Game(terminal);
 
-        // On affiche les maps disponibles et on demande au joueur de choisir
-        Utils.clearTerm();
-        new TestScreen(game).display(game.input, game.renderer);
-        Utils.clearTerm();
+        screen.setCursorPosition(null);
+        screen.startScreen();
 
-        game.mainMenu();
-        Utils.clearTerm();
+        //new TestScreen(game).display(game.input, game.renderer);
+        gui.addWindowAndWait(new MainMenuLanterna(screen, game));
+
+        //gui.getBackgroundPane().setComponent(new EmptySpace());
+
+        gui.addWindowAndWait(new MapSelectionMenuLanterna(screen, game));
+        //Utils.clearTerm();
 
         game.mapSelection();
         Utils.clearTerm();
@@ -111,6 +122,7 @@ public class Game {
         game.start();
 
         Utils.clearTerm();
+        screen.stopScreen();
         terminal.close();
         jlineTerminal.close();
     }
@@ -159,9 +171,14 @@ public class Game {
 
     public void mapSelection() {
 
-        MapSelectionScreen mapSelectionMenu = new MapSelectionScreen(this);
-        mapSelectionMenu.display(input, renderer);
+        //Lanterna
 
+
+        //Old style
+        /*MapSelectionScreen mapSelectionMenu = new MapSelectionScreen(this);
+        mapSelectionMenu.display(input, renderer);*/
+
+        //Very old style
         /*System.out.println("Available maps :");
         for (Map.Entry<String, String> e : AssetsManager.gameMaps().entrySet())
             System.out.println(" - " + e.getKey() + " (" + e.getValue() + ")");

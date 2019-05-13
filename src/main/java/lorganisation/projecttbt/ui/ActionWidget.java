@@ -17,10 +17,13 @@ public abstract class ActionWidget extends Widget {
     @Override
     public boolean handleEvent(KeyStroke key) {
 
-        if (getControls().get(key) != null) {
-            action.run();
-            return true;
-        }
+
+        this.visible = false;
+        for (KeyStroke keyStroke : getControls().keySet())
+            if (keyStroke.equals(key)) {
+                action.run();
+                return true;
+            }
 
         return false;
     }

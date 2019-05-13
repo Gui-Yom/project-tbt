@@ -83,8 +83,10 @@ public abstract class Screen {
             //first execute InvisibleButtons & unFocusable Buttons (require no focus and has priority)
             for (Widget widget : components)
                 if (widget instanceof Button || widget instanceof InvisibleButton) {
-                    if (!(widget instanceof Button && widget.isFocusable()) && !(widget instanceof InvisibleButton && !widget.isActivated()) && widget.handleEvent(key))
+                    if (!(widget instanceof Button && widget.isFocusable()) && !(widget instanceof InvisibleButton && !widget.isActivated()) && widget.handleEvent(key)) {
+                        widget.setVisible(false);
                         return;
+                    }
                 }
 
             // if a widget is focused

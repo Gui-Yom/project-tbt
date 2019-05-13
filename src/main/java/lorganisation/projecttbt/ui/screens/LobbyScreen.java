@@ -1,5 +1,7 @@
 package lorganisation.projecttbt.ui.screens;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
@@ -40,18 +42,22 @@ public class LobbyScreen extends Screen {
         addComponent(new Label(new Coords(0, 4), new StyledString("Nombre de joueurs maximum: 4"), Utils.Align.CENTER));
         characterPerPlayerField = (IntegerField) setFocused(addComponent(new IntegerField(new Coords(4, 7), new StyledString("Entrez le nombre de personnages par joueur: "), Utils.Align.LEFT, 1, 1, /*AssetsManager.gameCharacterNames().size()*/5)));
 
-        addBotButton = (InvisibleButton) addComponent(new InvisibleButton(() -> {
+        addBotButton = new InvisibleButton(() -> {
             game.addPlayer(new Bot(game.getAvailableColors()));
             showPlayerSubMenu(game);
-        }, Pair.of((int) '*', "* : Add a new BOT")));
+        }, Pair.of(new KeyStroke('*', false, false), "* : Add a new BOT"));
+
+        addComponent(addBotButton);
         addBotButton.setActivated(false);
 
-        addPlayerButton = (InvisibleButton) addComponent(new InvisibleButton(() -> {
+        addPlayerButton = new InvisibleButton(() -> {
             if (!characterPerPlayerField.isFocusable()) {showPlayerSubMenu(game);}
-        }, Pair.of((int) '+', "+ : Add a new Player")));
+        }, Pair.of(new KeyStroke('+', false, false), "+ : Add a new Player"));
+
+        addComponent(addPlayerButton);
         addPlayerButton.setActivated(false);
 
-        confirmButton = (InvisibleButton) addComponent(new InvisibleButton(() -> {
+        confirmButton = new InvisibleButton(() -> {
             if (characterPerPlayerField.isFocusable()) {
 
                 characterPerPlayerField.setActivated(false);
@@ -68,7 +74,9 @@ public class LobbyScreen extends Screen {
 
                 if (game.getPlayers().size() > 1) {skip = true;}
             }
-        }, Pair.of(13, "ENTER : CONFIRM"))); // not working
+        }, Pair.of(new KeyStroke(KeyType.Enter), "ENTER : CONFIRM"));
+
+        addComponent(confirmButton);
 
         pseudoField = (TextField) addComponent(new TextField(new Coords(4, 9), new StyledString("Pseudo: "), Utils.Align.LEFT, 16));
         pseudoField.setVisible(false);
@@ -101,9 +109,7 @@ public class LobbyScreen extends Screen {
         if (getFocusedWidget() != null)
             Utils.writeAt(getFocusedWidget().getCoords().getX() - 2, getFocusedWidget().getCoords().getY(), "> ");
 
-        int inputValue = input.getInput();
-
-        keyPressed((char) inputValue);
+        keyPressed(input.getInput());
 
 
         if (!skip) display(input, renderer);

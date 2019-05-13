@@ -1,12 +1,15 @@
 package lorganisation.projecttbt.ui;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
+import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
-import org.jline.terminal.Terminal;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
@@ -41,19 +44,19 @@ public class TextField extends ContainerWidget<String> {
         this.maxSize = maxSize;
         this.builder = new StringBuilder();
 
-        addControl(-1, "TYPE (use keyboard idiot)");
+        addControl(null, "TYPE (use keyboard idiot)");
         setFocusable(true);
     }
 
-    public boolean handleEvent(int key) {
+    public boolean handleEvent(KeyStroke key) {
 
         int typedLength = builder.length();
 
-        if (key == 8) {//backspace
+        if (key.getKeyType().equals(KeyType.Backspace)) {//backspace
             if (typedLength > 0)
                 builder.deleteCharAt(typedLength - 1);
-        } else if (builder.length() < maxSize && Pattern.compile("^\\w{1}$").matcher(String.valueOf((char) key)).find()) {
-            builder.append((char) key);
+        } else if (builder.length() < maxSize && key.getCharacter() != null && Pattern.compile("^\\w{1}$").matcher(key.getCharacter().toString()).find()) {
+            builder.append(key.getCharacter());
         } else
             return false;
 
@@ -61,7 +64,7 @@ public class TextField extends ContainerWidget<String> {
     }
 
     @Override
-    public String render(Terminal term) {
+    public String render(ANSITerminal term) {
 
         StringBuilder fill = new StringBuilder();
         for (int i = 0; i < maxSize - builder.length(); ++i)
@@ -69,7 +72,12 @@ public class TextField extends ContainerWidget<String> {
         StyledString string = new StyledString(prompt.text() + builder.toString() + fill.toString(), this.modifiers);
 
 
-        return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getWidth()) + Anscapes.RESET;
+        try {
+            return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getTerminalSize().getColumns()) + Anscapes.RESET;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

@@ -56,7 +56,16 @@ shadowJar {
 task copyScripts(type: Copy) {
 
     from "src/main/dist"
-    include "*"
+    include "*.sh"
+    include "*.bat"
+    into "$buildDir/libs"
+}
+
+task unzipConsole(type: Copy) {
+
+    from(zipTree("src/main/dist/Console2.zip")) {
+        include "*"
+    }
     into "$buildDir/libs"
 }
 
@@ -64,6 +73,7 @@ task bundle {
 
     dependsOn shadowJar
     dependsOn copyScripts
+    dependsOn unzipConsole
 }
 
 // Works nicely

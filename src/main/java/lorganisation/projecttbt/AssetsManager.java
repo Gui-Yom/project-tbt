@@ -211,7 +211,7 @@ public class AssetsManager {
      */
     public static boolean reload() {
 
-        System.out.print("Loading ressources ...");
+        //System.out.print("Loading ressources ...");
 
         maps = new HashMap<>();
         characters = new HashMap<>();
@@ -243,10 +243,10 @@ public class AssetsManager {
         }
 
         if (maps == null || characters == null || botNames.size() == 0) {
-            System.err.println(" FAIL !");
+            //System.err.println(" FAIL !");
             return false;
         } else {
-            System.out.println(" OK");
+            //System.out.println(" OK");
             return true;
         }
     }

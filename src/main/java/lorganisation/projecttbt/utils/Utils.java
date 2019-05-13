@@ -1,5 +1,7 @@
 package lorganisation.projecttbt.utils;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import com.limelion.anscapes.Anscapes;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -12,6 +14,20 @@ import java.util.function.Function;
  * Une classe comportant différentes méthodes utilitaires.
  */
 public class Utils {
+
+    public enum Align {
+        LEFT, CENTER, RIGHT
+    }
+
+    public static class Keys {
+        public static final KeyStroke ENTER = new KeyStroke(KeyType.Enter),
+            BACKSPACE = new KeyStroke(KeyType.Backspace),
+            LEFT_ARROW = new KeyStroke(KeyType.ArrowLeft),
+            RIGHT_ARROW = new KeyStroke(KeyType.ArrowRight),
+            UP_ARROW = new KeyStroke(KeyType.ArrowUp),
+            DOWN_ARROW = new KeyStroke(KeyType.ArrowDown),
+            DELETE = new KeyStroke(KeyType.Delete);
+    }
 
     public static <T> List<T> arrayToList(T[] arr) {
 
@@ -96,7 +112,7 @@ public class Utils {
      */
     public static String formattedLine(int row, int col, StyledString s, Align alignment, int width) {
 
-        Coords coords = coordinatesOfFormattedLine(row, col, s.length(), alignment, width);
+        Coords coords = coordinatesOfAlignedObject(row, col, s.length(), alignment, width);
 
         String result = Anscapes.cursorPos(coords.getY() + 1, coords.getX() + 1); // Aller à la ligne n
 
@@ -105,7 +121,7 @@ public class Utils {
         return result;
     }
 
-    public static Coords coordinatesOfFormattedLine(int row, int col, int length, Align alignment, int width) {
+    public static Coords coordinatesOfAlignedObject(int row, int col, int length, Align alignment, int width) {
 
         int x;
         if (alignment == Align.LEFT)
@@ -193,9 +209,5 @@ public class Utils {
                 max = i;
 
         return max != null ? max : 0;
-    }
-
-    public enum Align {
-        LEFT, CENTER, RIGHT
     }
 }

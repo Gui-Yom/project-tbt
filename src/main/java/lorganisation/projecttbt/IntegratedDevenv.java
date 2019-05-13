@@ -33,26 +33,36 @@ public class IntegratedDevenv {
         System.out.println("    Extraction des ressources ... OK");
     }
 
+    /**
+     * Print to stdout
+     *
+     * @param mode
+     * @param reduction
+     * @param f
+     */
     public static void convert(ImgConverter.Mode mode, int reduction, File f) {
-
-        ImgConverter converter = ImgConverter.builder()
-                                             .mode(mode)
-                                             .smoothing(true)
-                                             .reductionScale(reduction)
-                                             .build();
 
         if (!f.exists()) {
             System.err.println("Given file doesn't exist. ('" + f.getAbsolutePath() + "')");
             System.exit(-1);
         }
 
-        BufferedImage image = null;
         try {
-            image = ImageIO.read(f);
-            System.out.print(converter.convert(image));
+            BufferedImage image = ImageIO.read(f);
+            System.out.print(convert(image, mode, reduction));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public static String convert(BufferedImage image, ImgConverter.Mode mode, int reduction) {
+
+        ImgConverter converter = ImgConverter.builder()
+                                             .mode(mode)
+                                             .reductionScale(reduction)
+                                             .smoothing(true)
+                                             .build();
+
+        return converter.convert(image);
+    }
 }
