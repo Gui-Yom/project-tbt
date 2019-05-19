@@ -1,20 +1,19 @@
 package lorganisation.projecttbt.ui;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
-import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
+import com.sun.glass.events.KeyEvent;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
+import org.jline.terminal.Terminal;
 
-import java.io.IOException;
+import javax.swing.KeyStroke;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-public class IntegerField extends ContainerWidget<Integer> {
+public class IntegerField extends InputWidget<Integer> {
 
     private StyledString prompt;
     private Map<Integer, String> modifiers;
@@ -25,6 +24,7 @@ public class IntegerField extends ContainerWidget<Integer> {
 
     public IntegerField(Coords coords, StyledString prompt, Utils.Align alignement, int defaultValue, int minValue, int maxValue, Pair<Integer, String>... modifiers) {
 
+        super(coords);
 
         this.modifiers = new TreeMap<>();
 
@@ -44,23 +44,27 @@ public class IntegerField extends ContainerWidget<Integer> {
         this.minValue = minValue;
         this.maxValue = maxValue;
 
-
+        // FIXME
+        /*
         addControl(null, "USE THE FCKING KEYBOARD (numbers only)");
         addControl(new KeyStroke('+', false, false), "+ -> Increment by one");
         addControl(new KeyStroke('-', false, false), "- -> Decrement by one");
+
+         */
         setFocusable(true);
     }
 
-    public boolean handleEvent(KeyStroke key) {
+    @Override
+    public boolean handleInput(KeyStroke key) {
 
-        if (key.getKeyType().equals(KeyType.Backspace)) { //backspace
+        if (key.getKeyCode() == KeyEvent.VK_BACKSPACE) { //backspace
             removeChar();
-        } else if (key.getCharacter().equals('+')) //uparrow c galere
+        } else if (key.getKeyChar() == '+')
             increment(+1);
-        else if (key.getCharacter().equals('-'))//down arrow c galere
+        else if (key.getKeyChar() == '-')
             increment(-1);
-        else if (Pattern.compile("([0-9])").matcher(key.getCharacter().toString()).find()) {
-            appendChar(key.getCharacter());
+        else if (Pattern.compile("([0-9])").matcher(Character.toString(key.getKeyChar())).find()) {
+            appendChar(key.getKeyChar());
         } else {
             return false;
         }
@@ -104,19 +108,14 @@ public class IntegerField extends ContainerWidget<Integer> {
     }
 
     @Override
-    public String render(ANSITerminal term) {
+    public String paint(Terminal term) {
 
         /*StringBuilder fill = new StringBuilder();
         for (int i = 0; i < maxValue / 10 - builder.length(); ++i)
             fill.append("_");*/
         StyledString string = new StyledString(prompt.text() + this.value + /*fill.toString() +*/ " +/- ", this.modifiers);
 
-        try {
-            return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getTerminalSize().getColumns()) + Anscapes.RESET;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getSize().getColumns()) + Anscapes.RESET;
     }
 
     @Override

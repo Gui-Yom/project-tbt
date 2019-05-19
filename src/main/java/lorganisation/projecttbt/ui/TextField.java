@@ -1,20 +1,19 @@
 package lorganisation.projecttbt.ui;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
-import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
+import com.sun.glass.events.KeyEvent;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
+import org.jline.terminal.Terminal;
 
-import java.io.IOException;
+import javax.swing.KeyStroke;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-public class TextField extends ContainerWidget<String> {
+public class TextField extends InputWidget<String> {
 
     private StyledString prompt;
     private StringBuilder builder;
@@ -24,6 +23,7 @@ public class TextField extends ContainerWidget<String> {
 
     public TextField(Coords coords, StyledString prompt, Utils.Align alignement, int maxSize, Pair<Integer, String>... modifiers) {
 
+        super(coords);
 
         this.modifiers = new TreeMap<>();
 
@@ -39,24 +39,23 @@ public class TextField extends ContainerWidget<String> {
 
 
         this.alignement = alignement;
-        this.coords = coords;
+        this.setCoords(coords);
         this.prompt = prompt;
         this.maxSize = maxSize;
         this.builder = new StringBuilder();
 
-        addControl(null, "TYPE (use keyboard idiot)");
-        setFocusable(true);
+        getControls().add(null);
     }
 
     public boolean handleEvent(KeyStroke key) {
 
         int typedLength = builder.length();
 
-        if (key.getKeyType().equals(KeyType.Backspace)) {//backspace
+        if (key.getKeyCode() == KeyEvent.VK_BACKSPACE) { //backspace
             if (typedLength > 0)
                 builder.deleteCharAt(typedLength - 1);
-        } else if (builder.length() < maxSize && key.getCharacter() != null && Pattern.compile("^\\w{1}$").matcher(key.getCharacter().toString()).find()) {
-            builder.append(key.getCharacter());
+        } else if (builder.length() < maxSize && Pattern.compile("^\\w{1}$").matcher(Character.toString(key.getKeyChar())).find()) {
+            builder.append(key.getKeyChar());
         } else
             return false;
 
@@ -64,20 +63,14 @@ public class TextField extends ContainerWidget<String> {
     }
 
     @Override
-    public String render(ANSITerminal term) {
+    public String paint(Terminal term) {
 
         StringBuilder fill = new StringBuilder();
         for (int i = 0; i < maxSize - builder.length(); ++i)
             fill.append("_");
         StyledString string = new StyledString(prompt.text() + builder.toString() + fill.toString(), this.modifiers);
 
-
-        try {
-            return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getTerminalSize().getColumns()) + Anscapes.RESET;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return Utils.formattedLine(getCoords().getY(), getCoords().getX(), string, this.alignement, term.getWidth()) + Anscapes.RESET;
     }
 
     @Override

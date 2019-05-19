@@ -22,15 +22,16 @@ dependencies {
     implementation "org.jline:jline-terminal-jansi:$jlineVersion"
     implementation "org.jline:jline-style:$jlineVersion"
     implementation "org.jline:jline-reader:$jlineVersion"
+    implementation "org.jline:jline-remote-telnet:$jlineVersion"
     implementation "com.github.LimeiloN:anscapes:0.4.0"
     implementation "com.google.code.gson:gson:2.8.5"
-    implementation 'com.googlecode.lanterna:lanterna:3.0.1'
+    //implementation "com.googlecode.lanterna:lanterna:3.0.1"
 }
 
 // Define the main class for the application
 mainClassName = "lorganisation.projecttbt.Game"
 group = "lorganisation"
-version = "0.3.0"
+version = "0.4.0"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -61,25 +62,18 @@ task copyScripts(type: Copy) {
     into "$buildDir/libs"
 }
 
-task unzipConsole(type: Copy) {
+task altConsole(type: Copy) {
 
-    from(zipTree("src/main/dist/Console2.zip")) {
+    from(zipTree("src/main/dist/ConsoleZ.zip")) {
         include "*"
     }
     into "$buildDir/libs"
 }
 
-task bundle {
+task play(type: Exec) {
 
     dependsOn shadowJar
     dependsOn copyScripts
-    dependsOn unzipConsole
-}
-
-// Works nicely
-task play(type: Exec) {
-
-    dependsOn bundle
 
     workingDir "$buildDir/libs"
     if (System.properties['os.name'].toLowerCase().contains('windows')) {
@@ -93,30 +87,15 @@ task play(type: Exec) {
 
 task experiment(type: Exec) {
 
-    dependsOn bundle
+    dependsOn shadowJar
 
-    def mainClass = "lorganisation.projecttbt.experiments.LanternaIntegration"
+    def mainClass = "lorganisation.projecttbt.experiments.SerializationTest"
     //def mainClass = "lorganisation.projecttbt.experiments.FeederTest"
 
     workingDir "$buildDir/libs"
     // C:\Windows\System32\cmd.exe /C start cmd /C "echo a && pause"
     commandLine "C:/Windows/System32/cmd.exe", "/C start cmd /K java -cp project-tbt.jar $mainClass"
 }
-
-/*
-task lanterna(type: Exec) {
-
-    mainClassName = "lorganisation.projecttbt.experiments.LanternaIntegration"
-    dependsOn bundle
-    workingDir "$buildDir/libs"
-    commandLine "C:/Windows/System32/cmd.exe", "/C start cmd /C call start.bat"
-}
-*/
-
-/*
-task stage(dependsOn: ['shadowJar', 'clean'])
-shadowJar.mustRunAfter clean
-*/
 
 /*
 clean.doFirst {

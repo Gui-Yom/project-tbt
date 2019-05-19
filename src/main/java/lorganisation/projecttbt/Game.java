@@ -1,23 +1,18 @@
 package lorganisation.projecttbt;
 
-import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
-import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
-import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.screen.TerminalScreen;
-import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
+import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.ImgConverter;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.ui.screens.LobbyScreen;
-import lorganisation.projecttbt.ui.screens.MainMenuLanterna;
 import lorganisation.projecttbt.ui.screens.MainScreen;
-import lorganisation.projecttbt.ui.screens.MapSelectionMenuLanterna;
 import lorganisation.projecttbt.utils.CyclicList;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.DumbTerminal;
 
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -49,14 +44,14 @@ public class Game {
      */
     private TerminalGameInput input;
 
-    private ANSITerminal terminal;
+    private Terminal terminal;
 
     private List<Colors> availableColors;
 
     /**
      * @param term une référence vers l'objet Terminal à utiliser
      */
-    public Game(ANSITerminal term) {
+    public Game(Terminal term) {
 
         this.renderer = new TerminalGameRenderer(term);
         this.input = new TerminalGameInput(term);
@@ -67,7 +62,8 @@ public class Game {
 
     public static void main(String[] args) throws IOException {
 
-        // J'hésite à utiliser commons-cli mais ça ne ferai que rajouter du bordel
+        // Arguments de ligne de commande
+        // On les parse à la main
         if (args != null && args.length == 1 && args[0].equals("devenv")) {
 
             IntegratedDevenv.devenv();
@@ -80,31 +76,48 @@ public class Game {
             System.exit(0);
         }
 
-        Terminal jlineTerminal = TerminalBuilder.builder()
-                                                .encoding(StandardCharsets.UTF_8)
-                                                .jansi(true)
-                                                .system(true)
-                                                .name("Project: TBT")
-                                                .nativeSignals(true)
-                                                //.type("windows-vtp")
-                                                //.signalHandler(Utils::handleSignal)
-                                                .build();
+        // L'objet Terminal qui nous permet de faire à peu près tout
+        Terminal term = TerminalBuilder.builder()
+                                       .encoding(StandardCharsets.UTF_8)
+                                       .jansi(true)
+                                       .system(true)
+                                       .name("Project: TBT")
+                                       .nativeSignals(true)
+                                       //.type("windows-vtp")
+                                       //.signalHandler(Utils::handleSignal)
+                                       .build();
 
-        if (jlineTerminal instanceof DumbTerminal) {
+        // On vérifie que le terminal a correctement été instancié
+        // ex: problème de compatibilité de l'OS
+        if (term instanceof DumbTerminal) {
             System.err.println("This terminal isn't supported ! Aborting.");
             System.exit(-1);
         }
 
-        ANSITerminal terminal = new LanternaTerminal(jlineTerminal);
-        Screen screen = new TerminalScreen(terminal);
+        //term.enterRawMode();
 
-        WindowBasedTextGUI gui = new MultiWindowTextGUI(screen/*, new DefaultWindowManager(), new Background()*/);
-        //gui.setTheme(LanternaThemes.getRegisteredTheme("default"));
+        // On passe en mode privé
+        System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER);
 
-        Game game = new Game(terminal);
+        TerminalGameInput input = new TerminalGameInput(term);
 
-        screen.setCursorPosition(null);
-        screen.startScreen();
+        while (true) {
+
+            System.out.print(input.readKey() != null ? input.getLastKey() : "");
+
+            if (input.getLastKey() != null && input.getLastKey().getKeyCode() == KeyEvent.VK_ESCAPE)
+                System.exit(0);
+
+            // Petit trick pour baiser le compilateur qui n'aime pas qd la boucle est infinie
+            if (false)
+                break;
+        }
+
+        /*
+
+        Game game = new Game(term);
+
+        System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER);
 
         //new TestScreen(game).display(game.input, game.renderer);
         gui.addWindowAndWait(new MainMenuLanterna(screen, game));
@@ -120,11 +133,13 @@ public class Game {
         game.lobby();
         Utils.clearTerm();
         game.start();
+         */
 
+        // END / Cleanup
         Utils.clearTerm();
-        screen.stopScreen();
-        terminal.close();
-        jlineTerminal.close();
+        System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER_OFF);
+
+        term.close();
     }
 
     /**
@@ -226,7 +241,7 @@ public class Game {
         for (int i = getPlayers().size(); i < maxPlayers; i++) {
             System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Choix des personnages");
 
-            char action = (char) this.input.getInput();
+            char action = (char) this.input.readInput();
 
             if (action == '*')
                 newPlayer(true);
@@ -329,7 +344,7 @@ public class Game {
                                  Utils.Align.CENTER,
                                  terminal.getWidth());
 
-        input.getInput(); // wait for user keypress to skip menu
+        input.readInput(); // wait for user keypress to skip menu
 
         Character character;
         AbstractPlayer player;
@@ -346,7 +361,7 @@ public class Game {
 
             System.out.print(Anscapes.cursorPos(character.getY() + 1, character.getX() + 1)); //have cursor blink on playing character
 
-            char read = (char) input.getInput();
+            char read = (char) input.readInput();
 
             if (read == 27) { // ESCAPE
                 break;

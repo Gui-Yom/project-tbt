@@ -1,15 +1,15 @@
 package lorganisation.projecttbt.ui.screens;
 
-import com.googlecode.lanterna.input.KeyStroke;
 import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.ui.*;
 import lorganisation.projecttbt.utils.Coords;
-import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
-import lorganisation.projecttbt.utils.Utils.Keys;
+
+import javax.swing.KeyStroke;
+import java.awt.event.KeyEvent;
 
 public class TestScreen extends Screen {
 
@@ -51,14 +51,14 @@ public class TestScreen extends Screen {
                                 new StyledString("ENTER TO VALIDATE"),
                                 Utils.Align.LEFT,
                                 () -> skip = true,
-                                false,
-                                Pair.of(Keys.ENTER, "ENTER : VALIDATE")));
+                                false, //FIXME
+                                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0)));
 
         addComponent(new Button(new Coords(2, 14),
                                 new StyledString("PRESS 'V' TO VALIDATE"),
                                 Utils.Align.LEFT,
-                                () -> System.exit(1), true,
-                                Pair.of(new KeyStroke('v', false, false), "V : VALIDATE")));
+                                () -> System.exit(1), true, // FIXME
+                                KeyStroke.getKeyStroke('v')));
 
     }
 
@@ -70,7 +70,7 @@ public class TestScreen extends Screen {
         Utils.writeAt(0, this.getFocusedWidget().getCoords().getY(), ">");
 
 
-        KeyStroke key = input.getInput();
+        KeyStroke key = input.readKey();
         keyPressed(key);
 
         if (!skip)

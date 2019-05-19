@@ -1,7 +1,5 @@
 package lorganisation.projecttbt.ui.screens;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
@@ -9,9 +7,11 @@ import lorganisation.projecttbt.player.Bot;
 import lorganisation.projecttbt.player.Player;
 import lorganisation.projecttbt.ui.*;
 import lorganisation.projecttbt.utils.Coords;
-import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
+
+import javax.swing.KeyStroke;
+import java.awt.event.KeyEvent;
 
 public class LobbyScreen extends Screen {
 
@@ -29,7 +29,6 @@ public class LobbyScreen extends Screen {
     private InvisibleButton confirmButton;
 
 
-    //FIXME: conflicting + key with InvisibleButton and NumberField, change character or deal with it ?
     public LobbyScreen(Game game) {
 
         super();
@@ -45,22 +44,22 @@ public class LobbyScreen extends Screen {
         addBotButton = new InvisibleButton(() -> {
             game.addPlayer(new Bot(game.getAvailableColors()));
             showPlayerSubMenu(game);
-        }, Pair.of(new KeyStroke('*', false, false), "* : Add a new BOT"));
+        }, KeyStroke.getKeyStroke('*'));
 
         addComponent(addBotButton);
-        addBotButton.setActivated(false);
+        addBotButton.setEnabled(false);
 
         addPlayerButton = new InvisibleButton(() -> {
             if (!characterPerPlayerField.isFocusable()) {showPlayerSubMenu(game);}
-        }, Pair.of(new KeyStroke('+', false, false), "+ : Add a new Player"));
+        }, KeyStroke.getKeyStroke('+'));
 
         addComponent(addPlayerButton);
-        addPlayerButton.setActivated(false);
+        addPlayerButton.setEnabled(false);
 
         confirmButton = new InvisibleButton(() -> {
             if (characterPerPlayerField.isFocusable()) {
 
-                characterPerPlayerField.setActivated(false);
+                characterPerPlayerField.setEnabled(false);
 
                 showPlayerSubMenu(game);
 
@@ -74,7 +73,7 @@ public class LobbyScreen extends Screen {
 
                 if (game.getPlayers().size() > 1) {skip = true;}
             }
-        }, Pair.of(new KeyStroke(KeyType.Enter), "ENTER : CONFIRM"));
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 
         addComponent(confirmButton);
 
@@ -94,8 +93,8 @@ public class LobbyScreen extends Screen {
         int maxPlayers = 4 / characterPerPlayerField.getValue();
 
         if (associatedGame.getPlayers().size() >= maxPlayers) {
-            addPlayerButton.setActivated(false);
-            addBotButton.setActivated(false);
+            addPlayerButton.setEnabled(false);
+            addBotButton.setEnabled(false);
 
 
             hidePlayerSubMenu();
@@ -109,7 +108,7 @@ public class LobbyScreen extends Screen {
         if (getFocusedWidget() != null)
             Utils.writeAt(getFocusedWidget().getCoords().getX() - 2, getFocusedWidget().getCoords().getY(), "> ");
 
-        keyPressed(input.getInput());
+        keyPressed(input.readKey());
 
 
         if (!skip) display(input, renderer);
@@ -117,8 +116,8 @@ public class LobbyScreen extends Screen {
 
     private void showPlayerSubMenu(Game game) {
 
-        addBotButton.setActivated(true);
-        addPlayerButton.setActivated(true);
+        addBotButton.setEnabled(true);
+        addPlayerButton.setEnabled(true);
 
         pseudoField.setValue("");
         pseudoField.setVisible(true);
@@ -129,8 +128,8 @@ public class LobbyScreen extends Screen {
 
     private void hidePlayerSubMenu() {
 
-        addBotButton.setActivated(false);
-        addPlayerButton.setActivated(false);
+        addBotButton.setEnabled(false);
+        addPlayerButton.setEnabled(false);
 
         pseudoField.setVisible(false);
         colorPicker.setVisible(false);

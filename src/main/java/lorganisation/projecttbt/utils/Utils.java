@@ -1,8 +1,8 @@
 package lorganisation.projecttbt.utils;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import com.limelion.anscapes.Anscapes;
+import lorganisation.projecttbt.player.AbstractPlayer;
+import lorganisation.projecttbt.player.Character;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -14,20 +14,6 @@ import java.util.function.Function;
  * Une classe comportant différentes méthodes utilitaires.
  */
 public class Utils {
-
-    public enum Align {
-        LEFT, CENTER, RIGHT
-    }
-
-    public static class Keys {
-        public static final KeyStroke ENTER = new KeyStroke(KeyType.Enter),
-            BACKSPACE = new KeyStroke(KeyType.Backspace),
-            LEFT_ARROW = new KeyStroke(KeyType.ArrowLeft),
-            RIGHT_ARROW = new KeyStroke(KeyType.ArrowRight),
-            UP_ARROW = new KeyStroke(KeyType.ArrowUp),
-            DOWN_ARROW = new KeyStroke(KeyType.ArrowDown),
-            DELETE = new KeyStroke(KeyType.Delete);
-    }
 
     public static <T> List<T> arrayToList(T[] arr) {
 
@@ -200,14 +186,33 @@ public class Utils {
         }
     }
 
-    public static int getSetMaximum(Set<Integer> set) {
+    public static int distance(Coords coords1, Coords coords2) {
+
+        return (int) Math.sqrt(Math.pow(coords1.getX() - coords2.getX(), 2) + Math.pow(coords1.getY() - coords2.getY(), 2));
+    }
+
+    public static AbstractPlayer getCharacterOwner(List<AbstractPlayer> players, Character character) {
+
+        for (AbstractPlayer player : players) {
+            if (player.getCharacters().contains(character))
+                return player;
+        }
+
+        return null;
+    }
+
+    public static int max(Collection<Integer> coll) {
 
         Integer max = null;
 
-        for (Integer i : set)
+        for (Integer i : coll)
             if (max == null || i > max)
                 max = i;
 
         return max != null ? max : 0;
+    }
+
+    public enum Align {
+        LEFT, CENTER, RIGHT
     }
 }

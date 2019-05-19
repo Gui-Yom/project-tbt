@@ -1,28 +1,33 @@
 package lorganisation.projecttbt.ui;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.AnsiColor;
 import lorganisation.projecttbt.utils.*;
+import org.jline.terminal.Terminal;
 
-import java.io.IOException;
+import javax.swing.KeyStroke;
 import java.util.List;
 
-public class ColorPicker extends ContainerWidget<AnsiColor> {
+public class ColorPicker extends InputWidget<AnsiColor> {
 
     private CyclicList<Anscapes.Colors> availableColors;
     private Utils.Align alignement;
 
     public ColorPicker(Coords coords, List<Anscapes.Colors> availableColors, Utils.Align alignement) {
 
+        super(coords);
+
+
         this.coords = coords;
         this.availableColors = new CyclicList<>(availableColors);
         this.alignement = alignement;
 
-
+        //FIXME
+        /*
         addControl(new KeyStroke('d', false, false), "D : NEXT Color");
         addControl(new KeyStroke('q', false, false), "Q : PREVIOUS Color");
+
+         */
         setFocusable(true);
     }
 
@@ -32,25 +37,20 @@ public class ColorPicker extends ContainerWidget<AnsiColor> {
     }
 
     @Override
-    public String render(ANSITerminal term) {
+    public String paint(Terminal term) {
 
         StyledString string = new StyledString("  ", Pair.of(0, getValue().bg()));
 
 
-        try {
-            return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getTerminalSize().getColumns()) + Anscapes.RESET;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getSize().getColumns()) + Anscapes.RESET;
     }
 
     @Override
-    public boolean handleEvent(KeyStroke keyCode) {
+    public boolean handleInput(KeyStroke key) {
 
-        if (keyCode.getCharacter().equals('d'))
+        if (key.getKeyChar() == 'd')
             return this.availableColors.next() != null;
-        else if (keyCode.getCharacter().equals('q'))
+        else if (key.getKeyChar() == 'q')
             return this.availableColors.prev() != null;
 
         return false;

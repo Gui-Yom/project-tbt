@@ -75,7 +75,7 @@ public class StyledString implements CharSequence {
                 sb.append(text.charAt(i));
             }
 
-            int max = Utils.getSetMaximum(modifiers.keySet());
+            int max = Utils.max(modifiers.keySet());
             if (max >= text.length()) {
                 for (int i = text.length(); i <= max; i++) {
                     sb.append(modifiers.get(i));

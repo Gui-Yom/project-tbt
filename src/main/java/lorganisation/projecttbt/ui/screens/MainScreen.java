@@ -1,7 +1,5 @@
 package lorganisation.projecttbt.ui.screens;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
@@ -13,6 +11,9 @@ import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
+
+import javax.swing.KeyStroke;
+import java.awt.event.KeyEvent;
 
 public class MainScreen extends Screen {
 
@@ -37,14 +38,14 @@ public class MainScreen extends Screen {
                                                  Pair.of(0, Anscapes.Colors.YELLOW.fg())),
                                 Utils.Align.CENTER,
                                 () -> skip = true,
-                                false,
-                                Pair.of(new KeyStroke(KeyType.Enter), "ENTER : Commencer"));
+                                false, //FIXME
+                                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
         addComponent(btn);
 
         InvisibleButton ibtn = new InvisibleButton(() -> {
             Utils.clearTerm();
             System.exit(0);
-        }, Pair.of(new KeyStroke(KeyType.Escape), "ESC : QUIT"));
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
         addComponent(ibtn);
     }
 
@@ -52,7 +53,7 @@ public class MainScreen extends Screen {
 
         renderer.render(this);
 
-        keyPressed(input.getInput());
+        keyPressed(input.readKey());
 
         if (!skip)
             display(input, renderer);

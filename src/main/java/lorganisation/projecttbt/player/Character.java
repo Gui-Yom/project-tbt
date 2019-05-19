@@ -1,5 +1,11 @@
 package lorganisation.projecttbt.player;
 
+import lorganisation.projecttbt.player.attacks.Attack;
+import lorganisation.projecttbt.player.attacks.Effect;
+import lorganisation.projecttbt.utils.Coords;
+
+import java.util.List;
+
 public class Character {
 
     protected int x;
@@ -13,6 +19,7 @@ public class Character {
     protected int mp; // Points de magie
     protected int defense; // Valeur du bouclier
     protected int dommagesAttaque; // Dommages moyens par attaque
+    protected List<Effect> effects;
 
     private Character(String type, String icon, int portee, int hp, int mp, int defense, int dommagesAttaque) {
 
@@ -53,6 +60,40 @@ public class Character {
                ", defense=" + defense +
                ", dommagesAttaque=" + dommagesAttaque +
                '}';
+    }
+
+    public void addEffect(Effect e) {
+
+        this.effects.add(e);
+    }
+
+    public void removeEffect(Effect e) {
+
+        this.effects.remove(e);
+    }
+
+    public void damage(Attack.DamageType type, int damage) {
+
+        switch (type) {
+
+            case TRUE: {
+                this.hp -= damage;
+                break;
+            }
+
+            case MAGIC: {
+                this.hp -= .8 * damage;
+                this.defense -= .2 * damage;
+                break;
+            }
+
+            case PHYSIC: {
+                this.hp -= .4 * damage;
+                this.defense -= .6 * damage;
+                break;
+            }
+        }
+
     }
 
     public int getX() {
@@ -128,5 +169,15 @@ public class Character {
     public int getDommagesAttaque() {
 
         return dommagesAttaque;
+    }
+
+    public void decreaseMana(int magicCost) {
+
+        this.mp -= magicCost;
+    }
+
+    public Coords getCoords() {
+
+        return new Coords(x, y);
     }
 }

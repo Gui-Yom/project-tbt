@@ -242,13 +242,9 @@ public class AssetsManager {
             e.printStackTrace();
         }
 
-        if (maps == null || characters == null || botNames.size() == 0) {
-            //System.err.println(" FAIL !");
-            return false;
-        } else {
-            //System.out.println(" OK");
-            return true;
-        }
+        //System.err.println(" FAIL !");
+        //System.out.println(" OK");
+        return maps != null && characters != null && botNames.size() != 0;
     }
 
     /**

@@ -1,12 +1,11 @@
 package lorganisation.projecttbt.ui;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
+import org.jline.terminal.Terminal;
 
-import java.io.IOException;
+import javax.swing.KeyStroke;
 
 public class Label extends Widget {
 
@@ -15,7 +14,8 @@ public class Label extends Widget {
 
     public Label(Coords coords, StyledString text, Utils.Align alignement) {
 
-        this.coords = coords;
+        super(coords);
+        setCoords(coords);
         this.stext = text;
         this.alignement = alignement;
 
@@ -43,18 +43,13 @@ public class Label extends Widget {
     }
 
     @Override
-    public String render(ANSITerminal terminal) {
+    public String paint(Terminal terminal) {
 
-        try {
-            return Utils.formattedLine(coords.getY(), coords.getX(), stext, alignement, terminal.getTerminalSize().getColumns());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return Utils.formattedLine(coords.getY(), coords.getX(), stext, alignement, terminal.getSize().getColumns());
     }
 
     @Override
-    public boolean handleEvent(KeyStroke key) {
+    public boolean handleInput(KeyStroke key) {
 
         return false;
     }

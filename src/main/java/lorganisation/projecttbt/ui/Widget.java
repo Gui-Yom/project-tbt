@@ -1,64 +1,80 @@
 package lorganisation.projecttbt.ui;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import lorganisation.projecttbt.utils.Coords;
+import org.jline.terminal.Terminal;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.swing.KeyStroke;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Un composant de l'interface. (ex: un label ou un bouton)
  */
 public abstract class Widget {
 
+    // Coordonnées du composant
     protected Coords coords;
-    protected boolean visible = true;
-    protected boolean focusable = false;
-    protected boolean activated = true;
+    protected boolean visible;
+    protected boolean enabled;
+    protected boolean focusable;
 
-    // int : keyCode, String : displayName  => if keyCode < 0, implicit controls like TYPE (TextField)
-    private Map<KeyStroke, String> controls = new HashMap<>();
+    // Mappe les entrées clavier à des fonctions
+    protected List<KeyStroke> controls;
+
+    // La description du composant qui sera affichée lorsque le composant aura le focus
+    protected String description;
+
+    public Widget(Coords coords) {
+
+        this.coords = coords;
+        this.description = "";
+        this.focusable = true;
+        this.enabled = true;
+        this.visible = true;
+        this.controls = new ArrayList<>();
+    }
 
     public Coords getCoords() {
 
         return coords;
     }
 
-    // TODO Event system
-    // TODO implement onFocus
-    //public abstract void onFocus();
-    //public abstract void onFocusLost();
+    public void setCoords(Coords coords) {
 
-    public Map<KeyStroke, String> getControls() {
+        this.coords = coords;
+    }
+
+    public List<KeyStroke> getControls() {
 
         return this.controls;
     }
 
-    public void addControl(KeyStroke keyCode, String description) {
-
-        this.controls.put(keyCode, description);
-    }
-
     public boolean isFocusable() {
 
-        return this.focusable;
+        return focusable;
     }
 
-    public void setFocusable(boolean focus) {
+    public void setFocusable(boolean focusable) {
 
-        this.focusable = focus;
+        this.focusable = focusable;
     }
 
-    public boolean isActivated() {
+    public void onFocus() {
 
-        return this.activated;
     }
 
-    public void setActivated(boolean activated) {
+    public void onFocusLost() {
 
-        this.activated = activated;
-        setFocusable(activated);
+    }
+
+    public boolean isEnabled() {
+
+        return this.enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+
+        this.enabled = enabled;
     }
 
     public boolean isVisible() {
@@ -71,7 +87,30 @@ public abstract class Widget {
         this.visible = visible;
     }
 
-    public abstract String render(ANSITerminal terminal);
+    public String getDescription() {
 
-    public abstract boolean handleEvent(KeyStroke key);
+        return description;
+    }
+
+    public void setDescription(String desc) {
+
+        this.description = desc;
+    }
+
+    /**
+     * Un composant est global si il n'est pas affiché
+     *
+     * @return
+     */
+    public boolean isGlobal() {
+
+        return coords == null;
+    }
+
+    public abstract String paint(Terminal terminal);
+
+    public boolean handleInput(KeyStroke key) {
+
+        return false;
+    }
 }

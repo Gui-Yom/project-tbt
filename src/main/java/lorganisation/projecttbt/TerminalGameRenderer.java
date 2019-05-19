@@ -1,7 +1,5 @@
 package lorganisation.projecttbt;
 
-import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.terminal.ansi.ANSITerminal;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
@@ -10,14 +8,14 @@ import lorganisation.projecttbt.ui.Screen;
 import lorganisation.projecttbt.ui.Widget;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
-
-import java.io.IOException;
+import org.jline.terminal.Size;
+import org.jline.terminal.Terminal;
 
 public class TerminalGameRenderer {
 
-    private ANSITerminal terminal;
+    private Terminal terminal;
 
-    public TerminalGameRenderer(ANSITerminal terminal) {
+    public TerminalGameRenderer(Terminal terminal) {
 
         super();
         this.terminal = terminal;
@@ -36,13 +34,7 @@ public class TerminalGameRenderer {
 
     public void render(Screen screen) {
 
-        TerminalSize terminalSize;
-        try {
-            terminalSize = terminal.getTerminalSize();
-        } catch(IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        Size terminalSize = terminal.getSize();
 
         for (Widget component : screen.getComponents())
             if (component.isVisible()) renderComponent(component);
@@ -55,10 +47,11 @@ public class TerminalGameRenderer {
         StringBuilder controls = new StringBuilder("| TAB : Switch between menus | ");
         //if (screen.getFocusedWidget() != null && screen.getFocusedWidget().getControls() != null)
         for (Widget widget : screen.getComponents())
-            if (((!widget.isFocusable() && widget.isActivated()) || widget == screen.getFocusedWidget()) && widget.getControls() != null) {
-                if ((widget instanceof InvisibleButton && !widget.isActivated())) continue;
-                for (String description : widget.getControls().values())
-                    controls.append(description).append(" | ");
+            if (((!widget.isFocusable() && widget.isEnabled()) || widget == screen.getFocusedWidget()) && widget.getControls() != null) {
+                if ((widget instanceof InvisibleButton && !widget.isEnabled()))
+                    continue;
+                // FIXME
+                controls.append(widget.getDescription()).append(" | ");
             }
 
         System.out.print(Utils.formattedLine(terminalSize.getRows() - 2, 0, new StyledString(controls.toString()), Utils.Align.LEFT, terminalSize.getColumns()));
@@ -66,6 +59,6 @@ public class TerminalGameRenderer {
 
     public void renderComponent(Widget component) {
 
-        System.out.print(component.render(terminal));
+        System.out.print(component.paint(terminal));
     }
 }

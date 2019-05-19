@@ -1,16 +1,16 @@
 package lorganisation.projecttbt.ui;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import lorganisation.projecttbt.utils.CyclicList;
 
+import javax.swing.KeyStroke;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 public abstract class Screen {
 
     protected CyclicList<Widget> components;
     protected Widget focus = null;
-    protected KeyStroke focusKey = new KeyStroke(KeyType.Tab); //TAB by default
+    protected KeyStroke focusKey = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
 
     public Screen() {
 
@@ -70,7 +70,7 @@ public abstract class Screen {
 
     public void keyPressed(KeyStroke key) {
 
-        if (key.equals(focusKey) && getFocusedWidget() != null) {
+        if (key.getKeyCode() == KeyEvent.VK_TAB && getFocusedWidget() != null) {
 
             //getFocusedWidget().onFocusLost();
 
@@ -83,7 +83,7 @@ public abstract class Screen {
             //first execute InvisibleButtons & unFocusable Buttons (require no focus and has priority)
             for (Widget widget : components)
                 if (widget instanceof Button || widget instanceof InvisibleButton) {
-                    if (!(widget instanceof Button && widget.isFocusable()) && !(widget instanceof InvisibleButton && !widget.isActivated()) && widget.handleEvent(key)) {
+                    if (!(widget instanceof Button && widget.isFocusable()) && !(widget instanceof InvisibleButton && !widget.isEnabled()) && widget.handleInput(key)) {
                         widget.setVisible(false);
                         return;
                     }
@@ -91,7 +91,7 @@ public abstract class Screen {
 
             // if a widget is focused
             if (getFocusedWidget() != null)
-                getFocusedWidget().handleEvent(key); // let it handle the keyPressed event
+                getFocusedWidget().handleInput(key); // let it handle the keyPressed event
         }
     }
 }

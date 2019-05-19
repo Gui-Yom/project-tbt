@@ -1,7 +1,5 @@
 package lorganisation.projecttbt.ui.screens;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.AssetsManager;
 import lorganisation.projecttbt.Game;
@@ -12,9 +10,11 @@ import lorganisation.projecttbt.ui.Button;
 import lorganisation.projecttbt.ui.Label;
 import lorganisation.projecttbt.ui.Screen;
 import lorganisation.projecttbt.utils.Coords;
-import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.Utils;
+
+import javax.swing.KeyStroke;
+import java.awt.event.KeyEvent;
 
 public class MapSelectionScreen extends Screen {
 
@@ -26,7 +26,6 @@ public class MapSelectionScreen extends Screen {
 
         addComponent(new Label(new Coords(0, 2), new StyledString("Available maps"), Utils.Align.CENTER));
 
-
         int i = 0;
         for (String e : AssetsManager.gameMapNames()) { //max 10 maps pr l'instant
             Button btn = new Button(new Coords(0, 5 + i), new StyledString(e.toUpperCase()), Utils.Align.CENTER,
@@ -34,7 +33,7 @@ public class MapSelectionScreen extends Screen {
                                         game.setMap(LevelMap.load(e + ".map"));
                                         skip = true;
                                     }
-                , true, Pair.of(new KeyStroke(KeyType.Enter), "ENTER : Select map"));
+                , true, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
             addComponent(btn);
             i++;
         }
@@ -60,7 +59,7 @@ public class MapSelectionScreen extends Screen {
         mapButton.getText().modifiers().remove(0, "> " + Anscapes.Colors.RED.fg());
         mapButton.getText().modifiers().remove(mapButton.getText().length(), Anscapes.RESET + " <");
 
-        keyPressed(input.getInput());
+        keyPressed(input.readKey());
 
 
         if (!skip) // skip screen when a map has been successfully loaded
