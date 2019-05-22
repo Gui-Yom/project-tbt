@@ -1,6 +1,9 @@
 package lorganisation.projecttbt.ui;
 
+import lorganisation.projecttbt.TerminalGameInput;
+import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.utils.CyclicList;
+import org.jline.terminal.Terminal;
 
 import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
@@ -12,7 +15,7 @@ public abstract class Screen {
     protected Widget focus = null;
     protected KeyStroke focusKey = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
 
-    public Screen() {
+    public Screen(Terminal terminal) {
 
         components = new CyclicList<>();
     }
@@ -57,6 +60,16 @@ public abstract class Screen {
         return getFocusedWidget();
     }
 
+    public Widget previousFocused() {
+
+        int i = components.size();
+        while (setFocused(components.prev()) == null) {
+            if (i-- <= 0) return null;
+        }
+
+        return getFocusedWidget();
+    }
+
     public List<Widget> getComponents() {
 
         return components;
@@ -72,26 +85,26 @@ public abstract class Screen {
 
         if (key.getKeyCode() == KeyEvent.VK_TAB && getFocusedWidget() != null) {
 
-            //getFocusedWidget().onFocusLost();
+            getFocusedWidget().onFocusLost();
 
             nextFocused();
 
-            //getFocusedWidget().onFocused();
+            getFocusedWidget().onFocus();
 
         } else {
 
-            //first execute InvisibleButtons & unFocusable Buttons (require no focus and has priority)
-            for (Widget widget : components)
-                if (widget instanceof Button || widget instanceof InvisibleButton) {
-                    if (!(widget instanceof Button && widget.isFocusable()) && !(widget instanceof InvisibleButton && !widget.isEnabled()) && widget.handleInput(key)) {
-                        widget.setVisible(false);
-                        return;
-                    }
+            // Les buttons peuvent avoir un scope global et ont la priorité sur le focus (et les inputs)
+            for (Widget widget : components) {
+                if (widget instanceof ActionWidget && !widget.isFocusable() && widget.isEnabled() && widget.handleInput(key)) {
+                    return;
                 }
+            }
 
             // if a widget is focused
             if (getFocusedWidget() != null)
                 getFocusedWidget().handleInput(key); // let it handle the keyPressed event
         }
     }
+
+    public abstract void display(TerminalGameInput input, TerminalGameRenderer renderer);
 }

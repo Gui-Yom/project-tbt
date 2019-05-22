@@ -1,18 +1,18 @@
 package lorganisation.projecttbt;
 
 import com.limelion.anscapes.Anscapes;
-import com.limelion.anscapes.ImgConverter;
+import com.limelion.anscapes.ColorMode;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.AbstractPlayer;
-import lorganisation.projecttbt.ui.screens.LobbyScreen;
-import lorganisation.projecttbt.ui.screens.MainScreen;
+import lorganisation.projecttbt.ui.screens.*;
 import lorganisation.projecttbt.utils.CyclicList;
+import lorganisation.projecttbt.utils.TerminalUtils;
 import lorganisation.projecttbt.utils.Utils;
+import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.DumbTerminal;
 
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,31 +31,28 @@ public class Game {
      * La liste des joueurs.
      */
     private CyclicList<AbstractPlayer> players;
+
     /**
      * La map du jeu
      */
     private LevelMap map;
+
     /**
      * Gère le rendu à l'écran
      */
     private TerminalGameRenderer renderer;
+
     /**
      * Gère les entrées utilisateurs
      */
     private TerminalGameInput input;
 
-    private Terminal terminal;
-
     private List<Colors> availableColors;
 
-    /**
-     * @param term une référence vers l'objet Terminal à utiliser
-     */
-    public Game(Terminal term) {
+    public Game(TerminalGameInput input, TerminalGameRenderer renderer) {
 
-        this.renderer = new TerminalGameRenderer(term);
-        this.input = new TerminalGameInput(term);
-        this.terminal = term;
+        this.renderer = renderer;
+        this.input = input;
         players = new CyclicList<>();
         availableColors = Utils.arrayToList(Colors.values());
     }
@@ -72,7 +69,7 @@ public class Game {
 
         if (args != null && args.length == 4 && args[0].equals("convert")) {
 
-            IntegratedDevenv.convert(ImgConverter.Mode.valueOf(args[1]), Integer.parseInt(args[2]), new File(args[3]));
+            IntegratedDevenv.convert(ColorMode.valueOf(args[1]), Integer.parseInt(args[2]), new File(args[3]));
             System.exit(0);
         }
 
@@ -84,7 +81,7 @@ public class Game {
                                        .name("Project: TBT")
                                        .nativeSignals(true)
                                        //.type("windows-vtp")
-                                       //.signalHandler(Utils::handleSignal)
+                                       .signalHandler(Game::handleSignal)
                                        .build();
 
         // On vérifie que le terminal a correctement été instancié
@@ -94,52 +91,58 @@ public class Game {
             System.exit(-1);
         }
 
-        //term.enterRawMode();
+        term.enterRawMode();
 
         // On passe en mode privé
         System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER);
 
-        TerminalGameInput input = new TerminalGameInput(term);
+        Game game = new Game(new TerminalGameInput(term), new TerminalGameRenderer(term));
 
-        while (true) {
+        TerminalUtils.askForResize(term, new Size(130, 40));
 
-            System.out.print(input.readKey() != null ? input.getLastKey() : "");
+        new TestScreen(game).display(game.input, game.renderer);
 
-            if (input.getLastKey() != null && input.getLastKey().getKeyCode() == KeyEvent.VK_ESCAPE)
-                System.exit(0);
-
-            // Petit trick pour baiser le compilateur qui n'aime pas qd la boucle est infinie
-            if (false)
-                break;
-        }
-
-        /*
-
-        Game game = new Game(term);
-
-        System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER);
-
-        //new TestScreen(game).display(game.input, game.renderer);
-        gui.addWindowAndWait(new MainMenuLanterna(screen, game));
-
-        //gui.getBackgroundPane().setComponent(new EmptySpace());
-
-        gui.addWindowAndWait(new MapSelectionMenuLanterna(screen, game));
-        //Utils.clearTerm();
+        game.mainMenu();
 
         game.mapSelection();
-        Utils.clearTerm();
 
         game.lobby();
-        Utils.clearTerm();
+
         game.start();
-         */
 
         // END / Cleanup
-        Utils.clearTerm();
+        TerminalUtils.clearTerm();
         System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER_OFF);
 
         term.close();
+    }
+
+    /*
+     * Cette méthode gère les signaux.
+     *
+     * @param sig le signal à gérer
+     *
+     * @see <a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signaux, systèmes POSIX</a>
+     */
+    public static void handleSignal(Terminal.Signal sig) {
+
+        switch (sig) {
+            case INT: // Interrupt
+                System.out.println("Received SIGINT !");
+                System.exit(0);
+                break;
+            case QUIT:
+                break;
+            case TSTP:
+                break;
+            case CONT:
+                break;
+            case INFO:
+                break;
+            case WINCH: // Window resize
+                // System.out.println("Received SIGWINCH !");
+                break;
+        }
     }
 
     /**
@@ -178,9 +181,19 @@ public class Game {
         this.map = map;
     }
 
+    public TerminalGameInput getInput() {
+
+        return input;
+    }
+
+    public TerminalGameRenderer getRenderer() {
+
+        return renderer;
+    }
+
     public void mainMenu() {
 
-        MainScreen mainMenu = new MainScreen();
+        MainScreen mainMenu = new MainScreen(input.getTerminal());
         mainMenu.display(input, renderer);
     }
 
@@ -207,6 +220,8 @@ public class Game {
 
         //terminal.setSize(new Size(level.getWidth() + 50, level.getHeight() + 20));
         this.map = LevelMap.load(AssetsManager.gameMaps().get(map));*/
+
+        new MapSelectionScreen(this).display(input, renderer);
     }
 
     /**
@@ -217,7 +232,10 @@ public class Game {
         LobbyScreen lobbyScreen = new LobbyScreen(this);
         lobbyScreen.display(input, renderer);
 
-        //TODO: Limiter nombre de joueurs et de persos par joueurs selon
+
+        CharacterSelectionScreen characterSelectionScreen = new CharacterSelectionScreen(this);
+        characterSelectionScreen.setMaxCharacterCount(lobbyScreen.getMaxCharacterCount());
+        characterSelectionScreen.display(input, renderer);
 
         /*System.out.println(getMap());
         Utils.writeFormattedLine(1,
@@ -283,6 +301,8 @@ public class Game {
         return count;
     }
 
+    // Keep it until as model until CharacterSelectionScreen is made
+
     /**
      * Donne le nombre de BOTs non-bot dans la partie
      */
@@ -290,8 +310,6 @@ public class Game {
 
         return getPlayers().size() - getPlayerCount();
     }
-
-    // Keep it until as model until CharacterSelectionScreen is made
 
     /**
      * Selection d'un certain nombre de personnages pour un joueur
@@ -320,7 +338,7 @@ public class Game {
             String characterName = reader.readLine("Personnage " + current + ": ").trim();
             if (picker.hasCharacter(characterName)) {
                 --current;
-                System.out.print(Anscapes.movePreviousLine(1) + Anscapes.CLEAR_LINE); // TODO: Ajouter message d'erreur
+                System.out.print(Anscapes.movePreviousLine(1) + Anscapes.CLEAR_LINE);
             } else {
                 Character character = CharacterTemplate.getCharacterTemplate(characterName).createCharacter();
                 map.getNextStartPos().setCharacter(character);
@@ -334,6 +352,8 @@ public class Game {
      */
     public void start() {
 
+        GameScreen gameScreen = new GameScreen(this);
+        gameScreen.display(input, renderer);
         /*Utils.writeFormattedLine(2,
                                  0,
                                  new StyledString("'Z Q S D' pour se déplacer, 'ESC' pour quitter",

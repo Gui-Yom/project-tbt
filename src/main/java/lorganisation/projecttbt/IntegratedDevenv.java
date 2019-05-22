@@ -1,5 +1,6 @@
 package lorganisation.projecttbt;
 
+import com.limelion.anscapes.ColorMode;
 import com.limelion.anscapes.ImgConverter;
 
 import javax.imageio.ImageIO;
@@ -40,7 +41,7 @@ public class IntegratedDevenv {
      * @param reduction
      * @param f
      */
-    public static void convert(ImgConverter.Mode mode, int reduction, File f) {
+    public static void convert(ColorMode mode, int reduction, File f) {
 
         if (!f.exists()) {
             System.err.println("Given file doesn't exist. ('" + f.getAbsolutePath() + "')");
@@ -55,7 +56,7 @@ public class IntegratedDevenv {
         }
     }
 
-    public static String convert(BufferedImage image, ImgConverter.Mode mode, int reduction) {
+    public static String convert(BufferedImage image, ColorMode mode, int reduction) {
 
         ImgConverter converter = ImgConverter.builder()
                                              .mode(mode)

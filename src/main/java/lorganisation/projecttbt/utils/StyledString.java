@@ -20,6 +20,7 @@ public class StyledString implements CharSequence {
             this.modifiers = new TreeMap<>();
     }
 
+    @SafeVarargs
     public StyledString(String text, Map<Integer, String> modifiers, Pair<Integer, String>... otherModifiers) {
 
         this.text = text;
@@ -29,7 +30,7 @@ public class StyledString implements CharSequence {
         this.modifiers = modifiers;
     }
 
-    public String text() {
+    public String rawText() {
 
         return text;
     }
@@ -62,12 +63,14 @@ public class StyledString implements CharSequence {
         return text.subSequence(start, end);
     }
 
-    @Override
-    public String toString() {
+    /**
+     * end = -1 gives full size and all modifiers
+     **/
+    public String subStringWithFormat(int start, int end) {
 
         if (modifiers != null && modifiers.size() > 0) {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < text.length(); ++i) {
+            for (int i = start; i < (end == -1 ? length() : end); ++i) {
 
                 if (modifiers.containsKey(i))
                     sb.append(modifiers.get(i));
@@ -76,7 +79,7 @@ public class StyledString implements CharSequence {
             }
 
             int max = Utils.max(modifiers.keySet());
-            if (max >= text.length()) {
+            if (max >= text.length() && end == -1) {
                 for (int i = text.length(); i <= max; i++) {
                     sb.append(modifiers.get(i));
                 }
@@ -87,6 +90,12 @@ public class StyledString implements CharSequence {
             return sb.toString();
         } else
             return text;
+    }
+
+    @Override
+    public String toString() {
+
+        return subStringWithFormat(0, -1);
     }
 
 }

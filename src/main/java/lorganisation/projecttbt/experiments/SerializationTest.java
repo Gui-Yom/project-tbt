@@ -19,7 +19,7 @@ public class SerializationTest {
 
         // int magicCost, int cooldown, int minimumRange, int maximumRange, int areaRadius, TargetType target, DamageType damageType, BiFunction<Pair<Character, Character>, Coords, Integer> damages, Effect... effects
         BiFunction<Pair<Character, Character>, Coords, Integer> lightningStrikeDamages = (BiFunction<Pair<Character, Character>, Coords, Integer> & Serializable) (pair, tile) -> (4 - Utils.distance(pair.getV().getCoords(), tile));
-        CircularAttack lightningStrike = new CircularAttack(10, 3, 2, 5, 2, Attack.TargetType.ENNEMIES, Attack.DamageType.MAGIC, lightningStrikeDamages, new FireEffect(1, 3));
+        CircularAttack lightningStrike = new CircularAttack(10, 3, 2, 5, 2, Attack.TargetType.ENEMIES, Attack.DamageType.MAGIC, lightningStrikeDamages, new FireEffect(1, 3));
 
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         String serializedObject;

@@ -107,6 +107,11 @@ public abstract class Widget {
         return coords == null;
     }
 
+    public String toString() {
+
+        return " Widget at " + this.coords + ", focusable: " + this.focusable + ", enabled: " + this.enabled + ", visible: " + this.visible + ", description: " + getDescription();
+    }
+
     public abstract String paint(Terminal terminal);
 
     public boolean handleInput(KeyStroke key) {

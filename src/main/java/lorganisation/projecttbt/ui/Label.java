@@ -2,6 +2,7 @@ package lorganisation.projecttbt.ui;
 
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.StyledString;
+import lorganisation.projecttbt.utils.TerminalUtils;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
 
@@ -29,7 +30,7 @@ public class Label extends Widget {
 
     public String getText() {
 
-        return stext.text();
+        return stext.rawText();
     }
 
     public void setText(String string) {
@@ -45,7 +46,7 @@ public class Label extends Widget {
     @Override
     public String paint(Terminal terminal) {
 
-        return Utils.formattedLine(coords.getY(), coords.getX(), stext, alignement, terminal.getSize().getColumns());
+        return TerminalUtils.formattedLine(coords.getY(), coords.getX(), stext, alignement, terminal.getSize().getColumns());
     }
 
     @Override

@@ -23,7 +23,7 @@ dependencies {
     implementation "org.jline:jline-style:$jlineVersion"
     implementation "org.jline:jline-reader:$jlineVersion"
     implementation "org.jline:jline-remote-telnet:$jlineVersion"
-    implementation "com.github.LimeiloN:anscapes:0.4.0"
+    implementation "com.github.LimeiloN:anscapes:0.5.0"
     implementation "com.google.code.gson:gson:2.8.5"
     //implementation "com.googlecode.lanterna:lanterna:3.0.1"
 }

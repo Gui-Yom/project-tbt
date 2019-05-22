@@ -2,10 +2,7 @@ package lorganisation.projecttbt.ui;
 
 import com.limelion.anscapes.Anscapes;
 import com.sun.glass.events.KeyEvent;
-import lorganisation.projecttbt.utils.Coords;
-import lorganisation.projecttbt.utils.Pair;
-import lorganisation.projecttbt.utils.StyledString;
-import lorganisation.projecttbt.utils.Utils;
+import lorganisation.projecttbt.utils.*;
 import org.jline.terminal.Terminal;
 
 import javax.swing.KeyStroke;
@@ -34,7 +31,7 @@ public class IntegerField extends InputWidget<Integer> {
 
         if (modifiers != null)
             for (Pair<Integer, String> modifier : modifiers)
-                this.modifiers.put(modifier.getU() + prompt.text().length(), modifier.getV());
+                this.modifiers.put(modifier.getU() + prompt.rawText().length(), modifier.getV());
 
 
         this.alignement = alignement;
@@ -44,14 +41,8 @@ public class IntegerField extends InputWidget<Integer> {
         this.minValue = minValue;
         this.maxValue = maxValue;
 
-        // FIXME
-        /*
-        addControl(null, "USE THE FCKING KEYBOARD (numbers only)");
-        addControl(new KeyStroke('+', false, false), "+ -> Increment by one");
-        addControl(new KeyStroke('-', false, false), "- -> Decrement by one");
-
-         */
         setFocusable(true);
+        setDescription("Number field +/-");
     }
 
     @Override
@@ -113,9 +104,9 @@ public class IntegerField extends InputWidget<Integer> {
         /*StringBuilder fill = new StringBuilder();
         for (int i = 0; i < maxValue / 10 - builder.length(); ++i)
             fill.append("_");*/
-        StyledString string = new StyledString(prompt.text() + this.value + /*fill.toString() +*/ " +/- ", this.modifiers);
+        StyledString string = new StyledString(prompt.rawText() + this.value + /*fill.toString() +*/ " +/- ", this.modifiers);
 
-        return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getSize().getColumns()) + Anscapes.RESET;
+        return TerminalUtils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getSize().getColumns()) + Anscapes.RESET;
     }
 
     @Override

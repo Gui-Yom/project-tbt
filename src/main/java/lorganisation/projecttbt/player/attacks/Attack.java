@@ -60,7 +60,7 @@ public abstract class Attack {
                     if (this.target.equals(TargetType.ALLIES) && Utils.getCharacterOwner(game.getPlayers(), target) != Utils.getCharacterOwner(game.getPlayers(), origin)) {
                         continue;
                         // if spell is targeting enemies and character belongs to same player, skip this character
-                    } else if (this.target.equals(TargetType.ENNEMIES) && Utils.getCharacterOwner(game.getPlayers(), target) == Utils.getCharacterOwner(game.getPlayers(), origin)) {
+                    } else if (this.target.equals(TargetType.ENEMIES) && Utils.getCharacterOwner(game.getPlayers(), target) == Utils.getCharacterOwner(game.getPlayers(), origin)) {
                         continue;
                     } else if (this.target == TargetType.SELF)
                         continue;
@@ -103,7 +103,7 @@ public abstract class Attack {
 
     public enum TargetType {
 
-        ALLIES, SELF, ENNEMIES
+        ALLIES, SELF, ENEMIES
 
     }
 

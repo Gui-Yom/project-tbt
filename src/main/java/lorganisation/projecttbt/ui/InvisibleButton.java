@@ -15,24 +15,7 @@ public class InvisibleButton extends ActionWidget {
         this.action = action;
 
         setVisible(false);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-
-        this.setEnabled(enabled);
-    }
-
-    @Override
-    public boolean isFocusable() {
-
-        return false;
-    }
-
-    @Override
-    public boolean isVisible() {
-
-        return false;
+        setFocusable(false);
     }
 
     @Override

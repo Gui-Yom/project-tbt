@@ -1,27 +1,41 @@
 package lorganisation.projecttbt.ui.screens;
 
 import com.limelion.anscapes.Anscapes;
+import com.limelion.anscapes.ColorMode;
+import lorganisation.projecttbt.AssetsManager;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
-import lorganisation.projecttbt.ui.Button;
-import lorganisation.projecttbt.ui.InvisibleButton;
-import lorganisation.projecttbt.ui.Label;
-import lorganisation.projecttbt.ui.Screen;
-import lorganisation.projecttbt.utils.Coords;
-import lorganisation.projecttbt.utils.Pair;
-import lorganisation.projecttbt.utils.StyledString;
-import lorganisation.projecttbt.utils.Utils;
+import lorganisation.projecttbt.ui.*;
+import lorganisation.projecttbt.utils.*;
+import org.jline.terminal.Terminal;
 
+import javax.imageio.ImageIO;
 import javax.swing.KeyStroke;
-import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class MainScreen extends Screen {
 
     private boolean skip = false;
 
-    public MainScreen() {
+    public MainScreen(Terminal terminal) {
 
-        super();
+        super(terminal);
+
+        try {
+
+            BufferedImage image = ImageIO.read(AssetsManager.openResource("assets/images/logo.png"));
+
+            ImageWidget background = new ImageWidget(new Coords(0, 0),
+                                                     image,
+                                                     ColorMode.RGB,
+                                                     7);
+
+            addComponent(background);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Label lbl = new Label(new Coords(0, 2),
                               new StyledString("Project: TBT",
                                                Pair.of(0, Anscapes.Colors.RED_BRIGHT.fg()),
@@ -38,25 +52,38 @@ public class MainScreen extends Screen {
                                                  Pair.of(0, Anscapes.Colors.YELLOW.fg())),
                                 Utils.Align.CENTER,
                                 () -> skip = true,
-                                false, //FIXME
-                                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+                                false,
+                                KeyUtils.KEY_ENTER);
         addComponent(btn);
 
-        InvisibleButton ibtn = new InvisibleButton(() -> {
-            Utils.clearTerm();
+        InvisibleButton iBtn = new InvisibleButton(() -> {
+            TerminalUtils.clearTerm();
             System.exit(0);
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-        addComponent(ibtn);
+        }, KeyUtils.KEY_ESCAPE);
+        addComponent(iBtn);
+
+        InvisibleButton refreshBtn = new InvisibleButton(() -> {}, KeyStroke.getKeyStroke('c'));
+        addComponent(refreshBtn);
     }
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
 
-        renderer.render(this);
+        while (!skip) {
 
-        keyPressed(input.readKey());
+            /*
+            ImageWidget background = (ImageWidget) getComponents().get(0);
+            if (background.getImageHeight() != input.getTerminal().getHeight()) {
+                background.setImage(new TextImage());
+            }
 
-        if (!skip)
-            display(input, renderer);
+             */
+
+            renderer.render(this);
+
+            keyPressed(input.readKey());
+
+            TerminalUtils.clearTerm();
+        }
 
     }
 }

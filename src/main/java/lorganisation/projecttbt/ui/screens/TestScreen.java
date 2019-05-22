@@ -1,12 +1,15 @@
 package lorganisation.projecttbt.ui.screens;
 
+import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.ui.*;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.StyledString;
+import lorganisation.projecttbt.utils.TerminalUtils;
 import lorganisation.projecttbt.utils.Utils;
+import org.jline.terminal.Size;
 
 import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
@@ -14,10 +17,11 @@ import java.awt.event.KeyEvent;
 public class TestScreen extends Screen {
 
     private boolean skip = false;
+    private int i = 0;
 
     public TestScreen(Game game) {
 
-        super();
+        super(game.getInput().getTerminal());
 
         //addComponent(new InvisibleButton(() -> this.skip = true, Pair.of(13, "ENTER : SKIP this screen")));
         addComponent(new Label(new Coords(0, 5),
@@ -51,30 +55,55 @@ public class TestScreen extends Screen {
                                 new StyledString("ENTER TO VALIDATE"),
                                 Utils.Align.LEFT,
                                 () -> skip = true,
-                                false, //FIXME
+                                false,
                                 KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0)));
 
         addComponent(new Button(new Coords(2, 14),
                                 new StyledString("PRESS 'V' TO VALIDATE"),
                                 Utils.Align.LEFT,
-                                () -> System.exit(1), true, // FIXME
-                                KeyStroke.getKeyStroke('v')));
+                                () -> System.exit(1),
+                                true,
+                                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)));
+
+        //public TextBoxWidget(Coords coords, Size size, Utils.Align align, Utils.Align textAlign, StyledString title, Anscapes.Colors borderColor, Anscapes.Colors backgroundColor, StyledString... lines) {
+        StyledString[] lines = new StyledString[game.getPlayers().size()];
+/*        int j = 0;
+        for (AbstractPlayer p : game.getPlayers())
+            lines[j++] = (new StyledString(p.getName(), Pair.of(0, p.getColor().fg())));*/
+
+        addComponent(new TextBoxWidget(new Coords(3, 10), new Size(40, 10), Utils.Align.RIGHT, Utils.Align.LEFT, new StyledString("Titre boite"), Anscapes.Colors.BLUE, Anscapes.Colors.YELLOW_BRIGHT, new StyledString("Salut mon giga pote"), new StyledString("Ca va ou quoi")));
 
     }
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
 
-        Utils.clearTerm();
-        renderer.render(this);
+        while (!skip) {
 
-        Utils.writeAt(0, this.getFocusedWidget().getCoords().getY(), ">");
+            /* Truc rigolo (passer terminal en public dans renderer pr tester)
+
+            for (int x = -6; x < 6; x++) {
+                Utils.clearTerm();
+                System.out.println(Utils.makeBox(new Coords(-x+30, -(int)Math.pow(x, 2)+15), new Size(20, 10), Utils.Align.RIGHT, renderer.terminal.getSize(), Anscapes.Colors.BLUE, Anscapes.Colors.YELLOW_BRIGHT, new StyledString("Boite")));
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }*/
+
+            renderer.render(this);
 
 
-        KeyStroke key = input.readKey();
-        keyPressed(key);
+            TerminalUtils.writeAt(0, this.getFocusedWidget().getCoords().getY(), ">");
+            TerminalUtils.writeAt(0, 0, (++i) + " focusedIndex -> " + this.components.index());
 
-        if (!skip)
-            display(input, renderer);
+            KeyStroke key = input.readKey();
 
+            TerminalUtils.clearTerm();
+
+            keyPressed(key);
+
+            TerminalUtils.writeAt(0, 2, Anscapes.Colors.RED_BRIGHT.fg() + input.getLastKey());
+        }
     }
 }

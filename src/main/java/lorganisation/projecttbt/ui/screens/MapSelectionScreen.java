@@ -11,6 +11,7 @@ import lorganisation.projecttbt.ui.Label;
 import lorganisation.projecttbt.ui.Screen;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.StyledString;
+import lorganisation.projecttbt.utils.TerminalUtils;
 import lorganisation.projecttbt.utils.Utils;
 
 import javax.swing.KeyStroke;
@@ -19,10 +20,12 @@ import java.awt.event.KeyEvent;
 public class MapSelectionScreen extends Screen {
 
     private boolean skip = false;
+    private Game game;
 
     public MapSelectionScreen(Game game) {
 
-        super();
+        super(game.getInput().getTerminal());
+        this.game = game;
 
         addComponent(new Label(new Coords(0, 2), new StyledString("Available maps"), Utils.Align.CENTER));
 
@@ -43,26 +46,25 @@ public class MapSelectionScreen extends Screen {
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
 
-        Utils.clearTerm();
+        while (!skip) {
 
-        Button mapButton = (Button) getFocusedWidget();
+            TerminalUtils.clearTerm();
 
-        //Adding Focused Format
-        mapButton.getText().modifiers().put(0, "> " + Anscapes.Colors.RED.fg());
-        mapButton.getText().modifiers().put(mapButton.getText().length(), Anscapes.RESET + " <");
-        mapButton.getCoords().setX(mapButton.getCoords().getX() - 2); // must change Coords or else doesn't print at right place (use 2 bc "> ".length() == 2)
+            Button mapButton = (Button) getFocusedWidget();
 
-        renderer.render(this);
+            //Adding Focused Format
+            mapButton.getText().modifiers().put(0, "> " + Anscapes.Colors.RED.fg());
+            mapButton.getText().modifiers().put(mapButton.getText().length(), Anscapes.RESET + " <");
+            mapButton.getCoords().setX(mapButton.getCoords().getX() - 2); // must change Coords or else doesn't print at right place (use 2 bc "> ".length() == 2)
 
-        //Removing Focused Format
-        mapButton.getCoords().setX(mapButton.getCoords().getX() + 2);
-        mapButton.getText().modifiers().remove(0, "> " + Anscapes.Colors.RED.fg());
-        mapButton.getText().modifiers().remove(mapButton.getText().length(), Anscapes.RESET + " <");
+            game.getRenderer().render(this);
 
-        keyPressed(input.readKey());
+            //Removing Focused Format
+            mapButton.getCoords().setX(mapButton.getCoords().getX() + 2);
+            mapButton.getText().modifiers().remove(0, "> " + Anscapes.Colors.RED.fg());
+            mapButton.getText().modifiers().remove(mapButton.getText().length(), Anscapes.RESET + " <");
 
-
-        if (!skip) // skip screen when a map has been successfully loaded
-            display(input, renderer);
+            keyPressed(game.getInput().readKey());
+        }
     }
 }

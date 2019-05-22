@@ -1,10 +1,12 @@
 package lorganisation.projecttbt.utils;
 
 import com.limelion.anscapes.Anscapes;
+import com.limelion.anscapes.AnsiColor;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 
 import java.util.*;
@@ -56,136 +58,21 @@ public class Utils {
         return null;
     }
 
-    public static void clearTerm() {
+    public static String repeatString(String str, int n) {
 
-        System.out.print(Anscapes.CLEAR);
-        System.out.print(Anscapes.cursorPos(1, 1));
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < n; i++)
+            result.append(str);
+
+        return result.toString();
     }
 
     /**
-     * Ecrit un String à une position donnée
+     * @param coords1
+     * @param coords2
      *
-     * @param x
-     * @param y
-     * @param s
+     * @return the orthogonal 2d distance between those 2 points
      */
-    public static void writeAt(int x, int y, String s) {
-
-        // La première case sur un terminal est (1,1)
-        // On décale pour pouvoir mettre (0,0)
-        // On inverse x et y, car la convention est ligne, colonne
-        System.out.print(Anscapes.cursorPos(y + 1, x + 1));
-        System.out.print(s + Anscapes.RESET);
-        System.out.print(Anscapes.cursorPos(y + 1, x + 1)); // On refout le curseur là où on a écrit pour avoir le blinking sur cette case et pas celle d'après
-    }
-
-    /**
-     * Ecrit une ligne, avec alignement
-     */
-    public static void writeFormattedLine(int row, int col, StyledString s, Align alignment, int width) {
-
-        System.out.println(formattedLine(row, col, s, alignment, width) + Anscapes.RESET);
-    }
-
-    /**
-     * @param row
-     * @param col
-     * @param s
-     * @param alignment
-     * @param width
-     *
-     * @return
-     */
-    public static String formattedLine(int row, int col, StyledString s, Align alignment, int width) {
-
-        Coords coords = coordinatesOfAlignedObject(row, col, s.length(), alignment, width);
-
-        String result = Anscapes.cursorPos(coords.getY() + 1, coords.getX() + 1); // Aller à la ligne n
-
-        result += s;
-
-        return result;
-    }
-
-    public static Coords coordinatesOfAlignedObject(int row, int col, int length, Align alignment, int width) {
-
-        int x;
-        if (alignment == Align.LEFT)
-            x = col;
-        else if (alignment == Align.RIGHT)
-            x = width - length - col;
-        else
-            x = (width - length) / 2 + col;
-
-        return new Coords(x, row);
-    }
-
-    /**
-     * Lit un entier correct.
-     *
-     * @param term
-     * @param prompt
-     */
-    public static int promptReadInt(Terminal term, String prompt, int def, Function<Integer, Boolean> filter) {
-
-        if (!filter.apply(def))
-            throw new IllegalArgumentException("Default int does not even match filter.");
-
-        LineReader reader = LineReaderBuilder.builder()
-                                             .terminal(term)
-                                             .build();
-
-        while (true) {
-            try {
-                String line = reader.readLine(prompt);
-
-                if (line.equals(""))
-                    return def;
-
-                int n = Integer.parseInt(line);
-
-                if (filter.apply(n))
-                    return n;
-
-            } catch (NumberFormatException nfe) {
-                System.out.print(Anscapes.CLEAR_LINE);
-            }
-        }
-    }
-
-    /**
-     * Cette méthode gère les signaux.
-     *
-     * @param sig le signal à gérer
-     *
-     * @see <a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signaux, systèmes POSIX</a>
-     */
-    public static void handleSignal(Terminal.Signal sig) {
-
-        switch (sig) {
-            case INT:
-                System.out.println("Received SIGINT !");
-                System.exit(0);
-                break;
-            case QUIT:
-                System.out.println("Received SIGQUIT !");
-                break;
-            case TSTP:
-                System.out.println("Received SIGTSTP !");
-                break;
-            case CONT:
-                System.out.println("Received SIGCONT !");
-                break;
-            case INFO:
-                System.out.println("Received SIGINFO !");
-                break;
-            case WINCH:
-                // On window resize
-                System.out.println("Received SIGWINCH !");
-                break;
-        }
-    }
-
     public static int distance(Coords coords1, Coords coords2) {
 
         return (int) Math.sqrt(Math.pow(coords1.getX() - coords2.getX(), 2) + Math.pow(coords1.getY() - coords2.getY(), 2));
@@ -201,7 +88,12 @@ public class Utils {
         return null;
     }
 
-    public static int max(Collection<Integer> coll) {
+    /**
+     * @param coll a collection of integer
+     *
+     * @return the maximum integer contained in the given collection
+     */
+    public static int max(Iterable<Integer> coll) {
 
         Integer max = null;
 
@@ -212,7 +104,20 @@ public class Utils {
         return max != null ? max : 0;
     }
 
+    public static int findLongestSequence(Iterable<? extends CharSequence> list) {
+
+        Integer max = null;
+
+        for (CharSequence i : list)
+            if (max == null || i.length() > max)
+                max = i.length();
+
+        return max != null ? max : 0;
+    }
+
     public enum Align {
         LEFT, CENTER, RIGHT
     }
 }
+
+

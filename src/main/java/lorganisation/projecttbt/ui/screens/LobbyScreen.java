@@ -1,5 +1,7 @@
 package lorganisation.projecttbt.ui.screens;
 
+import com.limelion.anscapes.Anscapes;
+import lorganisation.projecttbt.AssetsManager;
 import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
@@ -8,7 +10,9 @@ import lorganisation.projecttbt.player.Player;
 import lorganisation.projecttbt.ui.*;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.StyledString;
+import lorganisation.projecttbt.utils.TerminalUtils;
 import lorganisation.projecttbt.utils.Utils;
+import org.jline.terminal.Size;
 
 import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
@@ -24,42 +28,57 @@ public class LobbyScreen extends Screen {
     private ColorPicker colorPicker;
     private IntegerField characterPerPlayerField;
 
+    private PlayerListWidget playerList;
+
     private InvisibleButton addPlayerButton;
     private InvisibleButton addBotButton;
     private InvisibleButton confirmButton;
 
-
     public LobbyScreen(Game game) {
 
-        super();
+        super(game.getInput().getTerminal());
 
         this.associatedGame = game;
 
 
         addComponent(new Label(new Coords(0, 2), new StyledString("Map - " + game.getMap().getName().toUpperCase()), Utils.Align.CENTER));
         addComponent(new Label(new Coords(0, 3), new StyledString("Préparation de la partie - Joueurs"), Utils.Align.CENTER));
-        addComponent(new Label(new Coords(0, 4), new StyledString("Nombre de joueurs maximum: 4"), Utils.Align.CENTER));
-        characterPerPlayerField = (IntegerField) setFocused(addComponent(new IntegerField(new Coords(4, 7), new StyledString("Entrez le nombre de personnages par joueur: "), Utils.Align.LEFT, 1, 1, /*AssetsManager.gameCharacterNames().size()*/5)));
+        addComponent(new Label(new Coords(0, 4), new StyledString("Nombre de joueurs maximum: ?"), Utils.Align.CENTER));
+
+        characterPerPlayerField = new IntegerField(new Coords(4, 7),
+                                                   new StyledString("Entrez le nombre de personnages par joueur: "),
+                                                   Utils.Align.LEFT,
+                                                   1,
+                                                   1,
+                                                   AssetsManager.gameCharacterNames().size());
+        addComponent(characterPerPlayerField);
+        setFocused(characterPerPlayerField);
 
         addBotButton = new InvisibleButton(() -> {
+
             game.addPlayer(new Bot(game.getAvailableColors()));
-            showPlayerSubMenu(game);
+            playerList.updatePlayerList(game.getPlayers());
+
         }, KeyStroke.getKeyStroke('*'));
+        addBotButton.setDescription("Press * to add a BOT");
 
         addComponent(addBotButton);
-        addBotButton.setEnabled(false);
 
         addPlayerButton = new InvisibleButton(() -> {
             if (!characterPerPlayerField.isFocusable()) {showPlayerSubMenu(game);}
         }, KeyStroke.getKeyStroke('+'));
+        addPlayerButton.setDescription("Press + to add a player");
 
         addComponent(addPlayerButton);
-        addPlayerButton.setEnabled(false);
+
 
         confirmButton = new InvisibleButton(() -> {
             if (characterPerPlayerField.isFocusable()) {
 
                 characterPerPlayerField.setEnabled(false);
+                characterPerPlayerField.setFocusable(false);
+
+                playerList.setVisible(true);
 
                 showPlayerSubMenu(game);
 
@@ -68,14 +87,29 @@ public class LobbyScreen extends Screen {
 
                 associatedGame.addPlayer(new Player(pseudoField.getValue(), colorPicker.getValue()));
 
-                showPlayerSubMenu(game);
+                playerList.updatePlayerList(game.getPlayers());
+                hidePlayerSubMenu();
+                setFocused(pseudoField);
+
             } else {
 
                 if (game.getPlayers().size() > 1) {skip = true;}
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+        confirmButton.setDescription("Press ENTER to confirm");
 
         addComponent(confirmButton);
+
+
+        playerList = new PlayerListWidget(new Coords(5, 5),
+                                          new Size(0, 0),
+                                          Utils.Align.RIGHT,
+                                          Utils.Align.LEFT,
+                                          new StyledString("Joueurs"),
+                                          Anscapes.Colors.BLUE_BRIGHT,
+                                          Anscapes.Colors.WHITE_BRIGHT);
+        playerList.setVisible(false);
+        addComponent(playerList);
 
         pseudoField = (TextField) addComponent(new TextField(new Coords(4, 9), new StyledString("Pseudo: "), Utils.Align.LEFT, 16));
         pseudoField.setVisible(false);
@@ -83,41 +117,52 @@ public class LobbyScreen extends Screen {
         colorPicker = (ColorPicker) addComponent(new ColorPicker(new Coords(4 + 8 /* "Pseudo: " */ + 16 /* maxSize */ + 2 /* some space*/, 9), game.getAvailableColors(), Utils.Align.LEFT));
         colorPicker.setVisible(false);
 
+        hidePlayerSubMenu();
+        addBotButton.setEnabled(false);
+        addPlayerButton.setEnabled(false);
+
     }
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
 
-        Utils.clearTerm();
+        while (!skip) {
 
-        //int maxPlayers = associatedGame.getMap().getStartPos().size() / characterPerPlayerField.getValue();
-        int maxPlayers = 4 / characterPerPlayerField.getValue();
+            TerminalUtils.clearTerm();
 
-        if (associatedGame.getPlayers().size() >= maxPlayers) {
-            addPlayerButton.setEnabled(false);
-            addBotButton.setEnabled(false);
+            //Utils.writeAt(0, 0, " widget -> " + confirmButton);
+            //Utils.writeAt(0, 1, " lastKey -> " + input.getLastKey());
 
+            //int maxPlayers = associatedGame.getMap().getStartPos().size() / characterPerPlayerField.getValue();
+            int maxPlayers = 4 / characterPerPlayerField.getValue();
 
-            hidePlayerSubMenu();
-            disableFocus();
+            if (associatedGame.getPlayers().size() >= maxPlayers) {
+
+                hidePlayerSubMenu();
+
+                addPlayerButton.setEnabled(false);
+                addBotButton.setEnabled(false);
+
+                disableFocus();
+
+                addComponent(new Label(new Coords(0, (int) (renderer.getSize().getRows() * .65)), new StyledString("Press ENTER to go start the game"), Utils.Align.CENTER));
+            }
+
+            Label maxPlayerLabel = (Label) this.getComponents().get(2);
+            maxPlayerLabel.setText("Nombre de joueurs maximum: " + maxPlayers);
+
+            renderer.render(this);
+
+            if (getFocusedWidget() != null)
+                TerminalUtils.writeAt(getFocusedWidget().getCoords().getX() - 2, getFocusedWidget().getCoords().getY(), "> ");
+
+            keyPressed(input.readKey());
         }
-
-        Label maxPlayerLabel = (Label) this.getComponents().get(2);
-        maxPlayerLabel.setText("Nombre de joueurs maximum: " + maxPlayers);
-
-        renderer.render(this);
-        if (getFocusedWidget() != null)
-            Utils.writeAt(getFocusedWidget().getCoords().getX() - 2, getFocusedWidget().getCoords().getY(), "> ");
-
-        keyPressed(input.readKey());
-
-
-        if (!skip) display(input, renderer);
     }
 
     private void showPlayerSubMenu(Game game) {
 
-        addBotButton.setEnabled(true);
-        addPlayerButton.setEnabled(true);
+        addBotButton.setEnabled(false);
+        addPlayerButton.setEnabled(false);
 
         pseudoField.setValue("");
         pseudoField.setVisible(true);
@@ -128,10 +173,15 @@ public class LobbyScreen extends Screen {
 
     private void hidePlayerSubMenu() {
 
-        addBotButton.setEnabled(false);
-        addPlayerButton.setEnabled(false);
+        addBotButton.setEnabled(true);
+        addPlayerButton.setEnabled(true);
 
         pseudoField.setVisible(false);
         colorPicker.setVisible(false);
+    }
+
+    public int getMaxCharacterCount() {
+
+        return this.characterPerPlayerField.getValue();
     }
 }

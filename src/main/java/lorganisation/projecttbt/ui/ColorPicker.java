@@ -22,13 +22,8 @@ public class ColorPicker extends InputWidget<AnsiColor> {
         this.availableColors = new CyclicList<>(availableColors);
         this.alignement = alignement;
 
-        //FIXME
-        /*
-        addControl(new KeyStroke('d', false, false), "D : NEXT Color");
-        addControl(new KeyStroke('q', false, false), "Q : PREVIOUS Color");
-
-         */
         setFocusable(true);
+        setDescription("Color picker Q/D to cycle through colors");
     }
 
     public void setAvailableColors(List<Anscapes.Colors> availableColors) {
@@ -41,8 +36,7 @@ public class ColorPicker extends InputWidget<AnsiColor> {
 
         StyledString string = new StyledString("  ", Pair.of(0, getValue().bg()));
 
-
-        return Utils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getSize().getColumns()) + Anscapes.RESET;
+        return TerminalUtils.formattedLine(coords.getY(), coords.getX(), string, this.alignement, term.getSize().getColumns()) + Anscapes.RESET;
     }
 
     @Override

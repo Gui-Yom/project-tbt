@@ -2,6 +2,7 @@ package lorganisation.projecttbt.ui;
 
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.StyledString;
+import lorganisation.projecttbt.utils.TerminalUtils;
 import lorganisation.projecttbt.utils.Utils;
 import org.jline.terminal.Terminal;
 
@@ -25,6 +26,10 @@ public class Button extends ActionWidget {
         this.action = action;
 
         setVisible(true);
+        setFocusable(focusable);
+
+        if (controls.length != 0)
+            setDescription("Press " + controls[0].toString().replaceAll("pressed", "").trim());
     }
 
     public StyledString getText() {
@@ -35,6 +40,6 @@ public class Button extends ActionWidget {
     @Override
     public String paint(Terminal terminal) {
 
-        return Utils.formattedLine(getCoords().getY(), getCoords().getX(), this.string, this.alignement, terminal.getWidth());
+        return TerminalUtils.formattedLine(getCoords().getY(), getCoords().getX(), this.string, this.alignement, terminal.getWidth());
     }
 }
