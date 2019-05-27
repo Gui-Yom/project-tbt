@@ -1,7 +1,7 @@
 package lorganisation.projecttbt.player;
 
-import lorganisation.projecttbt.player.attacks.Attack;
-import lorganisation.projecttbt.player.attacks.Effect;
+import lorganisation.projecttbt.player.attack.Attack;
+import lorganisation.projecttbt.player.attack.Effect;
 import lorganisation.projecttbt.utils.Coords;
 
 import java.util.List;

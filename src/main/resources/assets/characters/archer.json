@@ -1,0 +1,9 @@
+{
+  "type": "Archer",
+  "icon": "A",
+  "portee": 8,
+  "hp": 100,
+  "mp": 150,
+  "defense": 10,
+  "dommagesAttaque": 10
+}

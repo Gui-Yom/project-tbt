@@ -3,9 +3,9 @@ package lorganisation.projecttbt;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
-import lorganisation.projecttbt.ui.InvisibleButton;
-import lorganisation.projecttbt.ui.Screen;
-import lorganisation.projecttbt.ui.Widget;
+import lorganisation.projecttbt.ui.screen.Screen;
+import lorganisation.projecttbt.ui.widget.InvisibleButton;
+import lorganisation.projecttbt.ui.widget.Widget;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.StyledString;
 import lorganisation.projecttbt.utils.TerminalUtils;
@@ -51,28 +51,31 @@ public class TerminalGameRenderer {
         Size terminalSize = terminal.getSize();
 
         for (Widget component : screen.getComponents())
-            if (component.isVisible()) renderComponent(component);
+            if (component.isVisible())
+                renderComponent(component);
 
-        StringBuilder line = new StringBuilder();
-        for (int i = 0; i < terminalSize.getColumns(); i++)
-            line.append(' ');
-
-
-        StringBuilder controls = new StringBuilder("| TAB : Switch between menus | ");
+        StringBuilder controls = new StringBuilder("Change focus: TAB");
         //if (screen.getFocusedWidget() != null && screen.getFocusedWidget().getControls() != null)
         for (Widget widget : screen.getComponents())
             if (((!widget.isFocusable() && widget.isEnabled()) || widget == screen.getFocusedWidget()) && widget.getControls() != null) {
 
-                if ((widget instanceof InvisibleButton && !widget.isEnabled())) {continue;}
+                if ((widget instanceof InvisibleButton && !widget.isEnabled())) {
+                    continue;
+                }
 
-                if (!widget.getDescription().equals("")) {controls.append(widget.getDescription()).append(" | ");}
+                if (!widget.getDescription().equals("")) {
+                    controls.append(" | ").append(widget.getDescription());
+                }
             }
 
-        int lineCount = (int) Math.ceil((double) controls.length() / terminalSize.getColumns());
+        int ypos = terminalSize.getRows() - (int) Math.ceil((double) controls.length() / terminalSize.getColumns());
 
         // same col because cursorPos(y, x) starts at (1, 1) whereas formattedLine(y, x) starts at (0, 0)
-        System.out.print(Anscapes.cursorPos(terminalSize.getRows() - lineCount, 0) + Anscapes.Colors.WHITE_BRIGHT.bg() + line.toString() + Anscapes.RESET);
-        System.out.print(TerminalUtils.formattedLine(terminalSize.getRows() - lineCount, 0, new StyledString(controls.toString()), Utils.Align.LEFT, terminalSize.getColumns()));
+        System.out.print(TerminalUtils.makeLine(new Coords(0, ypos),
+                                                new Coords(terminalSize.getColumns(), ypos),
+                                                ' ',
+                                                Anscapes.Colors.WHITE.bg()));
+        System.out.print(TerminalUtils.formattedLine(ypos, 0, new StyledString(controls.toString()), Utils.Align.LEFT, terminalSize.getColumns()));
     }
 
     public void renderComponent(Widget component) {

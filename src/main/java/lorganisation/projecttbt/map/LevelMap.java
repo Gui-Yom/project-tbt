@@ -288,14 +288,4 @@ public class LevelMap {
 
         return x > 0 && y > 0 && x < width && y < height && tiles[x][y].canStepOn();
     }
-
-    @Override
-    public String toString() {
-
-        return "LevelMap{" +
-               "width=" + width +
-               ", height=" + height +
-               ", name='" + name + '\'' +
-               '}';
-    }
 }

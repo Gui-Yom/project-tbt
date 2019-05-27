@@ -23,17 +23,17 @@ public class TerminalUtils {
         int x;
         int y;
 
-        while (!lastSize.equals(desiredSize)) {
+        clearTerm();
 
-            clearTerm();
+        while (!lastSize.equals(desiredSize)) {
 
             lastSize = terminal.getSize();
 
             //x = lastSize.getColumns() / 2 - 3;
             y = lastSize.getRows() / 2;
 
-            writeAt(0, 0, new StyledString("   ", Pair.of(0, Anscapes.Colors.CYAN_BRIGHT.bg())).toString());
-            writeAt(lastSize.getColumns() - 3, lastSize.getRows(), new StyledString("   ", Pair.of(0, Anscapes.Colors.CYAN_BRIGHT.bg())).toString());
+            clearLine(y);
+            clearLine(y + 1);
 
             writeFormattedLine(y, 0,
                                String.format("Merci de redimensionner la fenêtre à cette taille : (col: %d, row: %d)   ", desiredSize.getColumns(), desiredSize.getRows()),
@@ -57,8 +57,22 @@ public class TerminalUtils {
 
     public static void clearTerm() {
 
-        System.out.print(Anscapes.CLEAR);
-        System.out.print(Anscapes.cursorPos(1, 1));
+        System.out.print(Anscapes.CLEAR + Anscapes.cursorPos(1, 1));
+    }
+
+    public static void clearLine(int row) {
+
+        System.out.print(Anscapes.cursorPos(row, 1) + Anscapes.CLEAR_LINE);
+    }
+
+    public static void enterPrivateMode() {
+
+        System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER);
+    }
+
+    public static void exitPrivateMode() {
+
+        System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER_OFF);
     }
 
     /**
@@ -153,6 +167,34 @@ public class TerminalUtils {
             x = (width - length) / 2 + col;
 
         return new Coords(x, row);
+    }
+
+    public static String makeLine(int x1, int y1, int x2, int y2, char fillChar, String modifiers) {
+
+        int distance = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
+        float t;
+        StringBuilder buffer = new StringBuilder(modifiers);
+
+        for (int i = 0; i <= distance; ++i) {
+            t = distance == 0 ? 0 : (float) i / distance;
+            buffer.append(Anscapes.cursorPos(Math.round(y1 + t * (y2 - y1)), Math.round(x1 + t * (x2 - x1))))
+                  .append(fillChar);
+        }
+        return buffer.append(Anscapes.RESET).toString();
+    }
+
+    /**
+     * Interpolation linéaire pour créer une ligne entre 2 points
+     *
+     * @param start
+     * @param end
+     * @param fillChar
+     *
+     * @return la ligne créée
+     */
+    public static String makeLine(Coords start, Coords end, char fillChar, String modifiers) {
+
+        return makeLine(start.getX(), start.getY(), end.getX(), end.getY(), fillChar, modifiers);
     }
 
     /**

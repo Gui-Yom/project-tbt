@@ -1,10 +1,9 @@
 package lorganisation.projecttbt;
 
-import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.ColorMode;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.AbstractPlayer;
-import lorganisation.projecttbt.ui.screens.*;
+import lorganisation.projecttbt.ui.screen.*;
 import lorganisation.projecttbt.utils.CyclicList;
 import lorganisation.projecttbt.utils.TerminalUtils;
 import lorganisation.projecttbt.utils.Utils;
@@ -54,9 +53,24 @@ public class Game {
         this.renderer = renderer;
         this.input = input;
         players = new CyclicList<>();
+
         availableColors = Utils.arrayToList(Colors.values());
+        // on enleve les couleurs génantes
+        availableColors.remove(Colors.BLACK);
+        availableColors.remove(Colors.BLACK_BRIGHT);
+        availableColors.remove(Colors.WHITE_BRIGHT);
+        availableColors.remove(Colors.WHITE);
     }
 
+
+    /**
+     * Méthode exécutée au lancement, met en place un Terminal adapté, puis gère le lancement de chaque écran. Structure
+     * principale du fonctionnement du jeu.
+     *
+     * @param args arguments de lancement
+     *
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
 
         // Arguments de ligne de commande
@@ -94,41 +108,52 @@ public class Game {
         term.enterRawMode();
 
         // On passe en mode privé
-        System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER);
+        TerminalUtils.enterPrivateMode();
 
+        // L'objet jeu qui fait tout tenir en place
         Game game = new Game(new TerminalGameInput(term), new TerminalGameRenderer(term));
 
+        // On demande à l'utilisateur de redimensionner sa fenêtre
+        // Sur windows, on ne peut pas la redimensionner depuis le programme
         TerminalUtils.askForResize(term, new Size(130, 40));
 
         new TestScreen(game).display(game.input, game.renderer);
 
+        // Menu principal du jeu
+        // L'utilisateur peut choisir de démarrer une partie ou d'utiliser les outils de développement intégrés
         game.mainMenu();
 
+        // L'utilisateur peut choisir la map
         game.mapSelection();
 
+        // Les joueurs choisissent leurs personnages et leurs couleurs
         game.lobby();
 
+        // La partie commence !
+        // Elle continue jusqua ce que mort s'ensuive
         game.start();
 
         // END / Cleanup
         TerminalUtils.clearTerm();
-        System.out.print(Anscapes.ALTERNATIVE_SCREEN_BUFFER_OFF);
+        TerminalUtils.exitPrivateMode();
 
         term.close();
     }
 
-    /*
+    /**
      * Cette méthode gère les signaux.
      *
      * @param sig le signal à gérer
      *
      * @see <a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signaux, systèmes POSIX</a>
-     */
+     **/
     public static void handleSignal(Terminal.Signal sig) {
 
         switch (sig) {
-            case INT: // Interrupt
+            case INT: // Interrupt, usually ctrl+c
                 System.out.println("Received SIGINT !");
+                TerminalUtils.clearTerm();
+                TerminalUtils.exitPrivateMode();
                 System.exit(0);
                 break;
             case QUIT:
@@ -153,9 +178,14 @@ public class Game {
     public void addPlayer(AbstractPlayer player) {
 
         players.add(player);
+
+        //noinspection SuspiciousMethodCalls
+        availableColors.remove(player.getColor());
     }
 
     /**
+     * Liste cyclique des joueurs de la partie
+     *
      * @return la liste des joueurs
      */
     public CyclicList<AbstractPlayer> getPlayers() {
@@ -164,6 +194,8 @@ public class Game {
     }
 
     /**
+     * Renvoie la map actuelle
+     *
      * @return la map du jeu
      */
     public LevelMap getMap() {
@@ -172,7 +204,7 @@ public class Game {
     }
 
     /**
-     * Défini la map du jeu
+     * Définit la map du jeu
      *
      * @param map la map à utiliser
      */
@@ -181,51 +213,48 @@ public class Game {
         this.map = map;
     }
 
+
+    /**
+     * Renvoie l'InputManager utilisé par le jeu.
+     *
+     * @return
+     */
     public TerminalGameInput getInput() {
 
         return input;
     }
 
+    /**
+     * Renvoie le renderer utilisé par le jeu.
+     *
+     * @return
+     */
     public TerminalGameRenderer getRenderer() {
 
         return renderer;
     }
 
+    /**
+     * Menu principal du jeu
+     * <p>
+     * L'utilisateur peut choisir de lancer une partie, modifier les paramètres ou utiliser les outils de développment
+     * intégrés.
+     */
     public void mainMenu() {
 
-        MainScreen mainMenu = new MainScreen(input.getTerminal());
-        mainMenu.display(input, renderer);
+        new MainScreen(input.getTerminal()).display(input, renderer);
     }
 
+    /**
+     * Menu de sélection de map
+     */
     public void mapSelection() {
-
-        //Lanterna
-
-
-        //Old style
-        /*MapSelectionScreen mapSelectionMenu = new MapSelectionScreen(this);
-        mapSelectionMenu.display(input, renderer);*/
-
-        //Very old style
-        /*System.out.println("Available maps :");
-        for (Map.Entry<String, String> e : AssetsManager.gameMaps().entrySet())
-            System.out.println(" - " + e.getKey() + " (" + e.getValue() + ")");
-
-        LineReader reader = LineReaderBuilder.builder()
-                                             .terminal(terminal)
-                                             .completer(new StringsCompleter(AssetsManager.gameMapNames()))
-                                             .build();
-
-        String map = reader.readLine("Choose a map : ").trim();
-
-        //terminal.setSize(new Size(level.getWidth() + 50, level.getHeight() + 20));
-        this.map = LevelMap.load(AssetsManager.gameMaps().get(map));*/
 
         new MapSelectionScreen(this).display(input, renderer);
     }
 
     /**
-     * Choix du nombre de joueurs et du nombre de personnages
+     * Les joueurs peuvent choisir leur personnages et ajouter des IA à la partie.
      */
     public void lobby() {
 
@@ -233,47 +262,8 @@ public class Game {
         lobbyScreen.display(input, renderer);
 
 
-        CharacterSelectionScreen characterSelectionScreen = new CharacterSelectionScreen(this);
-        characterSelectionScreen.setMaxCharacterCount(lobbyScreen.getMaxCharacterCount());
+        CharacterSelectionScreen characterSelectionScreen = new CharacterSelectionScreen(this, lobbyScreen.getMaxCharacterCount());
         characterSelectionScreen.display(input, renderer);
-
-        /*System.out.println(getMap());
-        Utils.writeFormattedLine(1,
-                                 2,
-                                 new StyledString("LOBBY", Pair.of(0, Colors.MAGENTA.bg())),
-                                 Utils.Align.CENTER,
-                                 terminal.getWidth());
-        Utils.writeFormattedLine(2,
-                                 5,
-                                 new StyledString("Nombre de joueurs max : " + getMap().getStartPos().size(),
-                                                  Pair.of(0, Colors.RED.fg())),
-                                 Utils.Align.CENTER,
-                                 terminal.getWidth());
-
-        // On récupère le nombre de personnage maximum par joueur ( <= nombre de personnages existant, interdiction de prendre 2 fois le même)
-        int characterCount = Utils.promptReadInt(terminal, "Entrez le nombre de personnages par joueur [1]: ", 1, (n) -> n > 0 && n <= AssetsManager.gameCharacterNames().size());
-
-        newPlayer(false);
-
-        int maxPlayers = getMap().getStartPos().size() / characterCount;
-        for (int i = getPlayers().size(); i < maxPlayers; i++) {
-            System.out.println("Ajouter un joueur (+) | Ajouter un BOT (*) | Choix des personnages");
-
-            char action = (char) this.input.readInput();
-
-            if (action == '*')
-                newPlayer(true);
-            else if (action == '+')
-                newPlayer(false);
-            else
-                break;
-        }
-
-        if (getPlayers().size() == 1)
-            newPlayer(true);
-
-        for (AbstractPlayer player : players)
-            pickCharacters(terminal, player, characterCount);*/
     }
 
     /**
@@ -281,16 +271,13 @@ public class Game {
      */
     public List<Colors> getAvailableColors() {
 
-        for (AbstractPlayer absPlayer : getPlayers())
-            availableColors.remove(absPlayer.getColor());
-
         return this.availableColors;
     }
 
     /**
      * Donne le nombre de joueurs non-bot dans la partie
      */
-    public int getPlayerCount() {
+    public int getRealPlayerCount() {
 
         int count = 0;
 
@@ -308,119 +295,20 @@ public class Game {
      */
     public int getBotCount() {
 
-        return getPlayers().size() - getPlayerCount();
+        return getPlayers().size() - getRealPlayerCount();
     }
 
     /**
-     * Selection d'un certain nombre de personnages pour un joueur
-     */
-    public void pickCharacters(Terminal terminal, AbstractPlayer picker, int characterCount) {
-
-        /*Utils.clearTerm();
-
-        Utils.writeFormattedLine(1,
-                                 0,
-                                 new StyledString("Lobby - Choix des personnages"),
-                                 Utils.Align.CENTER,
-                                 terminal.getWidth());
-        Utils.writeFormattedLine(2,
-                                 0,
-                                 new StyledString(picker.getName().toUpperCase(), Pair.of(0, picker.getColor().fg())),
-                                 Utils.Align.CENTER,
-                                 terminal.getWidth());
-
-        LineReader reader = LineReaderBuilder.builder()
-                                             .terminal(terminal)
-                                             .completer(new StringsCompleter(AssetsManager.gameCharacterNames()))
-                                             .build();
-
-        for (int current = 1; current <= characterCount; current++) {
-            String characterName = reader.readLine("Personnage " + current + ": ").trim();
-            if (picker.hasCharacter(characterName)) {
-                --current;
-                System.out.print(Anscapes.movePreviousLine(1) + Anscapes.CLEAR_LINE);
-            } else {
-                Character character = CharacterTemplate.getCharacterTemplate(characterName).createCharacter();
-                map.getNextStartPos().setCharacter(character);
-                picker.addCharacter(character);
-            }
-        }*/
-    }
-
-    /**
-     * Lance la partie. La partie continue à l'infinie pour l'instant. (ou jusqu'a ce que le joueur appuie sur A)
+     * Lance la partie. La partie continue à l'infinie pour l'instant.
      */
     public void start() {
 
+        /*
         GameScreen gameScreen = new GameScreen(this);
         gameScreen.display(input, renderer);
-        /*Utils.writeFormattedLine(2,
-                                 0,
-                                 new StyledString("'Z Q S D' pour se déplacer, 'ESC' pour quitter",
-                                                  Pair.of(2, Colors.YELLOW.fg()),
-                                                  Pair.of(8, Anscapes.RESET),
-                                                  Pair.of(29, Colors.YELLOW.fg()),
-                                                  Pair.of(32, Anscapes.RESET)),
-                                 Utils.Align.CENTER,
-                                 terminal.getWidth());
-
-        input.readInput(); // wait for user keypress to skip menu
-
-        Character character;
-        AbstractPlayer player;
-        for (int turn = 0; ; turn++) {
-
-            // Render the level
-            renderer.render(this);
 
 
-            player = getPlayers().next();
-            character = player.getCharacters().next();
-            int movementsLeft = character.getPortee();
-            boolean hasAttacked = false;
+         */
 
-            System.out.print(Anscapes.cursorPos(character.getY() + 1, character.getX() + 1)); //have cursor blink on playing character
-
-            char read = (char) input.readInput();
-
-            if (read == 27) { // ESCAPE
-                break;
-            }
-            switch (read) {
-                case 'z':
-                    if (map.canCollide(character.getX(), character.getY() - 1)) {
-                        character.decY();
-                        movementsLeft--;
-                    }
-                    break;
-                case 'q':
-                    if (map.canCollide(character.getX() - 1, character.getY())) {
-                        character.decX();
-                        movementsLeft--;
-                    }
-                    break;
-                case 's':
-                    if (map.canCollide(character.getX(), character.getY() + 1)) {
-                        character.incY();
-                        movementsLeft--;
-                    }
-                    break;
-                case 'd':
-                    if (map.canCollide(character.getX() + 1, character.getY())) {
-                        character.incX();
-                        movementsLeft--;
-                    }
-                    break;
-                case 'a': {
-                    //TODO: attack
-                    hasAttacked = true;
-                }
-            }
-
-
-            //TODO: change so that player can attack but can't move with 0 movementsLeft
-            if (!(hasAttacked) || (movementsLeft <= 0)) //turn isn't finished
-                --turn; // don't change turn index
-        }*/
     }
 }

@@ -1,16 +1,9 @@
 package lorganisation.projecttbt.utils;
 
-import com.limelion.anscapes.Anscapes;
-import com.limelion.anscapes.AnsiColor;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
 
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * Une classe comportant différentes méthodes utilitaires.
