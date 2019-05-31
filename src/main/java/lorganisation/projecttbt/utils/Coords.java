@@ -53,7 +53,27 @@ public class Coords extends Pair<Integer, Integer> {
      */
     public void setY(int y) {
 
-        setY(y);
+        setU(y);
+    }
+
+    public void incX() {
+
+        ++u;
+    }
+
+    public void decX() {
+
+        --u;
+    }
+
+    public void incY() {
+
+        ++v;
+    }
+
+    public void decY() {
+
+        --v;
     }
 
     /**

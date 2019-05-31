@@ -19,9 +19,9 @@ public class KeyUtils {
         KEY_DOWN_ARROW = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0);
 
     /**
-     *
      * @param key
      * @param modifier
+     *
      * @return if the KeyStroke has the modifier
      */
     public static boolean hasModifier(KeyStroke key, int modifier) {

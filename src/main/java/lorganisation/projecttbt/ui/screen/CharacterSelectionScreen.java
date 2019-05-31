@@ -12,26 +12,26 @@ import lorganisation.projecttbt.player.CharacterTemplate;
 import lorganisation.projecttbt.ui.widget.*;
 import lorganisation.projecttbt.utils.*;
 import org.jline.terminal.Size;
-import org.jline.terminal.Terminal;
 
 import javax.swing.KeyStroke;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CharacterSelectionScreen extends Screen {
 
     private Game associatedGame;
 
-    private PlayerListWidget playerList;
+    private PlayerListWidget playerListW;
     private boolean skip = false;
-    private int maxCharacterCount;
+    private int characterPerPlayer;
 
-    public CharacterSelectionScreen(Game game, int maxCharacterCount) {
+    public CharacterSelectionScreen(Game game, int characterPerPlayer) {
 
         super(game.getRenderer().getTerminal());
 
-        this.maxCharacterCount = maxCharacterCount;
+        this.characterPerPlayer = characterPerPlayer;
 
-        Terminal terminal = game.getRenderer().getTerminal();
-
+        Size termSize = game.getInput().getTerminal().getSize();
 
         this.associatedGame = game;
 
@@ -41,30 +41,31 @@ public class CharacterSelectionScreen extends Screen {
         addComponent(mapName);
 
         Label desc = new Label(new Coords(0, 3),
-                               new StyledString("Préparation de la partie - Personnages (" + maxCharacterCount + " max.)"),
+                               new StyledString("Préparation de la partie - Personnages (" + characterPerPlayer + " max.)"),
                                Utils.Align.CENTER);
         addComponent(desc);
-
 
         addComponent(new InvisibleButton(this::prevFocus, KeyStroke.getKeyStroke('q')));
         addComponent(new InvisibleButton(this::nextFocus, KeyStroke.getKeyStroke('d')));
 
-        playerList = new PlayerListWidget(new Coords(0, 1),
-                                          new Size(terminal.getWidth() / 8, terminal.getHeight() - 2),
-                                          Utils.Align.RIGHT,
-                                          Utils.Align.LEFT,
-                                          new StyledString("Joueurs"),
-                                          Anscapes.Colors.BLUE_BRIGHT,
-                                          Anscapes.Colors.WHITE_BRIGHT);
-        addComponent(playerList);
+        // La liste de joueurs sur la droite
+        playerListW = new PlayerListWidget(new Coords(0, 1),
+                                           new Size(termSize.getColumns() / 8, termSize.getRows() - 2),
+                                           Utils.Align.RIGHT,
+                                           Utils.Align.LEFT,
+                                           new StyledString("Joueurs"),
+                                           Anscapes.Colors.BLUE_BRIGHT,
+                                           Anscapes.Colors.WHITE_BRIGHT);
+        playerListW.setSelected(0);
+        addComponent(playerListW);
 
-
+        // Placement des images
         int i = 1;
         int charCount = AssetsManager.gameCharacterNames().size();
         int perLine = 3 + (int) Math.ceil(charCount / 10);
 
-        float usableWidth = .85f * terminal.getWidth();
-        float usableHeight = .9f * terminal.getHeight();
+        float usableWidth = .85f * termSize.getColumns();
+        float usableHeight = .9f * termSize.getRows();
 
         int imageHeight = (int) (usableHeight / Math.ceil(charCount / (float) perLine));
         int imageWidth = (int) (usableWidth / Math.min(perLine, charCount));
@@ -83,10 +84,9 @@ public class CharacterSelectionScreen extends Screen {
             int l = (int) Math.ceil(i / (float) perLine);
             int c = i - perLine * (l - 1);
 
-
             int xPos = xSpace + (c - 1) * (imgSize + xSpace);
 
-            int yPos = 2 * terminal.getHeight() / 10 + (l - 1) * (ySpace + imgSize / 2);
+            int yPos = 2 * termSize.getRows() / 10 + (l - 1) * (ySpace + imgSize / 2);
 
             ImageButtonWidget characterBox = new ImageButtonWidget(new Coords(xPos, yPos),
                                                                    imageSize,
@@ -98,7 +98,7 @@ public class CharacterSelectionScreen extends Screen {
                                                                        AbstractPlayer p = associatedGame.getPlayers().current();
                                                                        if (!p.hasCharacter(name)) {
                                                                            Character character = CharacterTemplate.getCharacterTemplate(name).createCharacter();
-                                                                           associatedGame.getMap().getNextStartPos().setCharacter(character);
+                                                                           character.setPos(associatedGame.getMap().getStartPos().next());
                                                                            p.addCharacter(character);
                                                                        }
                                                                    }, KeyUtils.KEY_ENTER);
@@ -111,46 +111,21 @@ public class CharacterSelectionScreen extends Screen {
 
     }
 
-    private void botPick(Bot bot) {
-
-        // simulate character pick
-        int rndId;
-
-        do {
-            rndId = (int) (AssetsManager.gameCharacterNames().size() * Math.random());
-
-            int j = 0;
-            for (String characterName : AssetsManager.gameCharacterNames()) {
-                if (j == rndId && !bot.hasCharacter(characterName)) {
-                    Character character = CharacterTemplate.getCharacterTemplate(characterName).createCharacter();
-                    associatedGame.getMap().getNextStartPos().setCharacter(character);
-                    bot.addCharacter(character);
-                }
-
-
-                ++j;
-            }
-        }
-        while (bot.getCharacters().size() < maxCharacterCount);
-    }
-
     @Override
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
 
-        AbstractPlayer current = associatedGame.getPlayers().current();
+        associatedGame.getPlayers().reset();
+
+        AbstractPlayer current = associatedGame.getPlayers().next();
 
         while (!skip) {
 
-            playerList.updatePlayerList(associatedGame.getPlayers());
-            playerList.setSelected(associatedGame.getPlayers().indexOf(current));
+            playerListW.addLine(new StyledString("new render: " + current.getName()));
+            playerListW.updatePlayerList(associatedGame.getPlayers());
 
             TerminalUtils.clearTerm();
             renderer.render(this);
 
-            if (getFocusedWidget() instanceof ImageButtonWidget) {
-                ImageButtonWidget imageButton = (ImageButtonWidget) getFocusedWidget();
-                imageButton.onFocus();
-            }
 
             for (Widget widget : getComponents())
                 if (widget instanceof ImageButtonWidget) {
@@ -158,25 +133,39 @@ public class CharacterSelectionScreen extends Screen {
                     String characterType = imageButton.getText().rawText();
 
                     if (current.hasCharacter(characterType)) {
-                        System.out.print(TerminalUtils.makeLine(imageButton.getCoords(), new Coords(imageButton.getCoords().getX() + imageButton.getSize().getColumns(), imageButton.getCoords().getY() + imageButton.getSize().getRows()), ' ', Anscapes.Colors.RED.bg()));
-                        System.out.print(TerminalUtils.makeLine(imageButton.getCoords().getX() + imageButton.getSize().getColumns(), imageButton.getCoords().getY(), imageButton.getCoords().getX(), imageButton.getCoords().getY() + imageButton.getSize().getRows(), ' ', Anscapes.Colors.RED.bg()));
+                        System.out.print(TerminalUtils.makeLine(imageButton.getCoords(),
+                                                                new Coords(imageButton.getCoords().getX() + imageButton.getSize().getColumns(), imageButton.getCoords().getY() + imageButton.getSize().getRows()),
+                                                                ' ',
+                                                                Anscapes.Colors.RED.bg()));
+                        System.out.print(TerminalUtils.makeLine(imageButton.getCoords().getX() + imageButton.getSize().getColumns(),
+                                                                imageButton.getCoords().getY(),
+                                                                imageButton.getCoords().getX(),
+                                                                imageButton.getCoords().getY() + imageButton.getSize().getRows(),
+                                                                ' ',
+                                                                Anscapes.Colors.RED.bg()));
                     }
-
                 }
 
+            if (getFocusedWidget() instanceof ImageButtonWidget) {
+                ImageButtonWidget imageButton = (ImageButtonWidget) getFocusedWidget();
+                imageButton.onFocus();
+            }
 
-            if (current instanceof Bot)
-                botPick((Bot) current);
-            else
+            if (current instanceof Bot) {
+                List<String> tempList = new ArrayList<>(AssetsManager.gameCharacterNames());
+                ((Bot) current).pickCharacters(tempList, characterPerPlayer);
+            } else {
                 keyPressed(input.readKey());
+            }
 
-
-            if (current.getCharacters().size() == maxCharacterCount) {
+            if (current.getCharacters().size() == characterPerPlayer) {
                 current = associatedGame.getPlayers().next();
+                playerListW.addLine(new StyledString(current.getName() + " (" + associatedGame.getPlayers().getIndex() + " ) a fini"));
+                playerListW.setSelected(associatedGame.getPlayers().getIndex());
 
                 skip = true;
                 for (AbstractPlayer player : associatedGame.getPlayers())
-                    skip = skip && player.getCharacters().size() == maxCharacterCount;
+                    skip = skip && player.getCharacters().size() == characterPerPlayer;
             }
         }
 

@@ -74,11 +74,11 @@ public class TestScreen extends Screen {
         addComponent(new TextBoxWidget(new Coords(3, 10), new Size(40, 10), Utils.Align.RIGHT, Utils.Align.LEFT, new StyledString("Titre boite"), Anscapes.Colors.BLUE, Anscapes.Colors.YELLOW_BRIGHT, new StyledString("Salut mon giga pote"), new StyledString("Ca va ou quoi")));
 
         addComponent(new ImageButtonWidget(new Coords(0, 8),
-                                           new Size(16,16),
+                                           new Size(16, 16),
                                            Utils.Align.CENTER, "assets/characters/sprites/mage.png",
                                            true,
                                            new StyledString("MAGE"),
-                                           () -> TerminalUtils.writeAt(2, 2, Anscapes.Colors.RED.bg()+"image"),
+                                           () -> TerminalUtils.writeAt(2, 2, Anscapes.Colors.RED.bg() + "image"),
                                            KeyStroke.getKeyStroke('a', 0)));
     }
 

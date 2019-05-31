@@ -61,14 +61,14 @@ public class TextBoxWidget extends Widget {
         this.visible = visible;
     }
 
-    public void setBackgroundColor(Anscapes.Colors c) {
-
-        this.backgroundColor = c;
-    }
-
     public Anscapes.Colors getBackgroundColor() {
 
         return this.backgroundColor;
+    }
+
+    public void setBackgroundColor(Anscapes.Colors c) {
+
+        this.backgroundColor = c;
     }
 
     public void setText(List<StyledString> lines) {
@@ -137,7 +137,13 @@ public class TextBoxWidget extends Widget {
     }
 
     public Size getSize() {
+
         return this.size;
+    }
+
+    public void addLine(StyledString styledString) {
+
+        this.lines.add(styledString);
     }
 
 }

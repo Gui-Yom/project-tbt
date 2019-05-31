@@ -4,6 +4,7 @@ import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Une classe comportant différentes méthodes utilitaires.
@@ -97,6 +98,13 @@ public class Utils {
         return max != null ? max : 0;
     }
 
+    /**
+     * Get length of longest Sequence in Iterable Collection
+     *
+     * @param list to analyse
+     *
+     * @return length of the longest sequence
+     */
     public static int findLongestSequence(Iterable<? extends CharSequence> list) {
 
         Integer max = null;
@@ -108,6 +116,26 @@ public class Utils {
         return max != null ? max : 0;
     }
 
+    /**
+     * @param list      containing elements
+     * @param condition one of the elements needs to match
+     * @param <E>
+     *
+     * @return true if one of the list's elements matches
+     */
+    public static <E> boolean match(Iterable<E> list, Predicate<E> condition) {
+
+        for (E it : list) {
+            if (condition.test(it)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Différents alignements possible pour les textes et composants
+     */
     public enum Align {
         LEFT, CENTER, RIGHT
     }

@@ -1,6 +1,7 @@
 package lorganisation.projecttbt.player.attack;
 
 import lorganisation.projecttbt.player.Character;
+import lorganisation.projecttbt.player.attack.effects.Effect;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Pair;
 
@@ -26,13 +27,13 @@ public class RectilignAttack extends Attack {
 
         switch (direction) {
             case LEFT:
-                return origin.getY() == target.getY() && (target.getX() < origin.getX() && target.getX() >= origin.getX() - range);
+                return origin.getPos().getY() == target.getY() && (target.getX() < origin.getPos().getX() && target.getX() >= origin.getPos().getX() - range);
             case RIGHT:
-                return origin.getY() == target.getY() && (target.getX() > origin.getX() && target.getX() <= origin.getX() + range);
+                return origin.getPos().getY() == target.getY() && (target.getX() > origin.getPos().getX() && target.getX() <= origin.getPos().getX() + range);
             case TOP:
-                return origin.getX() == target.getX() && (target.getY() < origin.getY() && target.getY() >= origin.getY() - range);
+                return origin.getPos().getX() == target.getX() && (target.getY() < origin.getPos().getY() && target.getY() >= origin.getPos().getY() - range);
             case DOWN:
-                return origin.getX() == target.getX() && (target.getY() > origin.getY() && target.getY() <= origin.getY() + range);
+                return origin.getPos().getX() == target.getX() && (target.getY() > origin.getPos().getY() && target.getY() <= origin.getPos().getY() + range);
             default:
                 return false;
         }
@@ -46,36 +47,36 @@ public class RectilignAttack extends Attack {
         int minX, maxX, minY, maxY;
         switch (direction) {
             case LEFT: {
-                minY = origin.getY();
-                maxY = origin.getY();
+                minY = origin.getPos().getY();
+                maxY = origin.getPos().getY();
 
-                minX = origin.getX() - this.range;
-                maxX = origin.getX();
+                minX = origin.getPos().getX() - this.range;
+                maxX = origin.getPos().getX();
             }
             case RIGHT: {
-                minY = origin.getY();
-                maxY = origin.getY();
+                minY = origin.getPos().getY();
+                maxY = origin.getPos().getY();
 
-                minX = origin.getX();
-                maxX = origin.getX() + this.range;
+                minX = origin.getPos().getX();
+                maxX = origin.getPos().getX() + this.range;
             }
             case TOP: {
-                minX = origin.getX();
-                maxX = origin.getX();
+                minX = origin.getPos().getX();
+                maxX = origin.getPos().getX();
 
-                minY = origin.getY() - this.range;
-                maxY = origin.getY();
+                minY = origin.getPos().getY() - this.range;
+                maxY = origin.getPos().getY();
             }
             case DOWN:
-                minX = origin.getX();
-                maxX = origin.getX();
+                minX = origin.getPos().getX();
+                maxX = origin.getPos().getX();
 
-                minY = origin.getY();
-                maxY = origin.getY() + this.range;
+                minY = origin.getPos().getY();
+                maxY = origin.getPos().getY() + this.range;
             default: {
-                minX = origin.getX();
+                minX = origin.getPos().getX();
                 maxX = minX;
-                minY = origin.getY();
+                minY = origin.getPos().getY();
                 maxY = minY;
             }
         }

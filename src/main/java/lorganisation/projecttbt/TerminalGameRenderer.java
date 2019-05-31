@@ -15,6 +15,7 @@ import org.jline.terminal.Terminal;
 
 public class TerminalGameRenderer {
 
+    // Terminal utilisé pour afficher les écrans et composants
     private Terminal terminal;
 
     public TerminalGameRenderer(Terminal terminal) {
@@ -23,16 +24,35 @@ public class TerminalGameRenderer {
         this.terminal = terminal;
     }
 
+    /**
+     * Get terminal size
+     *
+     * @return Size of the terminal
+     */
     public Size getSize() {
 
         return terminal.getSize();
     }
 
+    /**
+     * Render and display a Game at (0,0) aligned to the left
+     *
+     * @param g game to render
+     */
     public void render(Game g) {
 
         render(g, 0, 0, Utils.Align.LEFT);
     }
 
+
+    /**
+     * Render and display a Game on the terminal
+     *
+     * @param g     game to display
+     * @param x     offset from LEFT / RIGHT / CENTER
+     * @param y     distance from top
+     * @param align alignment
+     */
     public void render(Game g, int x, int y, Utils.Align align) {
 
         TerminalUtils.clearTerm();
@@ -43,9 +63,17 @@ public class TerminalGameRenderer {
 
         for (AbstractPlayer player : g.getPlayers())
             for (Character character : player.getCharacters())
-                TerminalUtils.writeAt(coords.getX() + character.getX(), coords.getY() + character.getY(), player.getColor().fg() + character.getIcon());
+                TerminalUtils.writeAt(coords.getX() + character.getPos().getX(),
+                                      coords.getY() + character.getPos().getY(),
+                                      player.getColor().fg() + character.getIcon());
     }
 
+
+    /**
+     * Render and display a screen on the terminal
+     *
+     * @param screen to render and display
+     */
     public void render(Screen screen) {
 
         Size terminalSize = terminal.getSize();
@@ -78,26 +106,51 @@ public class TerminalGameRenderer {
         System.out.print(TerminalUtils.formattedLine(ypos, 0, new StyledString(controls.toString()), Utils.Align.LEFT, terminalSize.getColumns()));
     }
 
-    public void renderComponent(Widget component) {
+    /**
+     * Uses component's paint method to render it
+     *
+     * @param component to render
+     */
+    private void renderComponent(Widget component) {
 
         System.out.print(component.paint(terminal));
     }
 
+    /**
+     * Get terminal
+     *
+     * @return the current terminal
+     */
     public Terminal getTerminal() {
 
         return terminal;
     }
 
+    /**
+     * Get terminal width
+     *
+     * @return terminal width
+     */
     public int getCols() {
 
         return terminal.getWidth();
     }
 
+    /**
+     * Get terminal height
+     *
+     * @return terminal height
+     */
     public int getRows() {
 
         return terminal.getHeight();
     }
 
+    /**
+     * Get coordinates of center of the screen
+     *
+     * @return coods of center of the screen
+     */
     public Coords getCenter() {
 
         Size termSize = getSize();

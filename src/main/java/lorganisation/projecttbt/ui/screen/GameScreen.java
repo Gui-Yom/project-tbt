@@ -5,27 +5,34 @@ import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.TerminalGameInput;
 import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.player.AbstractPlayer;
-import lorganisation.projecttbt.player.Action;
+import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.ui.widget.InvisibleButton;
 import lorganisation.projecttbt.ui.widget.Label;
+import lorganisation.projecttbt.ui.widget.PlayerListWidget;
+import lorganisation.projecttbt.ui.widget.TextBoxWidget;
 import lorganisation.projecttbt.utils.*;
+import org.jline.terminal.Size;
 
 import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameScreen extends Screen {
 
+    private final TextBoxWidget statusUpdate;
+    private final PlayerListWidget playerListW;
     private boolean skip = false;
     private Label statusLabel, subStatusLabel;
     private Game game;
-
-    private AbstractPlayer current;
 
     public GameScreen(Game game) {
 
         super(game.getInput().getTerminal());
 
         this.game = game;
+
+        Size termSize = game.getInput().getTerminal().getSize();
 
         Label lbl = new Label(new Coords(0, 2),
                               new StyledString("Project: TBT",
@@ -46,44 +53,55 @@ public class GameScreen extends Screen {
                                    Utils.Align.CENTER);
         addComponent(subStatusLabel);
 
-        /*
-        InvisibleButton moveLeftButton = new InvisibleButton(() -> (current.play(game, Action.MOVE_LEFT)), KeyStroke.getKeyStroke('q', 0));
-        InvisibleButton moveRightButton = new InvisibleButton(() -> (current.play(game, Action.MOVE_RIGHT)), KeyStroke.getKeyStroke('d', 0));
-        InvisibleButton moveUpButton = new InvisibleButton(() -> (current.play(game, Action.MOVE_UP)), KeyStroke.getKeyStroke('z', 0));
-        InvisibleButton moveDownButton = new InvisibleButton(() -> (current.play(game, Action.MOVE_DOWN)), KeyStroke.getKeyStroke('s', 0));
+        statusUpdate = new TextBoxWidget(new Coords(0, 0),
+                                         new Size(termSize.getColumns() / 7, termSize.getRows() - 5),
+                                         Utils.Align.RIGHT,
+                                         Utils.Align.LEFT,
+                                         new StyledString("STATUS UPDATE"),
+                                         Anscapes.Colors.WHITE,
+                                         Anscapes.Colors.BLACK);
+        addComponent(statusUpdate);
 
-
-         */
-        InvisibleButton actionButton = new InvisibleButton(() -> {}, KeyUtils.KEY_SPACE_BAR);
-
-        InvisibleButton iBtn = new InvisibleButton(() -> {
+        InvisibleButton quitBtn = new InvisibleButton(() -> {
             TerminalUtils.clearTerm();
             System.exit(0);
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
-        addComponent(iBtn);
+        addComponent(quitBtn);
+
+        playerListW = new PlayerListWidget(new Coords(0, 1),
+                                           new Size(termSize.getColumns() / 7, termSize.getRows() - 2),
+                                           Utils.Align.LEFT,
+                                           Utils.Align.LEFT,
+                                           new StyledString("Personnages"),
+                                           Anscapes.Colors.WHITE,
+                                           Anscapes.Colors.BLACK);
+        addComponent(playerListW);
     }
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
 
-        while (!skip) {
+        AbstractPlayer currPlayer = game.getPlayers().current();
 
-            renderer.render(game, 0, 10, Utils.Align.CENTER);
-            renderer.render(this);
-
-            current = game.getPlayers().next();
-
-            statusLabel.setText("Tour de " + current.getName());
-            statusLabel.getStyledText().modifiers().remove(7);
-            statusLabel.getStyledText().modifiers().put(7, current.getColor().fg());
-
-            KeyStroke key = input.readKey();
+        int i = 0;
+        for (Coords startPos : game.getMap().getStartPos())
+            statusUpdate.addLine(new StyledString("startPos" + i++ + startPos.toString()));
 
 
-            //TODO: make the player play.
-            Action action = current.play(game);
-            if (action == Action.DO_NOTHING)
-                keyPressed(key);
-        }
+        List<StyledString> updates = new ArrayList<>();
+        for (AbstractPlayer player : game.getPlayers())
+            for (Character character : player.getCharacters())
+                updates.add(new StyledString(player.getName() + " " + character.getType() + " -> " + character.getPos()));
+        statusUpdate.setText(updates);
 
+
+        playerListW.updatePlayerList(game.getPlayers());
+        playerListW.setSelected(game.getPlayers().indexOf(currPlayer));
+
+        statusLabel.setText(new StyledString(" Tour de " + currPlayer.getName(), Pair.of(9, currPlayer.getColor().fg())));
+
+        subStatusLabel.setText(new StyledString(currPlayer.getName() + " " + currPlayer.getStatus(), Pair.of(0, currPlayer.getColor().fg()), Pair.of(currPlayer.getName().length(), Anscapes.RESET)));
+
+        renderer.render(game, 0, 10, Utils.Align.CENTER);
+        renderer.render(this);
     }
 }

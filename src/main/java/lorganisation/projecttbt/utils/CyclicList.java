@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * Fonctionne comme une liste normale, mais permet en plus de pouvoir cycler à l'infini sur les éléments, dans les deux sens
+ * Fonctionne comme une liste normale, mais permet en plus de pouvoir cycler à l'infini sur les éléments, dans les deux
+ * sens
  *
  * @param <E>
  */
@@ -14,7 +15,7 @@ public class CyclicList<E> extends ArrayList<E> {
     /**
      * Current position of 'iterator' in list
      */
-    private int index = 0;
+    private int index = -1;
 
     /**
      * Constructor used to make an empty CyclicList
@@ -25,20 +26,17 @@ public class CyclicList<E> extends ArrayList<E> {
     }
 
     /**
-     * Constructor used to make CyclicList from a collection
-     * Default index = 0
+     * Constructor used to make CyclicList from a collection Default index = 0
      *
      * @param coll base collection
      */
     public CyclicList(Collection<E> coll) {
 
         super(coll);
-        index = 0;
     }
 
     /**
-     * Constructor used to make CyclicList from an array
-     * Size isn't fixed. Default index = 0
+     * Constructor used to make CyclicList from an array Size isn't fixed. Default index = 0
      *
      * @param arr base array
      */
@@ -54,7 +52,7 @@ public class CyclicList<E> extends ArrayList<E> {
      */
     public E current() {
 
-        return get(index);
+        return get(index > 0 ? index : 0);
     }
 
 
@@ -75,7 +73,7 @@ public class CyclicList<E> extends ArrayList<E> {
      */
     public void setIndex(int i) {
 
-        if (i >= 0 && i < size())
+        if (i >= -1 && i < size())
             this.index = i;
     }
 
@@ -85,7 +83,7 @@ public class CyclicList<E> extends ArrayList<E> {
      */
     public void reset() {
 
-        index = 0;
+        index = -1;
     }
 
     /**
@@ -101,7 +99,7 @@ public class CyclicList<E> extends ArrayList<E> {
      */
     public E next() {
 
-        return get(index = ((index + 1) % size()));
+        return get(index = (index + 1) % size());
     }
 
     /**

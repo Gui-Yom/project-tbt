@@ -5,17 +5,20 @@ import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.ui.widget.ActionWidget;
 import lorganisation.projecttbt.ui.widget.Widget;
 import lorganisation.projecttbt.utils.CyclicList;
+import lorganisation.projecttbt.utils.KeyUtils;
 import org.jline.terminal.Terminal;
 
 import javax.swing.KeyStroke;
-import java.awt.event.KeyEvent;
 import java.util.List;
 
+/**
+ * Un écran, contient des composants avec lesquels l'utilisateur interagit
+ */
 public abstract class Screen {
 
     protected CyclicList<Widget> components;
     protected Widget focus = null;
-    protected KeyStroke focusKey = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
+    protected KeyStroke focusKey = KeyUtils.KEY_TAB;
 
     public Screen(Terminal terminal) {
 

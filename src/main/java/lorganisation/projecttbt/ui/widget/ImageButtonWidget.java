@@ -2,7 +2,6 @@ package lorganisation.projecttbt.ui.widget;
 
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.ColorMode;
-import com.limelion.anscapes.ImgConverter;
 import com.limelion.anscapes.TextImage;
 import lorganisation.projecttbt.AssetsManager;
 import lorganisation.projecttbt.IntegratedDevenv;
@@ -51,13 +50,16 @@ public class ImageButtonWidget extends Button {
             return Anscapes.cursorPos(coords.getY(), coords.getX()) + "null image";
         }
 
-        Coords coords = TerminalUtils.coordinatesOfAlignedObject(this.coords.getY(), this.coords.getX(), image.getWidth(), align, terminal.getWidth());
+        Coords coords = TerminalUtils.coordinatesOfAlignedObject(this.coords.getY(),
+                                                                 this.coords.getX(),
+                                                                 image.getWidth(),
+                                                                 align,
+                                                                 terminal.getWidth());
 
-        // FIXME why do i have to divide height by 2
-
-        StringBuilder visual = new StringBuilder(image.getImage());
-        visual.insert(0, Anscapes.cursorPos(coords.getY(), coords.getX()));
-        visual.append(Anscapes.cursorPos(coords.getY() + (int) Math.ceil((float) image.getHeight() / 2), coords.getX() + image.getWidth() / 2 - getText().length() / 2));
+        StringBuilder visual = new StringBuilder(Anscapes.cursorPos(coords.getY(), coords.getX()));
+        visual.append(image.getImage());
+        visual.append(Anscapes.cursorPos(coords.getY() + (int) Math.ceil((float) image.getHeight() / 2),
+                                         coords.getX() + image.getWidth() / 2 - getText().length() / 2));
         visual.append(getText());
 
         //Anscapes.cursorPos(coords.getY(), coords.getX()) + image.getImage() + Anscapes.cursorPos(coords.getY() + this.size.getRows(), coords.getX()) + getText()
@@ -76,9 +78,8 @@ public class ImageButtonWidget extends Button {
         size.setRows(2 + height);
 
         System.out.print(TerminalUtils.makeLine(new Coords(getCoords().getX() - 1, getCoords().getY() - 1), new Coords(getCoords().getX() + 2, getCoords().getY() - 1), '\u2588', Anscapes.Colors.MAGENTA_BRIGHT.fg()));
-        TerminalUtils.writeAt(getCoords().getX() - 2, getCoords().getY() - 1,  Anscapes.Colors.MAGENTA_BRIGHT.fg() + '▀');
+        TerminalUtils.writeAt(getCoords().getX() - 2, getCoords().getY() - 1, Anscapes.Colors.MAGENTA_BRIGHT.fg() + '▀');
         System.out.print(TerminalUtils.makeLine(new Coords(coords.getX() + size.getColumns() - 3, coords.getY() + height + 1), new Coords(coords.getX() + size.getColumns(), coords.getY() + height + 1), '\u2588', Anscapes.Colors.CYAN_BRIGHT.fg()));
         TerminalUtils.writeAt(coords.getX() + size.getColumns() - 1, coords.getY() + height - 1, Anscapes.Colors.CYAN_BRIGHT.fg() + '\u2584');
-
     }
 }

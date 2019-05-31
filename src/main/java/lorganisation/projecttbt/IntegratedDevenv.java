@@ -57,6 +57,15 @@ public class IntegratedDevenv {
         }
     }
 
+    /**
+     * Converts BufferedImage to TextImage
+     *
+     * @param image     BufferedImage
+     * @param mode      ColorMode used to convert
+     * @param reduction reduction ratio
+     *
+     * @return converted TextImage
+     */
     public static TextImage convert(BufferedImage image, ColorMode mode, float reduction) {
 
         ImgConverter converter = ImgConverter.builder()

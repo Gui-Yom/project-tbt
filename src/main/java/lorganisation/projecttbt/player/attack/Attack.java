@@ -3,6 +3,7 @@ package lorganisation.projecttbt.player.attack;
 import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
+import lorganisation.projecttbt.player.attack.effects.Effect;
 import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.Pair;
 import lorganisation.projecttbt.utils.Utils;
@@ -40,7 +41,7 @@ public abstract class Attack {
 
         if (this.target.equals(TargetType.SELF) && condition(origin, tile)) {
 
-            // if damages < 0 it's a heal, if it's > 0 then the spell costs health to cast
+            // if damages < 0 it's a heal, if it's > 0 then the spell costs health to cast, damages = 0 -> not affecting health, only effects applied to player
             origin.damage(damageType, this.damages.apply(Pair.of(origin, origin), tile));
 
             for (Effect effect : effects) {
@@ -50,7 +51,7 @@ public abstract class Attack {
             return true;
         }
 
-        if (condition(origin, tile) && origin.getMp() >= this.magicCost) {
+        if (condition(origin, tile) && origin.getMagicArmor() >= this.magicCost) {
             origin.decreaseMana(this.magicCost);
 
             for (AbstractPlayer player : game.getPlayers())
@@ -65,7 +66,7 @@ public abstract class Attack {
                     } else if (this.target == TargetType.SELF)
                         continue;
 
-                    if (Utils.distance(tile, target.getCoords()) <= areaRadius) {
+                    if (Utils.distance(tile, target.getPos()) <= areaRadius) {
                         target.damage(damageType, this.damages.apply(Pair.of(origin, target), tile));
 
 

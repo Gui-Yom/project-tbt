@@ -3,6 +3,9 @@ package lorganisation.projecttbt;
 import com.limelion.anscapes.ColorMode;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.AbstractPlayer;
+import lorganisation.projecttbt.player.Action;
+import lorganisation.projecttbt.player.Character;
+import lorganisation.projecttbt.player.Player;
 import lorganisation.projecttbt.ui.screen.*;
 import lorganisation.projecttbt.utils.CyclicList;
 import lorganisation.projecttbt.utils.TerminalUtils;
@@ -114,10 +117,10 @@ public class Game {
         Game game = new Game(new TerminalGameInput(term), new TerminalGameRenderer(term));
 
         // On demande à l'utilisateur de redimensionner sa fenêtre
-        // Sur windows, on ne peut pas la redimensionner depuis le programme
+        // Sur Windows, on ne peut pas la redimensionner depuis le programme
         TerminalUtils.askForResize(term, new Size(130, 40));
 
-        new TestScreen(game).display(game.input, game.renderer);
+        //new TestScreen(game).display(game.input, game.renderer);
 
         // Menu principal du jeu
         // L'utilisateur peut choisir de démarrer une partie ou d'utiliser les outils de développement intégrés
@@ -130,7 +133,7 @@ public class Game {
         game.lobby();
 
         // La partie commence !
-        // Elle continue jusqua ce que mort s'ensuive
+        // Elle continue jusqu'à ce que mort s'ensuive mdr
         game.start();
 
         // END / Cleanup
@@ -157,13 +160,9 @@ public class Game {
                 System.exit(0);
                 break;
             case QUIT:
-                break;
             case TSTP:
-                break;
             case CONT:
-                break;
             case INFO:
-                break;
             case WINCH: // Window resize
                 // System.out.println("Received SIGWINCH !");
                 break;
@@ -217,7 +216,7 @@ public class Game {
     /**
      * Renvoie l'InputManager utilisé par le jeu.
      *
-     * @return
+     * @return input manager
      */
     public TerminalGameInput getInput() {
 
@@ -227,7 +226,7 @@ public class Game {
     /**
      * Renvoie le renderer utilisé par le jeu.
      *
-     * @return
+     * @return game renderer
      */
     public TerminalGameRenderer getRenderer() {
 
@@ -260,7 +259,6 @@ public class Game {
 
         LobbyScreen lobbyScreen = new LobbyScreen(this);
         lobbyScreen.display(input, renderer);
-
 
         CharacterSelectionScreen characterSelectionScreen = new CharacterSelectionScreen(this, lobbyScreen.getMaxCharacterCount());
         characterSelectionScreen.display(input, renderer);
@@ -303,12 +301,69 @@ public class Game {
      */
     public void start() {
 
-        /*
         GameScreen gameScreen = new GameScreen(this);
         gameScreen.display(input, renderer);
 
+        int turnNumber = 1;
 
-         */
+        while (!isFinished()) {
 
+            AbstractPlayer currPlayer = getPlayers().next();
+            currPlayer.setStatus(AbstractPlayer.Status.IDLE);
+
+            Character currCharacter = currPlayer.getCharacters().next();
+
+            currCharacter.setActionPoints(currCharacter.getDefaultActionPoints());
+
+            while (!isTurnFinished(currPlayer)) {
+
+                Action action = currPlayer.play(this, currCharacter);
+
+                if (action == Action.DO_NOTHING && currPlayer instanceof Player) {
+                    gameScreen.keyPressed(input.getLastKey());
+                } else {
+                    gameScreen.display(input, renderer);
+                }
+
+                if (action == Action.CAST_ATTACK && currPlayer.getStatus() == AbstractPlayer.Status.CASTING_ATTACK)
+                    break;
+            }
+
+            ++turnNumber;
+        }
+
+    }
+
+    /**
+     * Check if game is finished
+     *
+     * @return true if game finished
+     */
+    public boolean isFinished() {
+
+        int playersAlive = 0;
+
+        for (AbstractPlayer player : getPlayers())
+            for (Character character : player.getCharacters())
+                if (character.getHealth() != 0) {
+                    ++playersAlive;
+                    break;
+                }
+
+        return playersAlive == 1;
+    }
+
+    /**
+     * Check if player's turn is finished, doesn't take into account if player has attacked
+     *
+     * @param player
+     *
+     * @return true if turn finished
+     */
+    public boolean isTurnFinished(AbstractPlayer player) {
+
+        Character c = player.getCharacters().current();
+
+        return c.getActionPoints() <= 0 || c.getHealth() <= 0;
     }
 }

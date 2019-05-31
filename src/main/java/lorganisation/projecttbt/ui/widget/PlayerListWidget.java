@@ -19,27 +19,31 @@ public class PlayerListWidget extends TextBoxWidget {
 
         super(coords, size, align, textAlign, title, borderColor, backgroundColor, lines);
 
-
-        setEnabled(false);
+        setEnabled(true);
         setFocusable(false);
         setVisible(true);
     }
 
     public void setSelected(int selected) {
+
         this.selected = selected;
     }
 
     public void updatePlayerList(List<AbstractPlayer> players) {
+
         List<StyledString> playerList = new ArrayList<>();
 
-        for(int i = 0; i < players.size(); i++) {
+        for (int i = 0; i < players.size(); i++) {
             AbstractPlayer player = players.get(i);
 
-            playerList.add(new StyledString("  " + (selected != null && selected == i ? " > ":" ") + player.getName(), Pair.of(0, player.getColor().bg()), Pair.of(2, Anscapes.Colors.BLACK.fg() + getBackgroundColor().bg())));
+            playerList.add(new StyledString("  " + (selected != null && selected == i ? " > " : " ") + player.getName(), Pair.of(0, player.getColor().bg()), Pair.of(2, Anscapes.Colors.BLACK.fg() + getBackgroundColor().bg())));
 
-            if( i != players.size() - 1)
+            if (i != players.size() - 1)
                 playerList.add(new StyledString(" "));
         }
+
+        if (selected != null)
+            addLine(new StyledString("selected = " + selected + " (-> " + players.get(selected).getName()));
 
         setText(playerList);
     }

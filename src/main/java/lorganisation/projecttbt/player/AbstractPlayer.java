@@ -5,32 +5,27 @@ import com.limelion.anscapes.AnsiColor;
 import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.utils.CyclicList;
 
+/**
+ * Joueur abstrait (Joueur ou BOT / IA)
+ */
 public abstract class AbstractPlayer {
 
     protected AnsiColor playerColor;
     protected CyclicList<Character> characters;
     protected String name;
+    protected Status status;
 
     public AbstractPlayer(String name, AnsiColor c) {
 
         this.name = name;
         this.playerColor = c;
         this.characters = new CyclicList<>();
+        this.status = Status.IDLE;
     }
 
-    public abstract Action play(Game game);
+    public abstract Action play(Game game, Character character);
 
     public abstract boolean isBot();
-
-    @Override
-    public String toString() {
-
-        return "AbstractPlayer{" +
-               "name=" + name +
-               "playerColor=" + playerColor +
-               ", characters=" + characters +
-               '}';
-    }
 
     public String getName() {
 
@@ -68,6 +63,36 @@ public abstract class AbstractPlayer {
             if (character.getType().equalsIgnoreCase(type))
                 return true;
         return false;
+    }
+
+    public Status getStatus() {
+
+        return status;
+    }
+
+    public void setStatus(Status status) {
+
+        this.status = status;
+    }
+
+    public enum Status {
+
+        IDLE("va jouer"),
+        CASTING_ATTACK("prépare son attaque"),
+        STUNNED("est assommé"),
+        SILENCED("est réduit au silence");
+
+        String value;
+
+        Status(String value) {
+
+            this.value = value;
+        }
+
+        public String toString() {
+
+            return value;
+        }
     }
 
 }

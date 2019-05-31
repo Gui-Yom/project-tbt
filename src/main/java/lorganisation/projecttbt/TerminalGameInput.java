@@ -10,7 +10,10 @@ import java.io.IOException;
 
 public class TerminalGameInput {
 
+    // Terminal duquel on reçoit les entrées
     private Terminal terminal;
+
+    // Dernière entrée
     private KeyStroke lastKey;
 
     //Permet de lire et d'interpréter les entrées clavier
@@ -62,11 +65,21 @@ public class TerminalGameInput {
         return br.readCharacter();
     }
 
+    /**
+     * Get last KeyStroke
+     *
+     * @return the last KeyStroke
+     */
     public KeyStroke getLastKey() {
 
         return lastKey;
     }
 
+    /**
+     * Get terminal for the inputs
+     *
+     * @return terminal
+     */
     public Terminal getTerminal() {
 
         return terminal;

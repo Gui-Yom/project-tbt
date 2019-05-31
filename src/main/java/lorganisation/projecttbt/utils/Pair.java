@@ -5,6 +5,9 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 
+/**
+ * Objet contenant une paire de deux autres objets
+ */
 public class Pair<U, V> implements JsonSerializer<Pair<U, V>>, JsonDeserializer<Pair<U, V>> {
 
     protected U u;

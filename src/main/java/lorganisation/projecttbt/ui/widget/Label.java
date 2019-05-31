@@ -38,6 +38,11 @@ public class Label extends Widget {
         stext.setText(string);
     }
 
+    public void setText(StyledString string) {
+
+        this.stext = string;
+    }
+
     public Utils.Align getAlignement() {
 
         return this.alignement;

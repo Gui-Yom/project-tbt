@@ -1,65 +1,50 @@
 package lorganisation.projecttbt.player;
 
 import lorganisation.projecttbt.player.attack.Attack;
-import lorganisation.projecttbt.player.attack.Effect;
+import lorganisation.projecttbt.player.attack.effects.Effect;
 import lorganisation.projecttbt.utils.Coords;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Character {
 
-    protected int x;
-    protected int y;
+    // Position
+    protected Coords pos;
     protected String type; // Type de personnage
     protected String icon;
 
     // Definition automatique des capacités à partir du type (dans un fichier texte par exemple)
-    protected int portee; // Portée du déplacement
-    protected int hp; // Points de vie
-    protected int mp; // Points de magie
-    protected int defense; // Valeur du bouclier
-    protected int dommagesAttaque; // Dommages moyens par attaque
+    protected int actionPoints; // Portée du déplacement
+    protected int maxActionPoints;
+    protected int health; // Points de vie
+    protected int maxHealth;
+
+    protected int magicArmor; // Points de magie
+    protected int armor; // Valeur du bouclier
+
+    protected int physicAtk; // Dommages moyens par attaque
+    protected int magicAtk;
+
     protected List<Effect> effects;
 
-    private Character(String type, String icon, int portee, int hp, int mp, int defense, int dommagesAttaque) {
+    private Character(String type, String icon, int actionPoints, int health, int magicArmor, int armor, int physicAtk) {
 
+        this.pos = new Coords(0, 0);
         this.type = type;
         this.icon = icon;
-        this.portee = portee;
-        this.hp = hp;
-        this.mp = mp;
-        this.defense = defense;
-        this.dommagesAttaque = dommagesAttaque;
-    }
-
-    public Character(int x, int y, String type, String icon) {
-
-        this.x = x;
-        this.y = y;
-        this.type = type;
-        this.icon = icon;
+        this.actionPoints = actionPoints;
+        this.maxActionPoints = actionPoints;
+        this.health = health;
+        this.magicArmor = magicArmor;
+        this.armor = armor;
+        this.physicAtk = physicAtk;
+        this.effects = new ArrayList<>();
     }
 
     public Character(CharacterTemplate template) {
 
         this(template.type, template.icon, template.portee, template.hp, template.mp, template.defense, template.dommagesAttaque);
-    }
-
-    @Override
-    public String toString() {
-
-        // Je prefere qu'on utilise les toString() pour le déboguage
-        // Il vaut mieux créer une autre méthode pour les afficher à la console joliment
-        return "Character{" +
-               "x=" + x +
-               ", y=" + y +
-               ", type='" + type + '\'' +
-               ", portee=" + portee +
-               ", hp=" + hp +
-               ", mp=" + mp +
-               ", defense=" + defense +
-               ", dommagesAttaque=" + dommagesAttaque +
-               '}';
     }
 
     public void addEffect(Effect e) {
@@ -77,63 +62,21 @@ public class Character {
         switch (type) {
 
             case TRUE: {
-                this.hp -= damage;
+                this.health -= damage;
                 break;
             }
 
             case MAGIC: {
-                this.hp -= .8 * damage;
-                this.defense -= .2 * damage;
+                this.health -= damage * 100 / (magicArmor + 100);
                 break;
             }
 
             case PHYSIC: {
-                this.hp -= .4 * damage;
-                this.defense -= .6 * damage;
+                this.health -= damage * 100 / (armor + 100);
                 break;
             }
         }
 
-    }
-
-    public int getX() {
-
-        return x;
-    }
-
-    public void setX(int x) {
-
-        this.x = x;
-    }
-
-    public int getY() {
-
-        return y;
-    }
-
-    public void setY(int y) {
-
-        this.y = y;
-    }
-
-    public void incX() {
-
-        this.x++;
-    }
-
-    public void decX() {
-
-        this.x--;
-    }
-
-    public void incY() {
-
-        this.y++;
-    }
-
-    public void decY() {
-
-        this.y--;
     }
 
     public String getType() {
@@ -146,38 +89,73 @@ public class Character {
         return icon;
     }
 
-    public int getPortee() {
+    public int getActionPoints() {
 
-        return portee;
+        return actionPoints;
     }
 
-    public int getHp() {
+    public void setActionPoints(int actionPoints) {
 
-        return hp;
+        this.actionPoints = actionPoints;
     }
 
-    public int getMp() {
+    public int getDefaultActionPoints() {
 
-        return mp;
+        return maxActionPoints;
     }
 
-    public int getDefense() {
+    public int getHealth() {
 
-        return defense;
+        return health;
     }
 
-    public int getDommagesAttaque() {
+    public void setHealth(int health) {
 
-        return dommagesAttaque;
+        this.health = health;
+    }
+
+    public int getMagicArmor() {
+
+        return magicArmor;
+    }
+
+    public void setMagicArmor(int magicArmor) {
+
+        this.magicArmor = magicArmor;
+    }
+
+    public int getArmor() {
+
+        return armor;
+    }
+
+    public void setArmor(int armor) {
+
+        this.armor = armor;
+    }
+
+    public int getPhysicAtk() {
+
+        return physicAtk;
+    }
+
+    public void setPhysicAtk(int physicAtk) {
+
+        this.physicAtk = physicAtk;
     }
 
     public void decreaseMana(int magicCost) {
 
-        this.mp -= magicCost;
+        this.magicArmor -= magicCost;
     }
 
-    public Coords getCoords() {
+    public Coords getPos() {
 
-        return new Coords(x, y);
+        return pos;
+    }
+
+    public void setPos(Coords pos) {
+
+        this.pos = pos;
     }
 }

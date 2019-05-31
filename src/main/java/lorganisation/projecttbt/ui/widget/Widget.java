@@ -110,8 +110,22 @@ public abstract class Widget {
         return " Widget at " + this.coords + ", focusable: " + this.focusable + ", enabled: " + this.enabled + ", visible: " + this.visible + ", description: " + getDescription();
     }
 
+    /**
+     * Donne la chaîne de caractère permettant d'afficher le composant
+     *
+     * @param terminal
+     *
+     * @return
+     */
     public abstract String paint(Terminal terminal);
 
+    /**
+     * Prend en charge une entrée clavier
+     *
+     * @param key
+     *
+     * @return true si le composant a réagit à l'entrée
+     */
     public boolean handleInput(KeyStroke key) {
 
         return false;

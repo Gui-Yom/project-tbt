@@ -46,11 +46,17 @@ public class AssetsManager {
      */
     private static List<String> botNames;
 
+    /**
+     * Les maps
+     */
     private static Map<String, String> maps;
 
+    /**
+     * Les différents personnages
+     */
     private static Map<String, String> characters;
 
-    // Comme un constructeur mais dans le domaine statique
+    // Comme un constructeur mais dans le domaine statique, s'exécute au premier appel statique de l'AssetsManager
     static {
         if (!reload())
             System.err.println("Unable to load registry !");

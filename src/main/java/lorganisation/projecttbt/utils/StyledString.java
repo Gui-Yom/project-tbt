@@ -5,6 +5,9 @@ import com.limelion.anscapes.Anscapes;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Un String avec formatage, permet d'avoir des codes ANSI dans un String sans altérer length()
+ */
 public class StyledString implements CharSequence {
 
     private Map<Integer, String> modifiers = null;
@@ -64,7 +67,8 @@ public class StyledString implements CharSequence {
     }
 
     /**
-     * end = -1 gives full size and all modifiers
+     * @param start
+     * @param end   = -1 gives full size and all modifiers
      **/
     public String subStringWithFormat(int start, int end) {
 
@@ -81,7 +85,7 @@ public class StyledString implements CharSequence {
             int max = Utils.max(modifiers.keySet());
             if (max >= text.length() && end == -1) {
                 for (int i = text.length(); i <= max; i++) {
-                    if(modifiers.get(i) != null)
+                    if (modifiers.get(i) != null)
                         sb.append(modifiers.get(i));
                 }
             }

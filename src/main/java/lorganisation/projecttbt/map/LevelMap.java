@@ -1,6 +1,8 @@
 package lorganisation.projecttbt.map;
 
 import lorganisation.projecttbt.AssetsManager;
+import lorganisation.projecttbt.utils.Coords;
+import lorganisation.projecttbt.utils.CyclicList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represent a game level where the player can move.
+ * Represent a game level where the players can move and fight.
  */
 public class LevelMap {
 
@@ -23,14 +25,9 @@ public class LevelMap {
     private String name;
     private String description;
     private int maxPlayers;
-    private List<StartPos> startPos;
+    private CyclicList<Coords> startPos;
 
-    public LevelMap(String name, int width, int height) {
-
-        this(width, height, blankLevel(width, height), name, "", 4, Collections.unmodifiableList(Collections.singletonList(new StartPos(1, 1))));
-    }
-
-    public LevelMap(int width, int height, Tiles[][] tiles, String name, String description, int maxPlayers, List<StartPos> startPos) {
+    private LevelMap(int width, int height, Tiles[][] tiles, String name, String description, int maxPlayers, CyclicList<Coords> startPos) {
 
         this.width = width;
         this.height = height;
@@ -103,7 +100,7 @@ public class LevelMap {
         int linenum = 0;
 
         Map<Character, Tiles> conversion = new HashMap<>();
-        List<StartPos> startpos = new ArrayList<>(1);
+        List<Coords> startpos = new ArrayList<>();
         String description = "default empty map";
         int width = 10;
         int height = 10;
@@ -177,7 +174,7 @@ public class LevelMap {
                             String[] params = m.group(2).split(" ");
                             if (params.length == 2) {
                                 try {
-                                    startpos.add(new StartPos(Integer.parseInt(params[0]), Integer.parseInt(params[1])));
+                                    startpos.add(new Coords(Integer.parseInt(params[0]), Integer.parseInt(params[1])));
                                 } catch (NumberFormatException nfe) {
                                     System.err.println("Ligne " + linenum + " : 2 nombres sont attendus.");
                                 }
@@ -224,7 +221,7 @@ public class LevelMap {
                             name.replace(".map", ""),
                             description,
                             maxplayer,
-                            Collections.unmodifiableList(startpos));
+                            new CyclicList<>(startpos));
     }
 
     public Tiles[][] getTiles() {
@@ -242,18 +239,9 @@ public class LevelMap {
         return maxPlayers;
     }
 
-    public List<StartPos> getStartPos() {
+    public CyclicList<Coords> getStartPos() {
 
         return startPos;
-    }
-
-    public StartPos getNextStartPos() {
-
-        for (StartPos sPos : startPos)
-            if (sPos.getCharacter() == null)
-                return sPos;
-
-        return new StartPos(getWidth() / 2, getHeight() / 2);
     }
 
     public int getWidth() {
