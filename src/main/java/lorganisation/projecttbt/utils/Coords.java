@@ -1,12 +1,12 @@
 package lorganisation.projecttbt.utils;
 
 /**
- * Une classe contenant des coordonnées (x,y) mutables.
+ * Une classe contenant des coordonnées (x,y) (mutable).
  */
 public class Coords extends Pair<Integer, Integer> {
 
     /**
-     * Creates Coords object from x and y coordinates
+     * Crée un objet Coords à partir des coordonnées
      *
      * @param x (horizontal) coordinates (where 0 is left)
      * @param y (vertical) coordinates (where 0 is top)
@@ -17,9 +17,7 @@ public class Coords extends Pair<Integer, Integer> {
     }
 
     /**
-     * Get x coordinate
-     *
-     * @return x coordinate
+     * @return la coordonnée x
      */
     public int getX() {
 
@@ -29,7 +27,7 @@ public class Coords extends Pair<Integer, Integer> {
     /**
      * Set x coordinate
      *
-     * @param x horizontal coordinate
+     * @param x la coordonnée x
      */
     public void setX(int x) {
 
@@ -77,7 +75,7 @@ public class Coords extends Pair<Integer, Integer> {
     }
 
     /**
-     * @return toString format -> (x, y)
+     * @return (x, y)
      */
     @Override
     public String toString() {

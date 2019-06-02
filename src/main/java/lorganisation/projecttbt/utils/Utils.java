@@ -101,7 +101,7 @@ public class Utils {
     /**
      * Get length of longest Sequence in Iterable Collection
      *
-     * @param list to analyse
+     * @param list la liste à analyser
      *
      * @return length of the longest sequence
      */
@@ -117,11 +117,10 @@ public class Utils {
     }
 
     /**
-     * @param list      containing elements
-     * @param condition one of the elements needs to match
-     * @param <E>
+     * @param list      une liste
+     * @param condition la condition sur chaque élément
      *
-     * @return true if one of the list's elements matches
+     * @return true si un des éléments de la liste valide la condition
      */
     public static <E> boolean match(Iterable<E> list, Predicate<E> condition) {
 

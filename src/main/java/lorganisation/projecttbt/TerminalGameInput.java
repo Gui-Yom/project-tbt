@@ -1,11 +1,12 @@
 package lorganisation.projecttbt;
 
+import lorganisation.projecttbt.utils.KeyUtils;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
 import org.jline.terminal.Terminal;
+import org.jline.utils.InfoCmp;
 
 import javax.swing.KeyStroke;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 public class TerminalGameInput {
@@ -34,11 +35,14 @@ public class TerminalGameInput {
                 keys.bind(KeyStroke.getKeyStroke(c), Character.toString(c));
 
         // Ici les touches spéciales (TAB, BACKSPACE etc...)
-        keys.bind(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), KeyMap.esc());
-        keys.bind(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "\r");
-        keys.bind(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), "\t");
-        keys.bind(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "\b");
-
+        keys.bind(KeyUtils.KEY_ESCAPE, KeyMap.esc());
+        keys.bind(KeyUtils.KEY_ENTER, "\r");
+        keys.bind(KeyUtils.KEY_TAB, "\t");
+        keys.bind(KeyUtils.KEY_BACKSPACE, "\b");
+        keys.bind(KeyUtils.KEY_UP_ARROW, KeyMap.key(terminal, InfoCmp.Capability.key_up));
+        keys.bind(KeyUtils.KEY_LEFT_ARROW, KeyMap.key(terminal, InfoCmp.Capability.key_left));
+        keys.bind(KeyUtils.KEY_DOWN_ARROW, KeyMap.key(terminal, InfoCmp.Capability.key_down));
+        keys.bind(KeyUtils.KEY_RIGHT_ARROW, KeyMap.key(terminal, InfoCmp.Capability.key_right));
     }
 
     public int readInput() {

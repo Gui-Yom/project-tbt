@@ -1,9 +1,31 @@
 {
   "type": "Recruit",
   "icon": "R",
-  "portee": 5,
-  "hp": 100,
-  "mp": 50,
-  "defense": 20,
-  "dommagesAttaque": 10
+  "maxActionPoints": 5,
+  "maxHealth": 50,
+  "magicArmor": 10,
+  "physicArmor": 10,
+  "physicAtk": 10,
+  "magicAtk": 10,
+  "attacks": [
+    {
+      "type": "CircularAttack",
+      "name": "RecruitAttack1",
+      "cost": 2,
+      "cooldown": 3,
+      "minimumRange": 2,
+      "maximumRange": 8,
+      "areaRadius": 1,
+      "targetType": "ENEMIES",
+      "damageType": "PHYSICAL",
+      "damages": "(chars, tile) -> 12 - Utils.distance(chars.me.getPos(), chars.enemy.getPos())",
+      "effects": [
+        {
+          "type": "FireEffect",
+          "strength": 2,
+          "duration": 3
+        }
+      ]
+    }
+  ]
 }

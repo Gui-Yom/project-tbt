@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>lorganisation.projecttbt</OriginalElement>
+  <nodes>
+    <node x="2601.0" y="1831.0">lorganisation.projecttbt.map.Tile</node>
+    <node x="1329.0" y="2549.0">lorganisation.projecttbt.IntegratedDevenv</node>
+    <node x="1415.0" y="1498.0">lorganisation.projecttbt.Game</node>
+    <node x="810.0" y="814.0">lorganisation.projecttbt.ui.widget.TextBoxWidget</node>
+    <node x="626.0" y="1669.0">lorganisation.projecttbt.ui.screen.WinnerScreen</node>
+    <node x="164.0" y="2168.0">lorganisation.projecttbt.ui.screen.LobbyScreen</node>
+    <node x="948.0" y="2549.0">lorganisation.projecttbt.TerminalGameInput</node>
+    <node x="1733.0" y="1677.0">lorganisation.projecttbt.player.AbstractPlayer</node>
+    <node x="101.0" y="738.0">lorganisation.projecttbt.ui.widget.HorizontalComboBoxWidget</node>
+    <node x="303.0" y="208.0">lorganisation.projecttbt.ui.widget.Button</node>
+    <node x="1702.0" y="1498.0">lorganisation.projecttbt.player.Bot</node>
+    <node x="2290.0" y="1498.0">lorganisation.projecttbt.AssetsManager</node>
+    <node x="417.0" y="2549.0">lorganisation.projecttbt.player.ActionType</node>
+    <node x="0.0" y="2549.0">lorganisation.projecttbt.player.CharacterTemplate</node>
+    <node x="0.0" y="1005.0">lorganisation.projecttbt.ui.widget.TextField</node>
+    <node x="521.0" y="260.0">lorganisation.projecttbt.ui.widget.InvisibleButton</node>
+    <node x="695.0" y="2549.0">lorganisation.projecttbt.TerminalGameRenderer</node>
+    <node x="673.0" y="402.0">lorganisation.projecttbt.ui.widget.ImageWidget</node>
+    <node x="246.0" y="1161.0">lorganisation.projecttbt.ui.widget.IntegerField</node>
+    <node x="1165.0" y="2549.0">lorganisation.projecttbt.player.AbstractPlayer.Status</node>
+    <node x="582.0" y="2173.0">lorganisation.projecttbt.ui.screen.GameScreen</node>
+    <node x="1191.0" y="1148.0">lorganisation.projecttbt.ui.widget.PlayerListWidget</node>
+    <node x="1150.0" y="1498.0">lorganisation.projecttbt.player.Character</node>
+    <node x="206.0" y="0.0">lorganisation.projecttbt.ui.widget.ImageButtonWidget</node>
+    <node x="764.0" y="1898.0">lorganisation.projecttbt.ui.screen.CharacterSelectionScreen</node>
+    <node x="260.0" y="1009.0">lorganisation.projecttbt.ui.widget.InputWidget</node>
+    <node x="492.0" y="1085.0">lorganisation.projecttbt.ui.widget.ColorPicker</node>
+    <node x="427.0" y="510.0">lorganisation.projecttbt.ui.widget.Widget</node>
+    <node x="205.0" y="493.0">lorganisation.projecttbt.ui.widget.LoadingBar</node>
+    <node x="1774.0" y="2076.0">lorganisation.projecttbt.player.Player</node>
+    <node x="2035.0" y="1498.0">lorganisation.projecttbt.map.LevelMap</node>
+    <node x="89.0" y="1633.0">lorganisation.projecttbt.ui.screen.TestScreen</node>
+    <node x="382.0" y="1790.0">lorganisation.projecttbt.ui.screen.Screen</node>
+    <node x="1876.0" y="2549.0">lorganisation.projecttbt.utils</node>
+    <node x="369.0" y="1498.0">lorganisation.projecttbt.ui.screen.MapSelectionScreen</node>
+    <node x="0.0" y="1947.0">lorganisation.projecttbt.ui.screen.MainScreen</node>
+    <node x="1689.0" y="2549.0">lorganisation.projecttbt.player.attack</node>
+    <node x="2612.0" y="1498.0">lorganisation.projecttbt.map.Tiles</node>
+    <node x="886.0" y="547.0">lorganisation.projecttbt.ui.widget.Label</node>
+    <node x="1498.0" y="1202.0">lorganisation.projecttbt.ui.widget.CharacterListWidget</node>
+    <node x="396.0" y="375.0">lorganisation.projecttbt.ui.widget.ActionWidget</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="lorganisation.projecttbt.ui.widget.Button" target="lorganisation.projecttbt.ui.widget.ActionWidget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.ActionWidget" target="lorganisation.projecttbt.ui.widget.Widget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.screen.TestScreen" target="lorganisation.projecttbt.ui.screen.Screen">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.InvisibleButton" target="lorganisation.projecttbt.ui.widget.ActionWidget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.ImageButtonWidget" target="lorganisation.projecttbt.ui.widget.Button">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.player.Bot" target="lorganisation.projecttbt.player.AbstractPlayer">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.TextField" target="lorganisation.projecttbt.ui.widget.InputWidget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.screen.GameScreen" target="lorganisation.projecttbt.ui.screen.Screen">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.Label" target="lorganisation.projecttbt.ui.widget.Widget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.map.Tiles" target="lorganisation.projecttbt.map.Tile">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.player.Player" target="lorganisation.projecttbt.player.AbstractPlayer">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.ImageWidget" target="lorganisation.projecttbt.ui.widget.Widget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.screen.MapSelectionScreen" target="lorganisation.projecttbt.ui.screen.Screen">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.screen.CharacterSelectionScreen" target="lorganisation.projecttbt.ui.screen.Screen">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.InputWidget" target="lorganisation.projecttbt.ui.widget.Widget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.TextBoxWidget" target="lorganisation.projecttbt.ui.widget.Widget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.HorizontalComboBoxWidget" target="lorganisation.projecttbt.ui.widget.InputWidget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.CharacterListWidget" target="lorganisation.projecttbt.ui.widget.PlayerListWidget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.screen.MainScreen" target="lorganisation.projecttbt.ui.screen.Screen">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.IntegerField" target="lorganisation.projecttbt.ui.widget.InputWidget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.ColorPicker" target="lorganisation.projecttbt.ui.widget.InputWidget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.LoadingBar" target="lorganisation.projecttbt.ui.widget.Widget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.screen.LobbyScreen" target="lorganisation.projecttbt.ui.screen.Screen">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.screen.WinnerScreen" target="lorganisation.projecttbt.ui.screen.Screen">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="lorganisation.projecttbt.ui.widget.PlayerListWidget" target="lorganisation.projecttbt.ui.widget.TextBoxWidget">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.642685025817556" x="960.0254418853774" y="1144.4801821103374" />
+  <SelectedNodes>
+    <node>lorganisation.projecttbt.ui.widget.ColorPicker</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

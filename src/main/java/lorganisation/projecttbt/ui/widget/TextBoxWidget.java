@@ -12,14 +12,14 @@ import java.util.List;
 
 public class TextBoxWidget extends Widget {
 
+    protected Size size;
     private List<StyledString> lines;
     private boolean visible = false;
     private Utils.Align align;
     private Utils.Align textAlign;
     private StyledString title;
-    private Size size;
     private Anscapes.Colors backgroundColor, borderColor;
-
+    private boolean allowResize = true;
 
     public TextBoxWidget(Coords coords, Size size, Utils.Align align, Utils.Align textAlign, StyledString title, Anscapes.Colors borderColor, Anscapes.Colors backgroundColor, StyledString... lines) {
 
@@ -41,9 +41,21 @@ public class TextBoxWidget extends Widget {
     @Override
     public String paint(Terminal terminal) {
 
-        StringBuilder visual = designList(coords, size, terminal.getSize(), title);
+        StringBuilder visual;
+
+        if (allowResize)
+            visual = makeList(coords, size, terminal.getSize(), title);
+        else {
+            Coords coords = TerminalUtils.coordinatesOfAlignedObject(this.coords.getY(), this.coords.getX(), size.getColumns(), align, terminal.getSize().getColumns()); // determine coordinates
+            visual = makeList(coords, size, title);
+        }
 
         return visual.append(Anscapes.RESET).toString();
+    }
+
+    public void setAllowResize(boolean allowResize) {
+
+        this.allowResize = allowResize;
     }
 
     public void toggle() {
@@ -76,7 +88,7 @@ public class TextBoxWidget extends Widget {
         this.lines = lines;
     }
 
-    private StringBuilder designList(Coords coords, Size boxSize, Size terminalSize, StyledString title) {
+    private StringBuilder makeList(Coords coords, Size boxSize, Size terminalSize, StyledString title) {
 
         int longestString = Utils.findLongestSequence(lines); // get longest line in list
         int minWidth = (longestString != 0 ? longestString : 10) + 4 /* bordersWidth = 1 & margin = 1 */; // determine minimum width of box to fit longest line
@@ -92,12 +104,10 @@ public class TextBoxWidget extends Widget {
         if (title.length() > boxSize.getColumns()) // if title is longer than box is wide
             title.setText(title.subSequence(0, boxSize.getRows() - 3) + "."); // shorten string so as to make it like : TheLongestStringYouHaveEverWritten -> TheLongest. (also doesn't overlap the first and last column)
 
-        this.size = boxSize;
-
-        return designList(coords, boxSize, title);
+        return makeList(coords, boxSize, title);
     }
 
-    private StringBuilder designList(Coords coords, Size boxSize, StyledString title) {
+    private StringBuilder makeList(Coords coords, Size boxSize, StyledString title) {
 
         Coords titlePos = new Coords(coords.getX() + (boxSize.getColumns() - title.length()) / 2, coords.getY()); // determine title coordinates
 
@@ -106,6 +116,7 @@ public class TextBoxWidget extends Widget {
            .append(borderColor.bg()) // apply borderColor (in background)
            .append(Utils.repeatString(" ", titlePos.getX() - coords.getX())) // fill with space to draw line until we reach title
            .append(title.toString()) // add title
+           .append(borderColor.bg())
            .append(Utils.repeatString(" ", coords.getX() + boxSize.getColumns() - titlePos.getX() - title.length())) // finish line
            .append(Anscapes.moveDown(1)).append(Anscapes.moveLeft(boxSize.getColumns())) // go down and back to line start
            .append(" ").append(backgroundColor.bg()).append(Utils.repeatString(" ", boxSize.getColumns() - 2)).append(borderColor.bg()).append(" "); // add margin (empty line)
@@ -141,9 +152,23 @@ public class TextBoxWidget extends Widget {
         return this.size;
     }
 
+    public void setSize(Size newSize) {
+
+        this.size = newSize;
+    }
+
     public void addLine(StyledString styledString) {
 
         this.lines.add(styledString);
     }
 
+    public List<StyledString> getLines() {
+
+        return this.lines;
+    }
+
+    public void addLines(List<StyledString> description) {
+
+        lines.addAll(description);
+    }
 }

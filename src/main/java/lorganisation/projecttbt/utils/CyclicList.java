@@ -52,6 +52,9 @@ public class CyclicList<E> extends ArrayList<E> {
      */
     public E current() {
 
+        if (isEmpty())
+            return null;
+
         return get(index > 0 ? index : 0);
     }
 
@@ -120,5 +123,14 @@ public class CyclicList<E> extends ArrayList<E> {
     public E getPrev() {
 
         return get((index + size() - 1) % size());
+    }
+
+    public boolean set(E item) {
+
+        if (contains(item)) {
+            setIndex(indexOf(item));
+            return true;
+        } else
+            return false;
     }
 }

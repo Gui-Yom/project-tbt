@@ -8,39 +8,34 @@ import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.ui.widget.Button;
 import lorganisation.projecttbt.ui.widget.Label;
-import lorganisation.projecttbt.utils.Coords;
-import lorganisation.projecttbt.utils.StyledString;
-import lorganisation.projecttbt.utils.TerminalUtils;
-import lorganisation.projecttbt.utils.Utils;
-
-import javax.swing.KeyStroke;
-import java.awt.event.KeyEvent;
+import lorganisation.projecttbt.utils.*;
 
 public class MapSelectionScreen extends Screen {
 
     private boolean skip = false;
-    private Game game;
+    private Game game = Game.getInstance();
 
-    public MapSelectionScreen(Game game) {
+    public MapSelectionScreen() {
 
-        super(game.getInput().getTerminal());
-        this.game = game;
+        super(Game.getInstance().getInput().getTerminal());
 
-        addComponent(new Label(new Coords(0, 2), new StyledString("Available maps"), Utils.Align.CENTER));
+        addComponent(TerminalUtils.getTitle());
+
+        addComponent(new Label(new Coords(0, 3), new StyledString("Available maps"), Utils.Align.CENTER));
 
         int i = 0;
         for (String e : AssetsManager.gameMapNames()) { //max 10 maps pr l'instant
-            Button btn = new Button(new Coords(0, 5 + i), new StyledString(e.toUpperCase()), Utils.Align.CENTER,
+            Button btn = new Button(new Coords(0, 6 + i), new StyledString(e.toUpperCase()), Utils.Align.CENTER,
                                     () -> {
                                         game.setMap(LevelMap.load(e + ".map"));
                                         skip = true;
                                     }
-                , true, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+                , true, KeyUtils.KEY_ENTER);
             addComponent(btn);
-            i++;
-        }
 
-        setFocused(1);
+            if (i++ == 0)
+                setFocused(btn);
+        }
     }
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
@@ -56,14 +51,14 @@ public class MapSelectionScreen extends Screen {
             mapButton.getText().modifiers().put(mapButton.getText().length(), Anscapes.RESET + " <");
             mapButton.getCoords().setX(mapButton.getCoords().getX() - 2); // must change Coords or else doesn't print at right place (use 2 bc "> ".length() == 2)
 
-            game.getRenderer().render(this);
+            renderer.render(this);
 
             //Removing Focused Format
             mapButton.getCoords().setX(mapButton.getCoords().getX() + 2);
             mapButton.getText().modifiers().remove(0, "> " + Anscapes.Colors.RED.fg());
             mapButton.getText().modifiers().remove(mapButton.getText().length(), Anscapes.RESET + " <");
 
-            keyPressed(game.getInput().readKey());
+            keyPressed(input.readKey());
         }
     }
 }

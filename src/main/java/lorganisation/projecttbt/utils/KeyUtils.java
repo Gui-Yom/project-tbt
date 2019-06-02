@@ -3,6 +3,9 @@ package lorganisation.projecttbt.utils;
 import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
 
+/**
+ * Une class utilitaire pour tout ce qui touche aux entrées
+ */
 public class KeyUtils {
 
     /**
@@ -11,7 +14,8 @@ public class KeyUtils {
     public static final KeyStroke
         KEY_ENTER = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
         KEY_ESCAPE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-        KEY_SPACE_BAR = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0),
+        KEY_SPACE = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0),
+        KEY_BACKSPACE = KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0),
         KEY_TAB = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0),
         KEY_LEFT_ARROW = KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
         KEY_RIGHT_ARROW = KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),

@@ -1,0 +1,31 @@
+{
+  "type": "Knight",
+  "icon": "K",
+  "maxActionPoints": 5,
+  "maxHealth": 10,
+  "magicArmor": 60,
+  "physicArmor": 100,
+  "physicAtk": 12,
+  "magicAtk": 2,
+  "attacks": [
+  {
+    "type": "CircularAttack",
+    "name": "KnightAttack1",
+    "cost": 2,
+    "cooldown": 3,
+    "minimumRange": 2,
+    "maximumRange": 8,
+    "areaRadius": 1,
+    "targetType": "ENEMIES",
+    "damageType": "PHYSICAL",
+    "damages": "(chars, tile) -> 12 - Utils.distance(chars.me.getPos(), chars.enemy.getPos())",
+    "effects": [
+      {
+        "type": "FireEffect",
+        "strength": 2,
+        "duration": 3
+      }
+    ]
+  }
+]
+}

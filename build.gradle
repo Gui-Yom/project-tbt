@@ -1,7 +1,6 @@
 plugins {
     id "java"
     id "application"
-    id "maven"
     id "com.github.johnrengelman.shadow" version "5.0.0"
 }
 
@@ -24,14 +23,14 @@ dependencies {
     implementation "org.jline:jline-reader:$jlineVersion"
     implementation "org.jline:jline-remote-telnet:$jlineVersion"
     implementation "com.github.LimeiloN:anscapes:0.6.0"
+    implementation "com.github.LimeiloN:dynamic-compiler:1.0.0"
     implementation "com.google.code.gson:gson:2.8.5"
-    //implementation "com.googlecode.lanterna:lanterna:3.0.1"
 }
 
 // Define the main class for the application
 mainClassName = "lorganisation.projecttbt.Game"
 group = "lorganisation"
-version = "0.5.0"
+version = "0.6.0"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

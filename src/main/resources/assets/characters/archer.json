@@ -1,9 +1,31 @@
 {
   "type": "Archer",
   "icon": "A",
-  "portee": 8,
-  "hp": 100,
-  "mp": 150,
-  "defense": 10,
-  "dommagesAttaque": 10
+  "maxActionPoints": 5,
+  "maxHealth": 10,
+  "magicArmor": 10,
+  "physicArmor": 10,
+  "physicAtk": 10,
+  "magicAtk": 10,
+  "attacks": [
+    {
+      "type": "CircularAttack",
+      "name": "ArcherAttack1",
+      "cost": 2,
+      "cooldown": 3,
+      "minimumRange": 2,
+      "maximumRange": 8,
+      "areaRadius": 1,
+      "targetType": "ENEMIES",
+      "damageType": "PHYSICAL",
+      "damages": "(chars, tile) -> 12 - Utils.distance(chars.me.getPos(), chars.enemy.getPos())",
+      "effects": [
+        {
+          "type": "FireEffect",
+          "strength": 2,
+          "duration": 3
+        }
+      ]
+    }
+  ]
 }

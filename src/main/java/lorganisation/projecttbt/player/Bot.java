@@ -20,6 +20,11 @@ public class Bot extends AbstractPlayer {
         super("[BOT] " + Utils.pickRandom(botNames), Utils.pickRandom(availableColors));
     }
 
+    public static boolean isWorking() {
+
+        return false;
+    }
+
     public void pickCharacters(List<String> characterNames, int quantity) {
 
         while (characters.size() < quantity) {
@@ -35,14 +40,14 @@ public class Bot extends AbstractPlayer {
 
             } while (true);
 
-            characters.add(CharacterTemplate.getCharacterTemplate(name).createCharacter());
+            characters.add(new Character(CharacterTemplate.getCharacterTemplate(name), this));
         }
     }
 
     @Override
-    public Action play(Game game, Character character) {
+    public ActionType play(Game game, Character character) {
 
-        return Action.DO_NOTHING;
+        return ActionType.DO_NOTHING;
     }
 
     @Override

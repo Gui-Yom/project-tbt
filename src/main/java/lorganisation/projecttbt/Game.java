@@ -3,10 +3,11 @@ package lorganisation.projecttbt;
 import com.limelion.anscapes.ColorMode;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.player.AbstractPlayer;
-import lorganisation.projecttbt.player.Action;
+import lorganisation.projecttbt.player.ActionType;
 import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.player.Player;
 import lorganisation.projecttbt.ui.screen.*;
+import lorganisation.projecttbt.utils.Coords;
 import lorganisation.projecttbt.utils.CyclicList;
 import lorganisation.projecttbt.utils.TerminalUtils;
 import lorganisation.projecttbt.utils.Utils;
@@ -18,9 +19,29 @@ import org.jline.terminal.impl.DumbTerminal;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.limelion.anscapes.Anscapes.Colors;
+
+/* TODO some ideas:
+     -  background images for each menu
+     -  correct colors to match game theme
+     -  fix TextBoxes (make a maxSize) -> KINDA
+     -  fix UI -> KINDA (not dynamic but working)
+     -  preview map (MapSelectionScreen) -> flemme, plus tard
+     -  make proper Game Info -> OK
+     -  make able to go back to previous menu using CyclicList<Screen>
+     -  fix the game bounds problem -> OK
+     -  add customizable attacks (AttackDeserializer)
+     -  add Sound + Game Music Theme
+     -  Background(Object) attribute in Screen (can be made with uniform color, gradient, image)
+     -  Cooldowns and effects tick
+ */
+/*  FIXME:
+        - do not compare character but instead keyCode (or else you can't navigate in Character Selection)
+
+ */
 
 /**
  * La classe principale du jeu.
@@ -29,27 +50,26 @@ import static com.limelion.anscapes.Anscapes.Colors;
  */
 public class Game {
 
+    private static Game INSTANCE;
     /**
      * La liste des joueurs.
      */
     private CyclicList<AbstractPlayer> players;
-
     /**
      * La map du jeu
      */
     private LevelMap map;
-
     /**
      * Gère le rendu à l'écran
      */
     private TerminalGameRenderer renderer;
-
     /**
      * Gère les entrées utilisateurs
      */
     private TerminalGameInput input;
-
     private List<Colors> availableColors;
+    private int numCharacters;
+    private int numTurn = 1;
 
     public Game(TerminalGameInput input, TerminalGameRenderer renderer) {
 
@@ -114,33 +134,38 @@ public class Game {
         TerminalUtils.enterPrivateMode();
 
         // L'objet jeu qui fait tout tenir en place
-        Game game = new Game(new TerminalGameInput(term), new TerminalGameRenderer(term));
+        INSTANCE = new Game(new TerminalGameInput(term), new TerminalGameRenderer(term));
 
         // On demande à l'utilisateur de redimensionner sa fenêtre
         // Sur Windows, on ne peut pas la redimensionner depuis le programme
         TerminalUtils.askForResize(term, new Size(130, 40));
 
-        //new TestScreen(game).display(game.input, game.renderer);
+        //new TestScreen().display(INSTANCE.input, INSTANCE.renderer);
 
         // Menu principal du jeu
         // L'utilisateur peut choisir de démarrer une partie ou d'utiliser les outils de développement intégrés
-        game.mainMenu();
+        INSTANCE.mainMenu();
 
         // L'utilisateur peut choisir la map
-        game.mapSelection();
+        INSTANCE.mapSelection();
 
         // Les joueurs choisissent leurs personnages et leurs couleurs
-        game.lobby();
+        INSTANCE.lobby();
 
         // La partie commence !
         // Elle continue jusqu'à ce que mort s'ensuive mdr
-        game.start();
+        INSTANCE.start();
+
+        // Quelqu'un a gagné ! Fin du jeu
+        INSTANCE.winner();
 
         // END / Cleanup
-        TerminalUtils.clearTerm();
-        TerminalUtils.exitPrivateMode();
+        shutdownGracefully();
+    }
 
-        term.close();
+    public static Game getInstance() {
+
+        return INSTANCE;
     }
 
     /**
@@ -167,6 +192,14 @@ public class Game {
                 // System.out.println("Received SIGWINCH !");
                 break;
         }
+    }
+
+    public static void shutdownGracefully() {
+
+        TerminalUtils.clearTerm();
+        TerminalUtils.exitPrivateMode();
+
+        System.exit(0);
     }
 
     /**
@@ -249,7 +282,7 @@ public class Game {
      */
     public void mapSelection() {
 
-        new MapSelectionScreen(this).display(input, renderer);
+        new MapSelectionScreen().display(input, renderer);
     }
 
     /**
@@ -257,10 +290,12 @@ public class Game {
      */
     public void lobby() {
 
-        LobbyScreen lobbyScreen = new LobbyScreen(this);
+        LobbyScreen lobbyScreen = new LobbyScreen();
         lobbyScreen.display(input, renderer);
 
-        CharacterSelectionScreen characterSelectionScreen = new CharacterSelectionScreen(this, lobbyScreen.getMaxCharacterCount());
+        this.numCharacters = lobbyScreen.getMaxCharacterCount();
+
+        CharacterSelectionScreen characterSelectionScreen = new CharacterSelectionScreen(lobbyScreen.getMaxCharacterCount());
         characterSelectionScreen.display(input, renderer);
     }
 
@@ -286,7 +321,18 @@ public class Game {
         return count;
     }
 
-    // Keep it until as model until CharacterSelectionScreen is made
+    /**
+     * Donne une lsite contenant le noms de tous les joueurs dans la partie
+     */
+    public List<String> getPlayerNames() {
+
+        List<String> names = new ArrayList<>();
+
+        for (AbstractPlayer player : getPlayers())
+            names.add(player.getName());
+
+        return names;
+    }
 
     /**
      * Donne le nombre de BOTs non-bot dans la partie
@@ -301,37 +347,86 @@ public class Game {
      */
     public void start() {
 
-        GameScreen gameScreen = new GameScreen(this);
-        gameScreen.display(input, renderer);
+        // L'écran du jeu
+        GameScreen gameScreen = new GameScreen();
 
-        int turnNumber = 1;
-
+        // On cycle sur les personnages tant que la partie n'est pas finie
         while (!isFinished()) {
 
+            //début tour d'un joueur
             AbstractPlayer currPlayer = getPlayers().next();
-            currPlayer.setStatus(AbstractPlayer.Status.IDLE);
-
             Character currCharacter = currPlayer.getCharacters().next();
-
-            currCharacter.setActionPoints(currCharacter.getDefaultActionPoints());
 
             while (!isTurnFinished(currPlayer)) {
 
-                Action action = currPlayer.play(this, currCharacter);
+                gameScreen.display(input, renderer);
 
-                if (action == Action.DO_NOTHING && currPlayer instanceof Player) {
+                // get status before modified by play()
+                AbstractPlayer.Status currStatus = currPlayer.getStatus();
+
+                ActionType actionType = currPlayer.play(this, currCharacter);
+
+                if (actionType == ActionType.DO_NOTHING && currPlayer instanceof Player) {
                     gameScreen.keyPressed(input.getLastKey());
                 } else {
                     gameScreen.display(input, renderer);
                 }
 
-                if (action == Action.CAST_ATTACK && currPlayer.getStatus() == AbstractPlayer.Status.CASTING_ATTACK)
-                    break;
+                /*if (actionType == ActionType.CAST_ATTACK)
+                    gameScreen.addInfo(currPlayer.getName() + "(" + currStatus.name() + " -> " + currPlayer.getStatus().name() + ")" + " CASTED " + currCharacter.getAttacks().current().getName() + " with " + currCharacter.getType());*/
+
+                if (actionType == ActionType.CAST_ATTACK && currStatus == AbstractPlayer.Status.CASTING_ATTACK)
+                    break; // SI IL LANCE LATTAQUE
             }
 
-            ++turnNumber;
+            currCharacter.turnReset();
+            ++numTurn;
+
+            // on vire tous les personnages morts, si un joueur n'a plus de persos, c'est qu'il a perdu, il est out / kaput, il dégage ses morts de la game.
+            clearDeads();
+        }
+    }
+
+    /**
+     * FIXME: à simplifier (pb de Concurrent Modification) Supprime les personnages morts, puis les joueurs n'ayant plus
+     * de personnages
+     */
+    private void clearDeads() {
+
+        List<Integer> aliventPlayers = new ArrayList<>();
+
+        int k = 0;
+        for (AbstractPlayer player : getPlayers()) {
+            int i = 0;
+
+            List<Integer> toRemove = new ArrayList<>();
+            for (Character character : player.getCharacters()) {
+                if (character.getHealth() <= 0)
+                    toRemove.add(i);
+                ++i;
+            }
+
+            for (Integer j : toRemove)
+                player.getCharacters().remove(j.intValue());
+
+            if (player.getCharacters().size() == 0 || player.getCharacters().isEmpty())
+                aliventPlayers.add(k);
+
+            ++k;
         }
 
+        for (Integer l : aliventPlayers)
+            getPlayers().remove(l.intValue());
+    }
+
+    /**
+     * Affiche l'écran du victoire, assez primitif. Le joueur gagnant est le seul restant dans la
+     * CyclicList<AbstractPlayer>
+     */
+    private void winner() {
+
+        WinnerScreen winnerScreen = new WinnerScreen();
+        winnerScreen.display(input, renderer);
     }
 
     /**
@@ -345,12 +440,12 @@ public class Game {
 
         for (AbstractPlayer player : getPlayers())
             for (Character character : player.getCharacters())
-                if (character.getHealth() != 0) {
+                if (character.getHealth() > 0) {
                     ++playersAlive;
                     break;
                 }
 
-        return playersAlive == 1;
+        return playersAlive <= 1;
     }
 
     /**
@@ -365,5 +460,30 @@ public class Game {
         Character c = player.getCharacters().current();
 
         return c.getActionPoints() <= 0 || c.getHealth() <= 0;
+    }
+
+    /**
+     * Donne le nombre de tours qui se sont écoulés
+     *
+     * @return int game turn count
+     */
+    public int getNumTurn() {
+
+        return numTurn;
+    }
+
+    public boolean isTileFree(int x, int y) {
+
+        for (AbstractPlayer p : players)
+            for (Character c : p.getCharacters())
+                if (c.getPos().getX() == x && c.getPos().getY() == y)
+                    return false;
+
+        return true;
+    }
+
+    public boolean isTileFree(Coords pos) {
+
+        return isTileFree(pos.getX(), pos.getY());
     }
 }

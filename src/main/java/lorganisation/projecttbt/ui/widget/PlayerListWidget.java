@@ -36,14 +36,11 @@ public class PlayerListWidget extends TextBoxWidget {
         for (int i = 0; i < players.size(); i++) {
             AbstractPlayer player = players.get(i);
 
-            playerList.add(new StyledString("  " + (selected != null && selected == i ? " > " : " ") + player.getName(), Pair.of(0, player.getColor().bg()), Pair.of(2, Anscapes.Colors.BLACK.fg() + getBackgroundColor().bg())));
+            playerList.add(new StyledString("  " + (selected != null && selected == i ? " > " : " ") + player.getName(), Pair.of(0, player.getColor().bg()), Pair.of(2, player.getColor().fg() + getBackgroundColor().bg())));
 
             if (i != players.size() - 1)
                 playerList.add(new StyledString(" "));
         }
-
-        if (selected != null)
-            addLine(new StyledString("selected = " + selected + " (-> " + players.get(selected).getName()));
 
         setText(playerList);
     }

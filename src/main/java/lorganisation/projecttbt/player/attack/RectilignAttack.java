@@ -14,9 +14,9 @@ public class RectilignAttack extends Attack {
     private int range;
     private Direction direction;
 
-    public RectilignAttack(int magicCost, int cooldown, int range, Direction direction, int areaRadius, TargetType target, DamageType damageType, BiFunction<Pair<Character, Character>, Coords, Integer> damages, Effect... effects) {
+    public RectilignAttack(String name, int cost, int cooldown, int range, Direction direction, int areaRadius, TargetType target, DamageType damageType, BiFunction<Pair<Character, Character>, Coords, Integer> damages, Effect... effects) {
 
-        super(magicCost, cooldown, areaRadius, target, damageType, damages, effects);
+        super(name, cost, cooldown, areaRadius, target, damageType, damages, effects);
 
         this.range = range;
         this.direction = direction;
@@ -30,7 +30,7 @@ public class RectilignAttack extends Attack {
                 return origin.getPos().getY() == target.getY() && (target.getX() < origin.getPos().getX() && target.getX() >= origin.getPos().getX() - range);
             case RIGHT:
                 return origin.getPos().getY() == target.getY() && (target.getX() > origin.getPos().getX() && target.getX() <= origin.getPos().getX() + range);
-            case TOP:
+            case UP:
                 return origin.getPos().getX() == target.getX() && (target.getY() < origin.getPos().getY() && target.getY() >= origin.getPos().getY() - range);
             case DOWN:
                 return origin.getPos().getX() == target.getX() && (target.getY() > origin.getPos().getY() && target.getY() <= origin.getPos().getY() + range);
@@ -60,7 +60,7 @@ public class RectilignAttack extends Attack {
                 minX = origin.getPos().getX();
                 maxX = origin.getPos().getX() + this.range;
             }
-            case TOP: {
+            case UP: {
                 minX = origin.getPos().getX();
                 maxX = origin.getPos().getX();
 
@@ -90,6 +90,6 @@ public class RectilignAttack extends Attack {
 
     enum Direction {
 
-        LEFT, RIGHT, DOWN, TOP
+        LEFT, RIGHT, DOWN, UP
     }
 }

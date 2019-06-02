@@ -40,7 +40,6 @@ public class LevelMap {
         this.tiles = tiles;
 
         // Création du visuel de la map
-        // FIXME probleme de rotation de la map
         StringBuilder sb = new StringBuilder();
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x)
@@ -229,6 +228,14 @@ public class LevelMap {
         return tiles;
     }
 
+    public Tile getTileAt(int x, int y) {
+
+        if (isInBounds(x, y))
+            return tiles[x][y];
+        else
+            return null;
+    }
+
     public String getDescription() {
 
         return description;
@@ -274,6 +281,16 @@ public class LevelMap {
      */
     public boolean canCollide(int x, int y) {
 
-        return x > 0 && y > 0 && x < width && y < height && tiles[x][y].canStepOn();
+        return isInBounds(x, y) && tiles[x][y].canStepOn();
+    }
+
+    public boolean canCollide(Coords pos) {
+
+        return canCollide(pos.getX(), pos.getY());
+    }
+
+    public boolean isInBounds(int x, int y) {
+
+        return x >= 0 && y >= 0 && x < width && y < height;
     }
 }

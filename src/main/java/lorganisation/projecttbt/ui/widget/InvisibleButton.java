@@ -6,12 +6,13 @@ import javax.swing.KeyStroke;
 
 public class InvisibleButton extends ActionWidget {
 
-    public InvisibleButton(Runnable action, KeyStroke control) {
+    public InvisibleButton(Runnable action, KeyStroke control, String desc) {
 
         super(null);
 
         this.action = action;
         this.control = control;
+        this.description = desc;
 
         setVisible(false);
         setFocusable(false);

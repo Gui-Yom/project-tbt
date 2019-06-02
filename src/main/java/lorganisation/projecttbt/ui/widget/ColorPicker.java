@@ -28,6 +28,9 @@ public class ColorPicker extends InputWidget<AnsiColor> {
     public void setAvailableColors(List<Anscapes.Colors> availableColors) {
 
         this.availableColors = new CyclicList<>(availableColors);
+
+        // se place en index = 0 pour ne pas avoir 2 fois la même couleur
+        this.availableColors.next();
     }
 
     @Override

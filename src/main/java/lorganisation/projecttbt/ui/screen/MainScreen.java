@@ -2,14 +2,10 @@ package lorganisation.projecttbt.ui.screen;
 
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.ColorMode;
-import lorganisation.projecttbt.AssetsManager;
-import lorganisation.projecttbt.IntegratedDevenv;
-import lorganisation.projecttbt.TerminalGameInput;
-import lorganisation.projecttbt.TerminalGameRenderer;
+import lorganisation.projecttbt.*;
 import lorganisation.projecttbt.ui.widget.Button;
 import lorganisation.projecttbt.ui.widget.ImageWidget;
 import lorganisation.projecttbt.ui.widget.InvisibleButton;
-import lorganisation.projecttbt.ui.widget.Label;
 import lorganisation.projecttbt.utils.*;
 import org.jline.terminal.Terminal;
 
@@ -39,15 +35,6 @@ public class MainScreen extends Screen {
             e.printStackTrace();
         }
 
-        Label lbl = new Label(new Coords(0, 2),
-                              new StyledString("Project: TBT",
-                                               Pair.of(0, Anscapes.Colors.RED_BRIGHT.fg()),
-                                               Pair.of(9, Anscapes.Colors.YELLOW.fg()),
-                                               Pair.of(10, Anscapes.Colors.BLUE.fg()),
-                                               Pair.of(11, Anscapes.Colors.GREEN.fg())),
-                              Utils.Align.CENTER);
-        //addComponent(lbl);
-
         Button btn = new Button(new Coords(0, 25),
                                 new StyledString("Press ENTER to start",
                                                  Pair.of(0, Anscapes.BLINK_SLOW),
@@ -59,11 +46,7 @@ public class MainScreen extends Screen {
                                 KeyUtils.KEY_ENTER);
         addComponent(btn);
 
-        InvisibleButton iBtn = new InvisibleButton(() -> {
-            TerminalUtils.clearTerm();
-            TerminalUtils.exitPrivateMode();
-            System.exit(0);
-        }, KeyUtils.KEY_ESCAPE);
+        InvisibleButton iBtn = new InvisibleButton(Game::shutdownGracefully, KeyUtils.KEY_ESCAPE, "ESC to exit");
         addComponent(iBtn);
     }
 

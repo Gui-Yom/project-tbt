@@ -1,6 +1,8 @@
 package lorganisation.projecttbt.player;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import lorganisation.projecttbt.AssetsManager;
 
 import java.io.IOException;
@@ -15,7 +17,10 @@ public class CharacterTemplate {
     private static Gson gson;
 
     static {
-        gson = new Gson();
+        GsonBuilder gBuild = new GsonBuilder();
+        //gBuild.registerTypeAdapter(CharacterTemplate.class, new CharacterDeserializer());
+
+        gson = gBuild.create();
         characterTemplates = new HashMap<>();
         try {
             for (String name : AssetsManager.gameCharacterNames())
@@ -25,15 +30,28 @@ public class CharacterTemplate {
         }
     }
 
+    @Expose
     protected String type; // Type de personnage
+    @Expose
     protected String icon; // icone
     // Definition automatique des capacités à partir du type (dans un fichier texte par exemple)
 
-    protected int portee; // Portée du déplacement
-    protected int hp; // Points de vie
-    protected int mp; // Points de magie
-    protected int defense; // Valeur du bouclier
-    protected int dommagesAttaque; // Dommages moyens par attaque
+    @Expose
+    protected int maxActionPoints;
+    @Expose
+    protected int maxHealth;
+
+    @Expose
+    protected int magicArmor; // Points de magie
+    @Expose
+    protected int physicArmor; // Valeur du bouclier
+
+    @Expose
+    protected int physicAtk; // Dommages moyens par attaque
+    @Expose
+    protected int magicAtk;
+
+    //protected List<Attack> attacks;
 
     private static CharacterTemplate load(String name) throws IOException {
 
@@ -54,9 +72,56 @@ public class CharacterTemplate {
 
         return characterTemplates;
     }
+/*
+    public static class CharacterDeserializer implements JsonDeserializer<CharacterTemplate> {
 
-    public Character createCharacter() {
+        @Override
+        public CharacterTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 
-        return new Character(this);
+            JsonObject jsonObj = json.getAsJsonObject();
+
+            System.out.println(jsonObj.toString());
+
+            if (!jsonObj.has("type"))
+                throw new JsonParseException("Character is missing type");
+            if (!jsonObj.has("icon"))
+                throw new JsonParseException("Character is missing icon");
+            if (!jsonObj.has("actionPoints"))
+                throw new JsonParseException("Character is missing actionPoints");
+            if (!jsonObj.has("health"))
+                throw new JsonParseException("Character is missing health");
+            if (!jsonObj.has("magicArmor"))
+                throw new JsonParseException("Character is missing magicArmor");
+            if (!jsonObj.has("physicArmor"))
+                throw new JsonParseException("Character is missing physicArmor");
+            if (!jsonObj.has("physicAtk"))
+                throw new JsonParseException("Character is missing physicAtk");
+            if (!jsonObj.has("magicAtk"))
+                throw new JsonParseException("Character is missing magicAtk");
+            if (!jsonObj.has("attacks"))
+                throw new JsonParseException("Character is missing attacks");
+
+
+            CharacterTemplate template = new CharacterTemplate();
+            template.type = jsonObj.get("type").getAsString();
+            template.icon = jsonObj.get("icon").getAsString();
+            template.maxActionPoints = jsonObj.get("actionPoints").getAsInt();
+            template.maxHealth = jsonObj.get("health").getAsInt();
+            template.magicArmor = jsonObj.get("magicArmor").getAsInt();
+            template.physicArmor = jsonObj.get("physicArmor").getAsInt();
+            template.physicAtk = jsonObj.get("physicAtk").getAsInt();
+            template.magicAtk = jsonObj.get("magicAtk").getAsInt();
+
+            ArrayList<Attack> attacks = new ArrayList<>();
+            JsonArray jsonAtks = jsonObj.getAsJsonArray("attacks");
+            for (JsonElement jsonAtk : jsonAtks)
+                attacks.add(Attack.fromJson(jsonAtk));
+
+            template.attacks = attacks;
+
+            return template;
+        }
     }
+
+ */
 }

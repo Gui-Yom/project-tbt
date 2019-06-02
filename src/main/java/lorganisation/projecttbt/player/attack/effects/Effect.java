@@ -33,4 +33,9 @@ public abstract class Effect {
 
         ++duration;
     }
+
+    public String toString() {
+
+        return getClass().getSimpleName().replaceAll("Effect", "") + "(t: " + duration + ")";
+    }
 }

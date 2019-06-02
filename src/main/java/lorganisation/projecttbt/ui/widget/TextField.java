@@ -35,7 +35,7 @@ public class TextField extends InputWidget<String> {
         this.maxSize = maxSize;
         this.builder = new StringBuilder();
 
-        setDescription("This is a fcking textfield, writ wiv ur keyboard");
+        setDescription("TextField: type");
     }
 
     @Override

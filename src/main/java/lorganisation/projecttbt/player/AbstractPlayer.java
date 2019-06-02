@@ -23,7 +23,7 @@ public abstract class AbstractPlayer {
         this.status = Status.IDLE;
     }
 
-    public abstract Action play(Game game, Character character);
+    public abstract ActionType play(Game game, Character character);
 
     public abstract boolean isBot();
 

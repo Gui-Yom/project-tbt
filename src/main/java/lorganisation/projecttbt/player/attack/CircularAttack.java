@@ -14,9 +14,9 @@ public class CircularAttack extends Attack {
 
     protected Pair<Integer, Integer> range; //Pair.of(min, max)
 
-    public CircularAttack(int magicCost, int cooldown, int minimumRange, int maximumRange, int areaRadius, TargetType target, DamageType damageType, BiFunction<Pair<Character, Character>, Coords, Integer> damages, Effect... effects) {
+    public CircularAttack(String name, int cost, int cooldown, int minimumRange, int maximumRange, int areaRadius, TargetType target, DamageType damageType, BiFunction<Pair<Character, Character>, Coords, Integer> damages, Effect... effects) {
 
-        super(magicCost, cooldown, areaRadius, target, damageType, damages, effects);
+        super(name, cost, cooldown, areaRadius, target, damageType, damages, effects);
 
         this.range = Pair.of(minimumRange, maximumRange);
         this.damages = damages;
@@ -37,8 +37,8 @@ public class CircularAttack extends Attack {
 
         int Ox = origin.getPos().getX(), Oy = origin.getPos().getY();
 
-        for (int x = Ox - this.range.getV(); x < Ox + this.range.getV(); x++)
-            for (int y = Oy - this.range.getV(); y < Oy + this.range.getV(); y++) {
+        for (int x = Ox - this.range.getV(); x <= Ox + this.range.getV(); x++)
+            for (int y = Oy - this.range.getV(); y <= Oy + this.range.getV(); y++) {
                 int distance = (int) Math.sqrt(Math.pow(Ox - x, 2) + Math.pow(Oy - y, 2));
 
                 if (distance <= this.range.getV() && distance >= this.range.getU())

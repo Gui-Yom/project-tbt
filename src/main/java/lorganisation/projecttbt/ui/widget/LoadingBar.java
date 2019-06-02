@@ -6,7 +6,7 @@ import org.jline.terminal.Terminal;
 
 public class LoadingBar extends Widget {
 
-    private float percent = 0;
+    private float percent = 0f;
     private int barLength;
     private char fillChar;
     private String modifiers;
@@ -27,7 +27,8 @@ public class LoadingBar extends Widget {
 
     public void setPercent(float percent) {
 
-        this.percent = percent;
+        if (percent >= 0f && percent <= 1f)
+            this.percent = percent;
     }
 
     @Override

@@ -13,7 +13,11 @@ public enum Tiles implements Tile {
     BLANK(Colors.WHITE.bg() + " " + Anscapes.RESET, true),
     ROCK(Colors.WHITE_BRIGHT.bg() + " " + Anscapes.RESET, false),
     GRASS(Colors.GREEN.bg() + " " + Anscapes.RESET, true),
-    WATER(Colors.BLUE_BRIGHT.bg() + " " + Anscapes.RESET, false);
+    WATER(Colors.BLUE_BRIGHT.bg() + " " + Anscapes.RESET, false),
+    LAVA(Colors.RED.bg() + " " + Anscapes.RESET, false),
+    SAND(Colors.YELLOW_BRIGHT.bg() + " " + Anscapes.RESET, true),
+    TREE(Colors.GREEN_BRIGHT.bg() + Colors.GREEN.fg() + "Ψ" + Anscapes.RESET, false);
+
 
     private String icon;
     private boolean canStepOn;

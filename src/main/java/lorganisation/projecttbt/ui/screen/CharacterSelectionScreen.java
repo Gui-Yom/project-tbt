@@ -19,21 +19,21 @@ import java.util.List;
 
 public class CharacterSelectionScreen extends Screen {
 
-    private Game associatedGame;
+    private Game game = Game.getInstance();
 
     private PlayerListWidget playerListW;
     private boolean skip = false;
     private int characterPerPlayer;
 
-    public CharacterSelectionScreen(Game game, int characterPerPlayer) {
+    public CharacterSelectionScreen(int characterPerPlayer) {
 
-        super(game.getRenderer().getTerminal());
+        super(Game.getInstance().getRenderer().getTerminal());
 
         this.characterPerPlayer = characterPerPlayer;
 
         Size termSize = game.getInput().getTerminal().getSize();
 
-        this.associatedGame = game;
+        addComponent(TerminalUtils.getTitle());
 
         Label mapName = new Label(new Coords(0, 2),
                                   new StyledString("Map - " + game.getMap().getName()),
@@ -45,8 +45,8 @@ public class CharacterSelectionScreen extends Screen {
                                Utils.Align.CENTER);
         addComponent(desc);
 
-        addComponent(new InvisibleButton(this::prevFocus, KeyStroke.getKeyStroke('q')));
-        addComponent(new InvisibleButton(this::nextFocus, KeyStroke.getKeyStroke('d')));
+        addComponent(new InvisibleButton(this::prevFocus, KeyStroke.getKeyStroke('q'), "'q' to cycle focus backward"));
+        addComponent(new InvisibleButton(this::nextFocus, KeyStroke.getKeyStroke('d'), "'d' to cycle focus forward"));
 
         // La liste de joueurs sur la droite
         playerListW = new PlayerListWidget(new Coords(0, 1),
@@ -88,17 +88,21 @@ public class CharacterSelectionScreen extends Screen {
 
             int yPos = 2 * termSize.getRows() / 10 + (l - 1) * (ySpace + imgSize / 2);
 
+            String imagePath = "assets/images/characters/dqzdqd_missing_dqzdqd1.jpg";
+            if (AssetsManager.getResource("assets/images/characters/" + name + ".png") != null)
+                imagePath = "assets/images/characters/" + name + ".png";
+
             ImageButtonWidget characterBox = new ImageButtonWidget(new Coords(xPos, yPos),
                                                                    imageSize,
                                                                    Utils.Align.LEFT,
-                                                                   "assets/characters/sprites/" + name + ".png",
+                                                                   imagePath,
                                                                    true,
                                                                    new StyledString(name.toUpperCase()),
                                                                    () -> {
-                                                                       AbstractPlayer p = associatedGame.getPlayers().current();
+                                                                       AbstractPlayer p = game.getPlayers().current();
                                                                        if (!p.hasCharacter(name)) {
-                                                                           Character character = CharacterTemplate.getCharacterTemplate(name).createCharacter();
-                                                                           character.setPos(associatedGame.getMap().getStartPos().next());
+                                                                           Character character = new Character(CharacterTemplate.getCharacterTemplate(name), p);
+                                                                           character.setPos(game.getMap().getStartPos().next());
                                                                            p.addCharacter(character);
                                                                        }
                                                                    }, KeyUtils.KEY_ENTER);
@@ -114,18 +118,16 @@ public class CharacterSelectionScreen extends Screen {
     @Override
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
 
-        associatedGame.getPlayers().reset();
+        game.getPlayers().reset();
 
-        AbstractPlayer current = associatedGame.getPlayers().next();
+        AbstractPlayer current = game.getPlayers().next();
 
         while (!skip) {
 
-            playerListW.addLine(new StyledString("new render: " + current.getName()));
-            playerListW.updatePlayerList(associatedGame.getPlayers());
+            playerListW.updatePlayerList(game.getPlayers());
 
             TerminalUtils.clearTerm();
             renderer.render(this);
-
 
             for (Widget widget : getComponents())
                 if (widget instanceof ImageButtonWidget) {
@@ -159,16 +161,16 @@ public class CharacterSelectionScreen extends Screen {
             }
 
             if (current.getCharacters().size() == characterPerPlayer) {
-                current = associatedGame.getPlayers().next();
-                playerListW.addLine(new StyledString(current.getName() + " (" + associatedGame.getPlayers().getIndex() + " ) a fini"));
-                playerListW.setSelected(associatedGame.getPlayers().getIndex());
+                current = game.getPlayers().next();
+
+                playerListW.setSelected(game.getPlayers().getIndex());
 
                 skip = true;
-                for (AbstractPlayer player : associatedGame.getPlayers())
+                for (AbstractPlayer player : game.getPlayers())
                     skip = skip && player.getCharacters().size() == characterPerPlayer;
             }
         }
 
-        associatedGame.getPlayers().reset();
+        game.getPlayers().reset();
     }
 }

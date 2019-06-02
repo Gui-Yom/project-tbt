@@ -1,9 +1,31 @@
 {
   "type": "Mage",
   "icon": "M",
-  "portee": 3,
-  "hp": 80,
-  "mp": 200,
-  "defense": 10,
-  "dommagesAttaque": 8
+  "maxActionPoints": 5,
+  "maxHealth": 50,
+  "magicArmor": 10,
+  "physicArmor": 10,
+  "physicAtk": 10,
+  "magicAtk": 10,
+  "attacks": [
+    {
+      "type": "CircularAttack",
+      "name": "MageAttack1",
+      "cost": 2,
+      "cooldown": 3,
+      "minimumRange": 2,
+      "maximumRange": 8,
+      "areaRadius": 1,
+      "targetType": "ENEMIES",
+      "damageType": "PHYSICAL",
+      "damages": "(chars, tile) -> 12 - Utils.distance(chars.me.getPos(), chars.enemy.getPos())",
+      "effects": [
+        {
+          "type": "FireEffect",
+          "strength": 2,
+          "duration": 3
+        }
+      ]
+    }
+  ]
 }

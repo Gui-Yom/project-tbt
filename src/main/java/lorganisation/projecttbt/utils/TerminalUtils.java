@@ -2,14 +2,23 @@ package lorganisation.projecttbt.utils;
 
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.AnsiColor;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
+import lorganisation.projecttbt.ui.widget.Label;
+import lorganisation.projecttbt.ui.widget.Widget;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 
-import java.util.function.Function;
-
+/**
+ * Une class utilitaire pour tout ce qui touche au terminal, dessiner, écrire, redimensionner
+ */
 public class TerminalUtils {
+
+    private static final Label title = new Label(new Coords(0, 1),
+                                                 new StyledString("Project: TBT",
+                                                                  Pair.of(0, Anscapes.Colors.RED_BRIGHT.fg()),
+                                                                  Pair.of(9, Anscapes.Colors.YELLOW.fg()),
+                                                                  Pair.of(10, Anscapes.Colors.BLUE.fg()),
+                                                                  Pair.of(11, Anscapes.Colors.GREEN.fg())),
+                                                 Utils.Align.CENTER);
 
     /**
      * Ask the user to resize the terminal, blocks until resized.
@@ -56,7 +65,7 @@ public class TerminalUtils {
     }
 
     /**
-     * Clear terminal and set cursorPos to top left corner
+     * Efface le terminal (afin de partir sur une base saine)
      */
     public static void clearTerm() {
 
@@ -64,9 +73,9 @@ public class TerminalUtils {
     }
 
     /**
-     * Clear a line
+     * Efface la ligne donnée
      *
-     * @param row number with the first line at row = 1
+     * @param row le numéro de la ligne (commence à 1)
      */
     public static void clearLine(int row) {
 
@@ -74,7 +83,7 @@ public class TerminalUtils {
     }
 
     /**
-     * Make the current output terminal go into private mode
+     * Obtient du terminal un mode privée, il s'agit d'un text buffer alternatif.
      */
     public static void enterPrivateMode() {
 
@@ -83,7 +92,9 @@ public class TerminalUtils {
 
 
     /**
-     * Make the current output terminal leave private mode
+     * Sort du mode privé
+     *
+     * @see TerminalUtils#enterPrivateMode()
      */
     public static void exitPrivateMode() {
 
@@ -91,7 +102,7 @@ public class TerminalUtils {
     }
 
     /**
-     * Ecrit un String à une position donnée
+     * Ecrit du texte à une position donnée
      *
      * @param x
      * @param y
@@ -255,36 +266,8 @@ public class TerminalUtils {
         return makeLine(start.getX(), start.getY(), end.getX(), end.getY(), fillChar, modifiers);
     }
 
-    /**
-     * Lit un entier correct.
-     *
-     * @param term
-     * @param prompt
-     */
-    public static int promptReadInt(Terminal term, String prompt, int def, Function<Integer, Boolean> filter) {
+    public static Widget getTitle() {
 
-        if (!filter.apply(def))
-            throw new IllegalArgumentException("Default int does not even match filter.");
-
-        LineReader reader = LineReaderBuilder.builder()
-                                             .terminal(term)
-                                             .build();
-
-        while (true) {
-            try {
-                String line = reader.readLine(prompt);
-
-                if (line.equals(""))
-                    return def;
-
-                int n = Integer.parseInt(line);
-
-                if (filter.apply(n))
-                    return n;
-
-            } catch (NumberFormatException nfe) {
-                System.out.print(Anscapes.CLEAR_LINE);
-            }
-        }
+        return title;
     }
 }

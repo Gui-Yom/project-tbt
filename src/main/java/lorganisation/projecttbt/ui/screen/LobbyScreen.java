@@ -8,18 +8,14 @@ import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.player.Bot;
 import lorganisation.projecttbt.player.Player;
 import lorganisation.projecttbt.ui.widget.*;
-import lorganisation.projecttbt.utils.Coords;
-import lorganisation.projecttbt.utils.StyledString;
-import lorganisation.projecttbt.utils.TerminalUtils;
-import lorganisation.projecttbt.utils.Utils;
+import lorganisation.projecttbt.utils.*;
 import org.jline.terminal.Size;
 
 import javax.swing.KeyStroke;
-import java.awt.event.KeyEvent;
 
 public class LobbyScreen extends Screen {
 
-    private Game associatedGame;
+    private Game game = Game.getInstance();
 
     private boolean skip = false;
 
@@ -35,28 +31,28 @@ public class LobbyScreen extends Screen {
     private InvisibleButton addBotButton;
     private InvisibleButton confirmButton;
 
-    public LobbyScreen(Game game) {
+    public LobbyScreen() {
 
-        super(game.getInput().getTerminal());
+        super(Game.getInstance().getInput().getTerminal());
 
-        this.associatedGame = game;
+        addComponent(TerminalUtils.getTitle());
 
-        Label mapName = new Label(new Coords(0, 2),
+        Label mapName = new Label(new Coords(0, 3),
                                   new StyledString("Map - " + game.getMap().getName()),
                                   Utils.Align.CENTER);
         addComponent(mapName);
 
-        Label desc = new Label(new Coords(0, 3),
+        Label desc = new Label(new Coords(0, 4),
                                new StyledString("Préparation de la partie - Joueurs"),
                                Utils.Align.CENTER);
         addComponent(desc);
 
-        maxPlayerLabel = new Label(new Coords(0, 4),
+        maxPlayerLabel = new Label(new Coords(0, 5),
                                    new StyledString("Nombre de joueurs maximum: ?"),
                                    Utils.Align.CENTER);
         addComponent(maxPlayerLabel);
 
-        characterPerPlayerField = new IntegerField(new Coords(4, 7),
+        characterPerPlayerField = new IntegerField(new Coords(4, 8),
                                                    new StyledString("Entrez le nombre de personnages par joueur: "),
                                                    Utils.Align.LEFT,
                                                    1,
@@ -70,16 +66,14 @@ public class LobbyScreen extends Screen {
             game.addPlayer(new Bot(game.getAvailableColors()));
             playerList.updatePlayerList(game.getPlayers());
 
-        }, KeyStroke.getKeyStroke('*'));
-        addBotButton.setDescription("Press '*' to add a BOT");
+        }, KeyStroke.getKeyStroke('*'), "Press '*' to add a BOT");
         addComponent(addBotButton);
 
         addPlayerButton = new InvisibleButton(() -> {
             if (!characterPerPlayerField.isFocusable()) {
                 showPlayerSubMenu(game);
             }
-        }, KeyStroke.getKeyStroke('+'));
-        addPlayerButton.setDescription("Press '+' to add a player");
+        }, KeyStroke.getKeyStroke('+'), "Press '+' to add a player");
         addComponent(addPlayerButton);
 
         confirmButton = new InvisibleButton(() -> {
@@ -95,7 +89,7 @@ public class LobbyScreen extends Screen {
                 setFocused(pseudoField);
             } else if (pseudoField.isVisible() && pseudoField.getValue().length() >= 3) { // only visible if is creating player
 
-                associatedGame.addPlayer(new Player(pseudoField.getValue(), colorPicker.getValue()));
+                game.addPlayer(new Player(pseudoField.getValue(), colorPicker.getValue()));
 
                 playerList.updatePlayerList(game.getPlayers());
                 hidePlayerSubMenu();
@@ -107,11 +101,9 @@ public class LobbyScreen extends Screen {
                     skip = true;
                 }
             }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
-        confirmButton.setDescription("Press ENTER to confirm");
+        }, KeyUtils.KEY_ENTER, "Press ENTER to confirm");
 
         addComponent(confirmButton);
-
 
         playerList = new PlayerListWidget(new Coords(5, 5),
                                           new Size(0, 0),
@@ -123,16 +115,23 @@ public class LobbyScreen extends Screen {
         playerList.setVisible(false);
         addComponent(playerList);
 
-        pseudoField = (TextField) addComponent(new TextField(new Coords(4, 9), new StyledString("Pseudo: "), Utils.Align.LEFT, 16));
-        pseudoField.setVisible(false);
 
-        colorPicker = (ColorPicker) addComponent(new ColorPicker(new Coords(4 + 8 /* "Pseudo: " */ + 16 /* maxSize */ + 2 /* some space*/, 9), game.getAvailableColors(), Utils.Align.LEFT));
+        pseudoField = new TextField(new Coords(4, 10),
+                                    new StyledString("Pseudo: "),
+                                    Utils.Align.LEFT,
+                                    16);
+        pseudoField.setVisible(false);
+        addComponent(pseudoField);
+
+        colorPicker = new ColorPicker(new Coords(4 + 8 /* "Pseudo: " */ + 16 /* maxSize */ + 2 /* some space*/, 10),
+                                      game.getAvailableColors(),
+                                      Utils.Align.LEFT);
         colorPicker.setVisible(false);
+        addComponent(colorPicker);
 
         hidePlayerSubMenu();
         addBotButton.setEnabled(false);
         addPlayerButton.setEnabled(false);
-
     }
 
     public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
@@ -147,14 +146,14 @@ public class LobbyScreen extends Screen {
             //Utils.writeAt(0, 1, " lastKey -> " + input.getLastKey());
 
             //int maxPlayers = associatedGame.getMap().getStartPos().size() / characterPerPlayerField.getValue();
-            int maxPlayers = associatedGame.getMap().getStartPos().size() / characterPerPlayerField.getValue();
+            int maxPlayers = game.getMap().getStartPos().size() / characterPerPlayerField.getValue();
 
             if (maxPlayers < 2) {
                 characterPerPlayerField.increment(-1);
-                maxPlayers = associatedGame.getMap().getStartPos().size() / characterPerPlayerField.getValue();
+                maxPlayers = game.getMap().getStartPos().size() / characterPerPlayerField.getValue();
             }
 
-            if (associatedGame.getPlayers().size() >= maxPlayers) {
+            if (game.getPlayers().size() >= maxPlayers) {
 
                 hidePlayerSubMenu();
 
@@ -163,7 +162,9 @@ public class LobbyScreen extends Screen {
 
                 disableFocus();
 
-                addComponent(new Label(new Coords(0, (int) (renderer.getSize().getRows() * .65)), new StyledString("Press ENTER to go start the game"), Utils.Align.CENTER));
+                addComponent(new Label(new Coords(0, (int) (renderer.getSize().getRows() * .65)),
+                                       new StyledString("Appuyez sur ENTER pour choisir les personnages."),
+                                       Utils.Align.CENTER));
             }
 
             maxPlayerLabel.setText("Nombre de joueurs maximum: " + maxPlayers);
@@ -191,7 +192,7 @@ public class LobbyScreen extends Screen {
 
     private void hidePlayerSubMenu() {
 
-        addBotButton.setEnabled(true);
+        addBotButton.setEnabled(Bot.isWorking()); //TODO make working bots
         addPlayerButton.setEnabled(true);
 
         pseudoField.setVisible(false);

@@ -3,7 +3,7 @@ package lorganisation.projecttbt.player;
 import com.limelion.anscapes.AnsiColor;
 import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.map.LevelMap;
-import lorganisation.projecttbt.utils.KeyUtils;
+import lorganisation.projecttbt.utils.Coords;
 
 import javax.swing.KeyStroke;
 
@@ -15,55 +15,95 @@ public class Player extends AbstractPlayer {
     }
 
     @Override
-    public Action play(Game game, Character character) {
-
-        // TODO get player action
+    public ActionType play(Game game, Character character) {
 
         KeyStroke key = game.getInput().readKey();
 
-        Action action = Action.DO_NOTHING;
-        int actionPoints = character.getActionPoints(); // FIXME needs to be character.getActionPoints() - usedActionPoints()
+        ActionType actionType = ActionType.DO_NOTHING;
 
-        if (isMoveKey(key)) {
-            if ((status == AbstractPlayer.Status.IDLE || status == AbstractPlayer.Status.SILENCED) && actionPoints > 0 || status == AbstractPlayer.Status.CASTING_ATTACK) {
-                if (key.equals(KeyStroke.getKeyStroke('q'))) action = Action.MOVE_LEFT;
-                else if (key.equals(KeyStroke.getKeyStroke('d'))) action = Action.MOVE_RIGHT;
-                else if (key.equals(KeyStroke.getKeyStroke('z'))) action = Action.MOVE_UP;
-                else action = Action.MOVE_DOWN;
-            }
-        } else if (key.equals(KeyUtils.KEY_SPACE_BAR)) { // is attack key ?
+        int actionPoints = character.getActionPoints();
 
-            if ((status == AbstractPlayer.Status.IDLE && actionPoints > 0) || status == AbstractPlayer.Status.CASTING_ATTACK) { // TODO load attacks & attackCost
-                action = Action.CAST_ATTACK;
+        if (key != null) {
+
+            if (isMoveKey(key)) {
+                if ((status == AbstractPlayer.Status.IDLE ||
+                     status == AbstractPlayer.Status.SILENCED) &&
+                    actionPoints > 0
+                    || status == AbstractPlayer.Status.CASTING_ATTACK) {
+
+                    actionType = ActionType.parseFromKey(key);
+                }
+            } else if (key.equals(KeyStroke.getKeyStroke('a'))) { // is attack key ?
+
+                if ((status == AbstractPlayer.Status.IDLE && actionPoints >= character.attacks.current().getCost())
+                    || status == AbstractPlayer.Status.CASTING_ATTACK) {
+                    actionType = ActionType.CAST_ATTACK;
+
+                    if (status != Status.CASTING_ATTACK)
+                        character.resetAim();
+                }
             }
         }
 
+
         LevelMap map = game.getMap();
-        switch (action) {
+        Coords target = character.getAimingAt();
+
+        switch (actionType) {
 
             case MOVE_LEFT: {
-                if (map.canCollide(character.pos.getX() - 1, character.pos.getY())) {
+
+                Coords dest = new Coords(character.pos.getX() - 1, character.pos.getY());
+
+                if (status == Status.CASTING_ATTACK) {
+
+                    if (map.isInBounds(target.getX() - 1, target.getY()))
+                        character.aimingAt.decX();
+
+                } else if (map.canCollide(dest) && game.isTileFree(dest)) {
                     character.pos.decX();
                     --character.actionPoints;
                 }
                 break;
             }
             case MOVE_RIGHT: {
-                if (map.canCollide(character.pos.getX() + 1, character.pos.getY())) {
+                Coords dest = new Coords(character.pos.getX() + 1, character.pos.getY());
+
+                if (status == Status.CASTING_ATTACK) {
+
+                    if (map.isInBounds(target.getX() + 1, target.getY()))
+                        character.aimingAt.incX();
+
+                } else if (map.canCollide(dest) && game.isTileFree(dest)) {
                     character.pos.incX();
                     --character.actionPoints;
                 }
                 break;
             }
             case MOVE_UP: {
-                if (map.canCollide(character.pos.getX(), character.pos.getY() - 1)) {
+                Coords dest = new Coords(character.pos.getX(), character.pos.getY() - 1);
+
+                if (status == Status.CASTING_ATTACK) {
+
+                    if (map.isInBounds(target.getX(), target.getY() - 1))
+                        character.aimingAt.decY();
+
+                } else if (map.canCollide(dest) && game.isTileFree(dest)) {
                     character.pos.decY();
                     --character.actionPoints;
                 }
+
                 break;
             }
             case MOVE_DOWN: {
-                if (map.canCollide(character.pos.getX(), character.pos.getY() + 1)) {
+                Coords dest = new Coords(character.pos.getX(), character.pos.getY() + 1);
+
+                if (status == Status.CASTING_ATTACK) {
+
+                    if (map.isInBounds(target.getX(), target.getY() + 1))
+                        character.aimingAt.incY();
+
+                } else if (map.canCollide(dest) && game.isTileFree(dest)) {
                     character.pos.incY();
                     --character.actionPoints;
                 }
@@ -72,8 +112,14 @@ public class Player extends AbstractPlayer {
             case CAST_ATTACK: {
                 if (status == Status.CASTING_ATTACK) {
                     /* cast attack */
+                    if (character.getAttacks().current().use(game, character, character.getAimingAt()))
+                        character.getOwner().setStatus(Status.IDLE);
+                    else
+                        actionType = ActionType.DO_NOTHING;
+
                 } else {
                     /* select attack */
+                    character.getOwner().setStatus(Status.CASTING_ATTACK);
                 }
                 break;
             }
@@ -82,7 +128,7 @@ public class Player extends AbstractPlayer {
                 break;
         }
 
-        return action;
+        return actionType;
     }
 
     @Override
@@ -91,8 +137,19 @@ public class Player extends AbstractPlayer {
         return false;
     }
 
+    /**
+     * @param key la touche
+     *
+     * @return true si key est une touche de mouvement
+     */
     private boolean isMoveKey(KeyStroke key) {
 
-        return (key.equals(KeyStroke.getKeyStroke('q')) || key.equals(KeyStroke.getKeyStroke('d')) || key.equals(KeyStroke.getKeyStroke('z')) || key.equals(KeyStroke.getKeyStroke('s')));
+        if (key == null)
+            return false;
+
+        return key.getKeyChar() == 'z' ||
+               key.getKeyChar() == 'q' ||
+               key.getKeyChar() == 's' ||
+               key.getKeyChar() == 'd';
     }
 }
