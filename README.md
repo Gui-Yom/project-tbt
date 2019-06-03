@@ -106,7 +106,7 @@ $ gradlew play
 
 Création du jar exécutable du jeu et des scripts de lancement :
 ```bash
-$ gradlew bundle
+$ gradlew shadowJar
 ```
 
 ### Note sur la compatibilité

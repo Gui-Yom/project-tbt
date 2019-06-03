@@ -194,6 +194,9 @@ public class Game {
         }
     }
 
+    /**
+     * Permet de quitter correctement le programme
+     */
     public static void shutdownGracefully() {
 
         TerminalUtils.clearTerm();
@@ -472,6 +475,12 @@ public class Game {
         return numTurn;
     }
 
+    /**
+     * @param x
+     * @param y
+     *
+     * @return true si la position donnée est libre (sans joueur)
+     */
     public boolean isTileFree(int x, int y) {
 
         for (AbstractPlayer p : players)
@@ -482,6 +491,11 @@ public class Game {
         return true;
     }
 
+    /**
+     * @param pos
+     *
+     * @return true si la position donnée est libre (sans joueur)
+     */
     public boolean isTileFree(Coords pos) {
 
         return isTileFree(pos.getX(), pos.getY());

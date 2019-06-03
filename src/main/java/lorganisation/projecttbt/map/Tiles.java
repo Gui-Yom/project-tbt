@@ -5,8 +5,8 @@ import com.limelion.anscapes.Anscapes;
 import static com.limelion.anscapes.Anscapes.Colors;
 
 /**
- * Représente une case d'une map. Le joueur peut ou non la traverser. TODO changer vers une vraie classe Tiles,
- * permettant une customisation approfondie de chaque Tiles
+ * Un set de Tile par défaut. Le joueur peut ou non la traverser. TODO changer vers une vraie classe Tiles, permettant
+ * une customisation approfondie de chaque Tiles
  */
 public enum Tiles implements Tile {
 

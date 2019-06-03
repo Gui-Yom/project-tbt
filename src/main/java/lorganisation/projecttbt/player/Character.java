@@ -11,6 +11,9 @@ import lorganisation.projecttbt.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Un personnage du jeu, représenté par son icone et ses attributs
+ */
 public class Character {
 
     // Position
@@ -63,7 +66,6 @@ public class Character {
             this.attacks = new CyclicList<>();
             
  */
-
         turnReset();
     }
 
@@ -218,7 +220,6 @@ public class Character {
     }
 
     public List<StyledString> getDescription() {
-
 
         List<StyledString> desc = new ArrayList<>();
         desc.add(new StyledString("Type: " + type + " (" + icon + ")"));

@@ -12,11 +12,12 @@ import lorganisation.projecttbt.ui.widget.*;
 import lorganisation.projecttbt.utils.*;
 import org.jline.terminal.Size;
 
-import javax.swing.KeyStroke;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Cet écran gère l'affichage du jeu pendant la partie
+ */
 public class GameScreen extends Screen {
 
     private TextBoxWidget gameInfo;
@@ -133,6 +134,7 @@ public class GameScreen extends Screen {
                                                 Pair.of(currPlayer.getName().length() + 7 + currPlayer.getStatus().toString().length(), currPlayer.getColor().fg()),
                                                 Pair.of(currPlayer.getName().length() + 7 + currPlayer.getStatus().toString().length() + currCharacter.getType().length(), Anscapes.RESET)));
 
+        // On affiche le jeu et les composants
         renderer.render(game, 0, 10, Utils.Align.CENTER);
         renderer.render(this);
     }

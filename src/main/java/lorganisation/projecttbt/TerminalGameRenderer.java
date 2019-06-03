@@ -53,7 +53,9 @@ public class TerminalGameRenderer {
         Coords coords = TerminalUtils.coordinatesOfAlignedObject(y, x, g.getMap().getWidth(), align, terminal.getWidth());
 
         // On affiche la map
-        TerminalUtils.writeAt(coords.getX(), coords.getY(), g.getMap().visual().replaceAll("\n", "\n" + Anscapes.moveRight(coords.getX())));
+        TerminalUtils.writeAt(coords.getX(),
+                              coords.getY(),
+                              g.getMap().visual().replaceAll("\n", "\n" + Anscapes.moveRight(coords.getX())));
 
         // On affiche la distance d'attaque du personnage
         // Lorsque le personnage est en phase d'attaque
@@ -66,10 +68,14 @@ public class TerminalGameRenderer {
             List<Coords> toHighlight = atk.getReachableTiles(currPlayingCharacter);
             for (Coords tile : toHighlight)
                 if (g.getMap().isInBounds(tile.getX(), tile.getY()))
-                    TerminalUtils.writeAt(coords.getX() + tile.getX(), coords.getY() + tile.getY(), Anscapes.Colors.BLUE_BRIGHT.bg() + " ");
+                    TerminalUtils.writeAt(coords.getX() + tile.getX(),
+                                          coords.getY() + tile.getY(),
+                                          Anscapes.Colors.BLUE_BRIGHT.bg() + " ");
 
-            for(Coords impact : atk.getHitTiles(currPlayingCharacter.getAimingAt())) {
-                TerminalUtils.writeAt(coords.getX() + impact.getX(), coords.getY() + impact.getY(), Anscapes.Colors.BLUE.bg() + " ");
+            for (Coords impact : atk.getHitTiles(currPlayingCharacter.getAimingAt())) {
+                TerminalUtils.writeAt(coords.getX() + impact.getX(),
+                                      coords.getY() + impact.getY(),
+                                      Anscapes.Colors.BLUE.bg() + " ");
             }
         }
 
@@ -92,7 +98,7 @@ public class TerminalGameRenderer {
             Coords aim = currPlayingCharacter.getAimingAt();
             Tile aimedTile = g.getMap().getTileAt(aim.getX(), aim.getY());
 
-            TerminalUtils.writeAt(coords.getX() + aim.getX(), coords.getY() + aim.getY(), Anscapes.Colors.RED_BRIGHT.fg() + Anscapes.Colors.BLUE.bg()  + "×");
+            TerminalUtils.writeAt(coords.getX() + aim.getX(), coords.getY() + aim.getY(), Anscapes.Colors.RED_BRIGHT.fg() + Anscapes.Colors.BLUE.bg() + "×");
         }
     }
 

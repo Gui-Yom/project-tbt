@@ -23,6 +23,14 @@ public abstract class AbstractPlayer {
         this.status = Status.IDLE;
     }
 
+    /**
+     * La méthode appelée pour demandeer au joueur de jouer
+     *
+     * @param game
+     * @param character
+     *
+     * @return l'action à jouer
+     */
     public abstract ActionType play(Game game, Character character);
 
     public abstract boolean isBot();

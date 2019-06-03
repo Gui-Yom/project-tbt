@@ -16,6 +16,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 //TODO Add some stats about the guy when we'll only have that left to do.
+
+/**
+ * L'écran de fin lorsque qu'un joueur a gagné la partie
+ */
 public class WinnerScreen extends Screen {
 
     public WinnerScreen() {
@@ -53,7 +57,7 @@ public class WinnerScreen extends Screen {
                                                         Anscapes.Colors.BLUE_BRIGHT,
                                                         Anscapes.Colors.RED_BRIGHT,
                                                         new StyledString(winner.getName().toUpperCase() + " JUST WON THIS GAME, YEEEHAAWWW"),
-                                                        new StyledString(winner.getName().toUpperCase() + " we are lazy bastards, if u wanna play again just restart the game"));
+                                                        new StyledString(winner.getName().toUpperCase() + " Restart the game to play another round :D"));
 
             addComponent(boxWidget);
         }

@@ -7,6 +7,9 @@ import lorganisation.projecttbt.utils.Coords;
 
 import javax.swing.KeyStroke;
 
+/**
+ * Un vrai joueur du jeu
+ */
 public class Player extends AbstractPlayer {
 
     public Player(String name, AnsiColor c) {

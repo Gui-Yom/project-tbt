@@ -10,6 +10,9 @@ import lorganisation.projecttbt.ui.widget.Button;
 import lorganisation.projecttbt.ui.widget.Label;
 import lorganisation.projecttbt.utils.*;
 
+/**
+ * L'écran de sélection de la carte
+ */
 public class MapSelectionScreen extends Screen {
 
     private boolean skip = false;

@@ -13,6 +13,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+/**
+ * L'écran principal avec splash screen
+ */
 public class MainScreen extends Screen {
 
     private boolean skip = false;

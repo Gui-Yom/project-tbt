@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represent a game level where the players can move and fight.
+ * Représente une carte du jeu
  */
 public class LevelMap {
 

@@ -17,6 +17,9 @@ import javax.swing.KeyStroke;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * L'écran de sélection des personnages
+ */
 public class CharacterSelectionScreen extends Screen {
 
     private Game game = Game.getInstance();

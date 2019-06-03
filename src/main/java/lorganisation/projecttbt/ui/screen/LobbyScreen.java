@@ -13,6 +13,9 @@ import org.jline.terminal.Size;
 
 import javax.swing.KeyStroke;
 
+/**
+ * L'écran de lobby où l'utilisateur peut ajouter des joueurs
+ */
 public class LobbyScreen extends Screen {
 
     private Game game = Game.getInstance();
