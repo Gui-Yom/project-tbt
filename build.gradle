@@ -22,7 +22,7 @@ dependencies {
     implementation "org.jline:jline-style:$jlineVersion"
     implementation "org.jline:jline-reader:$jlineVersion"
     implementation "org.jline:jline-remote-telnet:$jlineVersion"
-    implementation "com.github.LimeiloN:anscapes:0.6.0"
+    implementation "com.github.LimeiloN:anscapes:0.7.2"
     implementation "com.github.LimeiloN:dynamic-compiler:1.0.0"
     implementation "com.google.code.gson:gson:2.8.5"
 }
@@ -30,7 +30,7 @@ dependencies {
 // Define the main class for the application
 mainClassName = "lorganisation.projecttbt.Game"
 group = "lorganisation"
-version = "0.6.0"
+version = "0.7.0"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

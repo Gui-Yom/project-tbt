@@ -3,8 +3,6 @@ package lorganisation.projecttbt.ui.screen;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.AssetsManager;
 import lorganisation.projecttbt.Game;
-import lorganisation.projecttbt.TerminalGameInput;
-import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.player.Bot;
 import lorganisation.projecttbt.player.Player;
 import lorganisation.projecttbt.ui.widget.*;
@@ -17,8 +15,6 @@ import javax.swing.KeyStroke;
  * L'écran de lobby où l'utilisateur peut ajouter des joueurs
  */
 public class LobbyScreen extends Screen {
-
-    private Game game = Game.getInstance();
 
     private boolean skip = false;
 
@@ -34,9 +30,9 @@ public class LobbyScreen extends Screen {
     private InvisibleButton addBotButton;
     private InvisibleButton confirmButton;
 
-    public LobbyScreen() {
+    public LobbyScreen(Game game) {
 
-        super(Game.getInstance().getInput().getTerminal());
+        super(game.getInput().getTerminal());
 
         addComponent(TerminalUtils.getTitle());
 
@@ -137,7 +133,8 @@ public class LobbyScreen extends Screen {
         addPlayerButton.setEnabled(false);
     }
 
-    public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
+    @Override
+    public void display(Game game) {
 
         maxPlayerLabel.getStyledText().modifiers().put(27, Anscapes.Colors.RED_BRIGHT.fg());
 
@@ -165,19 +162,19 @@ public class LobbyScreen extends Screen {
 
                 disableFocus();
 
-                addComponent(new Label(new Coords(0, (int) (renderer.getSize().getRows() * .65)),
+                addComponent(new Label(new Coords(0, (int) (game.getRenderer().getSize().getRows() * .65)),
                                        new StyledString("Appuyez sur ENTER pour choisir les personnages."),
                                        Utils.Align.CENTER));
             }
 
             maxPlayerLabel.setText("Nombre de joueurs maximum: " + maxPlayers);
 
-            renderer.render(this);
+            game.getRenderer().render(this);
 
             if (getFocusedWidget() != null)
                 TerminalUtils.writeAt(getFocusedWidget().getCoords().getX() - 2, getFocusedWidget().getCoords().getY(), "> ");
 
-            keyPressed(input.readKey());
+            keyPressed(game.getInput().readKey());
         }
     }
 

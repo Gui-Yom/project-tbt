@@ -3,8 +3,6 @@ package lorganisation.projecttbt.ui.screen;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.AssetsManager;
 import lorganisation.projecttbt.Game;
-import lorganisation.projecttbt.TerminalGameInput;
-import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.map.LevelMap;
 import lorganisation.projecttbt.ui.widget.Button;
 import lorganisation.projecttbt.ui.widget.Label;
@@ -16,11 +14,10 @@ import lorganisation.projecttbt.utils.*;
 public class MapSelectionScreen extends Screen {
 
     private boolean skip = false;
-    private Game game = Game.getInstance();
 
-    public MapSelectionScreen() {
+    public MapSelectionScreen(Game game) {
 
-        super(Game.getInstance().getInput().getTerminal());
+        super(game.getInput().getTerminal());
 
         addComponent(TerminalUtils.getTitle());
 
@@ -41,7 +38,8 @@ public class MapSelectionScreen extends Screen {
         }
     }
 
-    public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
+    @Override
+    public void display(Game game) {
 
         while (!skip) {
 
@@ -54,14 +52,14 @@ public class MapSelectionScreen extends Screen {
             mapButton.getText().modifiers().put(mapButton.getText().length(), Anscapes.RESET + " <");
             mapButton.getCoords().setX(mapButton.getCoords().getX() - 2); // must change Coords or else doesn't print at right place (use 2 bc "> ".length() == 2)
 
-            renderer.render(this);
+            game.getRenderer().render(this);
 
             //Removing Focused Format
             mapButton.getCoords().setX(mapButton.getCoords().getX() + 2);
             mapButton.getText().modifiers().remove(0, "> " + Anscapes.Colors.RED.fg());
             mapButton.getText().modifiers().remove(mapButton.getText().length(), Anscapes.RESET + " <");
 
-            keyPressed(input.readKey());
+            keyPressed(game.getInput().readKey());
         }
     }
 }

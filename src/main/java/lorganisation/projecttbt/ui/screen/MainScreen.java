@@ -2,7 +2,9 @@ package lorganisation.projecttbt.ui.screen;
 
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.ColorMode;
-import lorganisation.projecttbt.*;
+import lorganisation.projecttbt.AssetsManager;
+import lorganisation.projecttbt.Game;
+import lorganisation.projecttbt.IntegratedDevenv;
 import lorganisation.projecttbt.ui.widget.Button;
 import lorganisation.projecttbt.ui.widget.ImageWidget;
 import lorganisation.projecttbt.ui.widget.InvisibleButton;
@@ -53,13 +55,14 @@ public class MainScreen extends Screen {
         addComponent(iBtn);
     }
 
-    public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
+    @Override
+    public void display(Game game) {
 
         while (!skip) {
 
-            renderer.render(this);
+            game.getRenderer().render(this);
 
-            keyPressed(input.readKey());
+            keyPressed(game.getInput().readKey());
 
             TerminalUtils.clearTerm();
         }

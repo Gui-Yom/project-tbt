@@ -3,8 +3,6 @@ package lorganisation.projecttbt.ui.screen;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.AssetsManager;
 import lorganisation.projecttbt.Game;
-import lorganisation.projecttbt.TerminalGameInput;
-import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.player.attack.Attack;
@@ -26,11 +24,10 @@ public class GameScreen extends Screen {
     private PlayerListWidget playerListW;
     private CharacterListWidget characterListW;
     private Label statusLabel, subStatusLabel;
-    private Game game = Game.getInstance();
 
-    public GameScreen() {
+    public GameScreen(Game game) {
 
-        super(Game.getInstance().getInput().getTerminal());
+        super(game.getInput().getTerminal());
 
         Size termSize = game.getInput().getTerminal().getSize();
 
@@ -86,10 +83,11 @@ public class GameScreen extends Screen {
         addComponent(characterListW);
     }
 
-    public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
+    @Override
+    public void display(Game game) {
 
         TerminalUtils.clearTerm();
-        Size termSize = renderer.getTerminal().getSize();
+        Size termSize = game.getRenderer().getTerminal().getSize();
 
         AbstractPlayer currPlayer = game.getPlayers().current();
         Character currCharacter = currPlayer.getCharacters().current();
@@ -135,8 +133,8 @@ public class GameScreen extends Screen {
                                                 Pair.of(currPlayer.getName().length() + 7 + currPlayer.getStatus().toString().length() + currCharacter.getType().length(), Anscapes.RESET)));
 
         // On affiche le jeu et les composants
-        renderer.render(game, 0, 10, Utils.Align.CENTER);
-        renderer.render(this);
+        game.getRenderer().render(game, 0, 10, Utils.Align.CENTER);
+        game.getRenderer().render(this);
     }
 
     public void addInfo(StyledString styledString) {

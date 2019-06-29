@@ -2,7 +2,9 @@ package lorganisation.projecttbt.ui.screen;
 
 import com.limelion.anscapes.Anscapes;
 import com.limelion.anscapes.ColorMode;
-import lorganisation.projecttbt.*;
+import lorganisation.projecttbt.AssetsManager;
+import lorganisation.projecttbt.Game;
+import lorganisation.projecttbt.IntegratedDevenv;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.ui.widget.ImageWidget;
 import lorganisation.projecttbt.ui.widget.InvisibleButton;
@@ -22,11 +24,11 @@ import java.io.IOException;
  */
 public class WinnerScreen extends Screen {
 
-    public WinnerScreen() {
+    public WinnerScreen(Game game) {
 
-        super(Game.getInstance().getRenderer().getTerminal());
+        super(game.getRenderer().getTerminal());
 
-        Terminal terminal = Game.getInstance().getRenderer().getTerminal();
+        Terminal terminal = game.getRenderer().getTerminal();
 
         try {
 
@@ -45,8 +47,8 @@ public class WinnerScreen extends Screen {
 
         AbstractPlayer winner = null;
 
-        if (Game.getInstance().getPlayers().size() > 0)
-            winner = Game.getInstance().getPlayers().get(0);
+        if (game.getPlayers().size() > 0)
+            winner = game.getPlayers().get(0);
 
         if (winner != null) {
             TextBoxWidget boxWidget = new TextBoxWidget(new Coords(0, terminal.getHeight() * 6 / 10),
@@ -66,13 +68,13 @@ public class WinnerScreen extends Screen {
     }
 
     @Override
-    public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
+    public void display(Game game) {
 
         while (true) {
 
-            renderer.render(this);
+            game.getRenderer().render(this);
 
-            keyPressed(input.readKey());
+            keyPressed(game.getInput().readKey());
         }
     }
 }

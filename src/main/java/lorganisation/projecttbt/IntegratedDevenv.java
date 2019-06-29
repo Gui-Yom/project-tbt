@@ -71,7 +71,7 @@ public class IntegratedDevenv {
         ImgConverter converter = ImgConverter.builder()
                                              .mode(mode)
                                              .scale(reduction)
-                                             .smoothing(true)
+                                             .scaling(ImgConverter.Scaling.SMOOTH)
                                              .build();
 
         return converter.convert(image);

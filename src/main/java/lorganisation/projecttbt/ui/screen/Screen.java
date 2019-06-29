@@ -1,7 +1,6 @@
 package lorganisation.projecttbt.ui.screen;
 
-import lorganisation.projecttbt.TerminalGameInput;
-import lorganisation.projecttbt.TerminalGameRenderer;
+import lorganisation.projecttbt.Game;
 import lorganisation.projecttbt.ui.widget.ActionWidget;
 import lorganisation.projecttbt.ui.widget.Widget;
 import lorganisation.projecttbt.utils.CyclicList;
@@ -110,5 +109,5 @@ public abstract class Screen {
         }
     }
 
-    public abstract void display(TerminalGameInput input, TerminalGameRenderer renderer);
+    public abstract void display(Game gameInstance);
 }

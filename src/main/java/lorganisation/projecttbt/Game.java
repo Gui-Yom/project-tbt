@@ -50,7 +50,6 @@ import static com.limelion.anscapes.Anscapes.Colors;
  */
 public class Game {
 
-    private static Game INSTANCE;
     /**
      * La liste des joueurs.
      */
@@ -134,7 +133,7 @@ public class Game {
         TerminalUtils.enterPrivateMode();
 
         // L'objet jeu qui fait tout tenir en place
-        INSTANCE = new Game(new TerminalGameInput(term), new TerminalGameRenderer(term));
+        Game INSTANCE = new Game(new TerminalGameInput(term), new TerminalGameRenderer(term));
 
         // On demande à l'utilisateur de redimensionner sa fenêtre
         // Sur Windows, on ne peut pas la redimensionner depuis le programme
@@ -161,11 +160,6 @@ public class Game {
 
         // END / Cleanup
         shutdownGracefully();
-    }
-
-    public static Game getInstance() {
-
-        return INSTANCE;
     }
 
     /**
@@ -277,7 +271,7 @@ public class Game {
      */
     public void mainMenu() {
 
-        new MainScreen(input.getTerminal()).display(input, renderer);
+        new MainScreen(input.getTerminal()).display(this);
     }
 
     /**
@@ -285,7 +279,7 @@ public class Game {
      */
     public void mapSelection() {
 
-        new MapSelectionScreen().display(input, renderer);
+        new MapSelectionScreen(this).display(this);
     }
 
     /**
@@ -293,13 +287,13 @@ public class Game {
      */
     public void lobby() {
 
-        LobbyScreen lobbyScreen = new LobbyScreen();
-        lobbyScreen.display(input, renderer);
+        LobbyScreen lobbyScreen = new LobbyScreen(this);
+        lobbyScreen.display(this);
 
         this.numCharacters = lobbyScreen.getMaxCharacterCount();
 
-        CharacterSelectionScreen characterSelectionScreen = new CharacterSelectionScreen(lobbyScreen.getMaxCharacterCount());
-        characterSelectionScreen.display(input, renderer);
+        CharacterSelectionScreen characterSelectionScreen = new CharacterSelectionScreen(this, lobbyScreen.getMaxCharacterCount());
+        characterSelectionScreen.display(this);
     }
 
     /**
@@ -351,7 +345,7 @@ public class Game {
     public void start() {
 
         // L'écran du jeu
-        GameScreen gameScreen = new GameScreen();
+        GameScreen gameScreen = new GameScreen(this);
 
         // On cycle sur les personnages tant que la partie n'est pas finie
         while (!isFinished()) {
@@ -362,7 +356,7 @@ public class Game {
 
             while (!isTurnFinished(currPlayer)) {
 
-                gameScreen.display(input, renderer);
+                gameScreen.display(this);
 
                 // get status before modified by play()
                 AbstractPlayer.Status currStatus = currPlayer.getStatus();
@@ -372,7 +366,7 @@ public class Game {
                 if (actionType == ActionType.DO_NOTHING && currPlayer instanceof Player) {
                     gameScreen.keyPressed(input.getLastKey());
                 } else {
-                    gameScreen.display(input, renderer);
+                    //gameScreen.display(this);
                 }
 
                 /*if (actionType == ActionType.CAST_ATTACK)
@@ -428,8 +422,8 @@ public class Game {
      */
     private void winner() {
 
-        WinnerScreen winnerScreen = new WinnerScreen();
-        winnerScreen.display(input, renderer);
+        WinnerScreen winnerScreen = new WinnerScreen(this);
+        winnerScreen.display(this);
     }
 
     /**

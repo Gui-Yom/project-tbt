@@ -2,8 +2,6 @@ package lorganisation.projecttbt.ui.screen;
 
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.Game;
-import lorganisation.projecttbt.TerminalGameInput;
-import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Character;
 import lorganisation.projecttbt.player.CharacterTemplate;
@@ -22,9 +20,9 @@ public class TestScreen extends Screen {
     private int i = 0;
     private LoadingBar bar;
 
-    public TestScreen() {
+    public TestScreen(Game game) {
 
-        super(Game.getInstance().getInput().getTerminal());
+        super(game.getInput().getTerminal());
 
         //addComponent(new InvisibleButton(() -> this.skip = true, Pair.of(13, "ENTER : SKIP this screen")));
         addComponent(new Label(new Coords(0, 5),
@@ -51,7 +49,7 @@ public class TestScreen extends Screen {
                                       10));
 
         addComponent(new ColorPicker(new Coords(7, 12),
-                                     Game.getInstance().getAvailableColors(),
+                                     game.getAvailableColors(),
                                      Utils.Align.LEFT));
 
         /*addComponent(new Button(new Coords(2, 13),
@@ -62,7 +60,7 @@ public class TestScreen extends Screen {
                                 KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0)));*/
 
         addComponent(new InvisibleButton(() -> skip = true,
-                                        KeyUtils.KEY_ENTER, "SKIP TEST MENU"));
+                                         KeyUtils.KEY_ENTER, "SKIP TEST MENU"));
 
         addComponent(new Button(new Coords(2, 14),
                                 new StyledString("PRESS 'V' TO VALIDATE"),
@@ -72,7 +70,7 @@ public class TestScreen extends Screen {
                                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)));
 
         //public TextBoxWidget(Coords coords, Size size, Utils.Align align, Utils.Align textAlign, StyledString title, Anscapes.Colors borderColor, Anscapes.Colors backgroundColor, StyledString... lines) {
-        StyledString[] lines = new StyledString[Game.getInstance().getPlayers().size()];
+        StyledString[] lines = new StyledString[game.getPlayers().size()];
 /*        int j = 0;
         for (AbstractPlayer p : game.getPlayers())
             lines[j++] = (new StyledString(p.getName(), Pair.of(0, p.getColor().fg())));*/
@@ -108,14 +106,15 @@ public class TestScreen extends Screen {
         bar.setPercent(.01f);
     }
 
-    public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
+    @Override
+    public void display(Game game) {
 
         while (!skip) {
 
             AbstractPlayer dummyPlayer = new Player("Dummy", Anscapes.Colors.BLUE);
             Character archer = new Character(CharacterTemplate.getCharacterTemplate("archer"), dummyPlayer);
 
-            renderer.render(this);
+            game.getRenderer().render(this);
 
             archer.setPos(new Coords(10, 25));
             List<Coords> reach = archer.getAttacks().current().getReachableTiles(archer);
@@ -139,7 +138,7 @@ public class TestScreen extends Screen {
             TerminalUtils.writeAt(0, this.getFocusedWidget().getCoords().getY(), ">");
             TerminalUtils.writeAt(0, 0, (++i) + " focusedIndex -> " + this.components.getIndex());
 
-            KeyStroke key = input.readKey();
+            KeyStroke key = game.getInput().readKey();
 
 
             TerminalUtils.clearTerm();
@@ -149,8 +148,7 @@ public class TestScreen extends Screen {
             for (Widget w : getComponents())
                 System.out.println((((!w.isFocusable() && w.isEnabled()) || w == getFocusedWidget()) && w.getControls() != null));
 
-            TerminalUtils.writeAt(0, 2, Anscapes.Colors.RED_BRIGHT.fg() + input.getLastKey());
-            TerminalUtils.writeAt(0, 3, Anscapes.Colors.RED_BRIGHT.fg() + input.getLastKey());
+            TerminalUtils.writeAt(0, 2, Anscapes.Colors.RED_BRIGHT.fg() + game.getInput().getLastKey());
         }
     }
 }

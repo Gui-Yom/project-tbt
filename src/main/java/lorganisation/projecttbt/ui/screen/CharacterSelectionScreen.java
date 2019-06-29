@@ -3,8 +3,6 @@ package lorganisation.projecttbt.ui.screen;
 import com.limelion.anscapes.Anscapes;
 import lorganisation.projecttbt.AssetsManager;
 import lorganisation.projecttbt.Game;
-import lorganisation.projecttbt.TerminalGameInput;
-import lorganisation.projecttbt.TerminalGameRenderer;
 import lorganisation.projecttbt.player.AbstractPlayer;
 import lorganisation.projecttbt.player.Bot;
 import lorganisation.projecttbt.player.Character;
@@ -22,15 +20,13 @@ import java.util.List;
  */
 public class CharacterSelectionScreen extends Screen {
 
-    private Game game = Game.getInstance();
-
     private PlayerListWidget playerListW;
     private boolean skip = false;
     private int characterPerPlayer;
 
-    public CharacterSelectionScreen(int characterPerPlayer) {
+    public CharacterSelectionScreen(Game game, int characterPerPlayer) {
 
-        super(Game.getInstance().getRenderer().getTerminal());
+        super(game.getRenderer().getTerminal());
 
         this.characterPerPlayer = characterPerPlayer;
 
@@ -119,7 +115,7 @@ public class CharacterSelectionScreen extends Screen {
     }
 
     @Override
-    public void display(TerminalGameInput input, TerminalGameRenderer renderer) {
+    public void display(Game game) {
 
         game.getPlayers().reset();
 
@@ -130,7 +126,7 @@ public class CharacterSelectionScreen extends Screen {
             playerListW.updatePlayerList(game.getPlayers());
 
             TerminalUtils.clearTerm();
-            renderer.render(this);
+            game.getRenderer().render(this);
 
             for (Widget widget : getComponents())
                 if (widget instanceof ImageButtonWidget) {
@@ -160,7 +156,7 @@ public class CharacterSelectionScreen extends Screen {
                 List<String> tempList = new ArrayList<>(AssetsManager.gameCharacterNames());
                 ((Bot) current).pickCharacters(tempList, characterPerPlayer);
             } else {
-                keyPressed(input.readKey());
+                keyPressed(game.getInput().readKey());
             }
 
             if (current.getCharacters().size() == characterPerPlayer) {
